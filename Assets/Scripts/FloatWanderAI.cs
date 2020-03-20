@@ -19,13 +19,14 @@ public class FloatWanderAI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!canMove()) {
-            return;
+        if (canMove()) {
+            if (alreadyMoving == false) {
+                StartCoroutine(Wander());
+            }
         }
-        if (alreadyMoving == false) {
-            StartCoroutine(Wander());
+        if (canMove()) {
+            transform.position += direction * moveSpeed * Time.deltaTime;
         }
-        transform.position += direction * moveSpeed * Time.deltaTime;
     }
 
     IEnumerator Wander() {
@@ -52,6 +53,6 @@ public class FloatWanderAI : MonoBehaviour
         // If we move the PickMeUp script to the player,
         // set this to GameObject.Find("ThirdPersonController"); instead
         GameObject objectToCheck = gameObject;
-        return !gameObject.GetComponent<PickMeUp>().pickedUp;
+        return !objectToCheck.GetComponent<PickMeUp>().pickedUp;
     }
 }
