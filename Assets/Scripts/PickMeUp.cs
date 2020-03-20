@@ -7,7 +7,7 @@ public class PickMeUp : MonoBehaviour
     private Rigidbody rb;
     private GameObject player;
     Collider m_Collider;
-    bool pickedUp = false;
+    public bool pickedUp = false;
 
     void Start(){
         player = GameObject.FindWithTag("Player");
@@ -20,7 +20,7 @@ public class PickMeUp : MonoBehaviour
     void Update(){
     /*  if (Input.GetButton("pickup"))
         { // Define it in the input manager
-            // do something... 
+            // do something...
         }
     */
     }
