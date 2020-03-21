@@ -7,12 +7,14 @@ public class PickMeUp : MonoBehaviour
     private Rigidbody rb;
     private GameObject player;
     Collider m_Collider;
+    Rigidbody m_Rigidbody;
     public bool pickedUp = false;
 
     void Start(){
         player = GameObject.FindWithTag("Player");
         //Fetch the GameObject's Collider (make sure it has a Collider component)
         m_Collider = GetComponent<Collider>();
+        m_Rigidbody = GetComponent<Rigidbody>();
     }
 
 
@@ -38,6 +40,7 @@ public class PickMeUp : MonoBehaviour
         this.transform.SetParent(player.transform);
         this.transform.position = player.transform.Find("HoldLocation").transform.position;
         m_Collider.enabled = false;
+        m_Rigidbody.isKinematic = true;
         pickedUp = true;
     }
 
