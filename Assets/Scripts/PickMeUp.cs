@@ -8,7 +8,7 @@ public class PickMeUp : MonoBehaviour
     public float pickUpTime = 0.5f;
 
     private Rigidbody rb;
-    private GameObject player;
+    private Transform playerHoldTransform;
     Collider collider;
     Rigidbody rigidbody;
     public bool pickedUp = false;
@@ -17,7 +17,7 @@ public class PickMeUp : MonoBehaviour
     Vector3 oldPosition;
 
     void Start(){
-        player = GameObject.FindWithTag("Player");
+        playerHoldTransform = GameObject.FindWithTag("Player").transform.Find("HoldLocation");
         //Fetch the GameObject's Collider (make sure it has a Collider component)
         collider = GetComponent<Collider>();
         rigidbody = GetComponent<Rigidbody>();
@@ -34,7 +34,7 @@ public class PickMeUp : MonoBehaviour
         if (isMoving) {
             moveProgress += Time.deltaTime / pickUpTime;
 
-            Vector3 newPosition = player.transform.Find("HoldLocation").transform.position;
+            Vector3 newPosition = playerHoldTransform.position;
 
             if (moveProgress >= 1f) {
                 EndPickUp();
@@ -65,8 +65,8 @@ public class PickMeUp : MonoBehaviour
 
     private void EndPickUp() {
         isMoving = false;
-        this.transform.position = player.transform.Find("HoldLocation").transform.position;
-        this.transform.SetParent(player.transform);
+        this.transform.position = playerHoldTransform.position;
+        this.transform.SetParent(playerHoldTransform);
     }
 
     private float QuadInterpolate(float x) {
