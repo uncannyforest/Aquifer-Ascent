@@ -9,8 +9,8 @@ public class PickMeUp : MonoBehaviour
 
     private Rigidbody rb;
     private GameObject player;
-    Collider m_Collider;
-    Rigidbody m_Rigidbody;
+    Collider collider;
+    Rigidbody rigidbody;
     public bool pickedUp = false;
     bool isMoving = false;
     float moveProgress;
@@ -19,8 +19,8 @@ public class PickMeUp : MonoBehaviour
     void Start(){
         player = GameObject.FindWithTag("Player");
         //Fetch the GameObject's Collider (make sure it has a Collider component)
-        m_Collider = GetComponent<Collider>();
-        m_Rigidbody = GetComponent<Rigidbody>();
+        collider = GetComponent<Collider>();
+        rigidbody = GetComponent<Rigidbody>();
     }
 
 
@@ -55,8 +55,8 @@ public class PickMeUp : MonoBehaviour
     private void StartPickUp(){
         // Sets "newParent" as the new parent of the child GameObject.
         Debug.Log("You clicked me!");
-        m_Collider.enabled = false;
-        m_Rigidbody.isKinematic = true;
+        collider.enabled = false;
+        rigidbody.isKinematic = true;
         pickedUp = true;
         isMoving = true;
         moveProgress = 0f;
