@@ -103,6 +103,7 @@ GameObject:
   - component: {fileID: 7327089894684991272}
   - component: {fileID: 7327089894684991275}
   - component: {fileID: 7327089894684991274}
+  - component: {fileID: 1244812502788144696}
   m_Layer: 0
   m_Name: GlowingObject
   m_TagString: Clickable
@@ -138,6 +139,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a13da2b7b6604e5dbb817bb5cf25feb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pickUpTime: 0.5
+  pickedUp: 0
 --- !u!135 &7327089894684991274
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -150,6 +153,19 @@ SphereCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.32
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!135 &1244812502788144696
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7327089894684991277}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1.5
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7327089894996067938
 GameObject:

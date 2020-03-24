@@ -2894,6 +2894,11 @@ PrefabInstance:
       propertyPath: m_Color.b
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7327089894116536868, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer
@@ -2957,6 +2962,11 @@ PrefabInstance:
     - target: {fileID: 7327089894684991274, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Radius
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: 7327089894684991274, guid: 0eb13e365665b4feb907433579ff87a3,
+        type: 3}
+      propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991275, guid: 0eb13e365665b4feb907433579ff87a3,
@@ -2967,12 +2977,12 @@ PrefabInstance:
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Name
-      value: White (1)
+      value: GlowingObject
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer
-      value: 10
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
@@ -3185,12 +3195,17 @@ PrefabInstance:
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Name
-      value: Red
+      value: GlowingObject
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer
-      value: 10
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894996067937, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
@@ -3693,12 +3708,17 @@ PrefabInstance:
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Name
-      value: Yellow
+      value: GlowingObject
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer
-      value: 10
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894996067937, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
@@ -3769,6 +3789,19 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!135 &1818844950
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1818844944}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &1929705588 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: e9ac6ea521a644d54a3a1183227c8434,
@@ -4112,12 +4145,17 @@ PrefabInstance:
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Name
-      value: White
+      value: GlowingObject
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer
-      value: 10
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894996067937, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
@@ -4252,12 +4290,17 @@ PrefabInstance:
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Name
-      value: Purple
+      value: GlowingObject
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer
-      value: 10
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894996067937, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}

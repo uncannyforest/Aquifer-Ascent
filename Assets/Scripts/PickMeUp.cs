@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PickMeUp : MonoBehaviour
 {
@@ -9,28 +10,33 @@ public class PickMeUp : MonoBehaviour
 
     private Rigidbody rb;
     private Transform playerHoldTransform;
-    Collider collider;
-    Rigidbody rigidbody;
+    Collider myCollider;
+    Rigidbody myRigidbody;
     public bool pickedUp = false;
     bool isMoving = false;
     float moveProgress;
     Vector3 oldPosition;
+    public PlayerInputActions actions;
+    bool playerIsNearEnough = false;
 
-    void Start(){
+
+    void Awake(){
+        actions = new PlayerInputActions();
+
+        // delagate or event -type syntax, which is kinda weird looking ... 
+        // when the "PickUp" type Input is performed, call Interact()
+        actions.PlayerControls.PickUp.performed += _ => Interact();
+
         playerHoldTransform = GameObject.FindWithTag("Player").transform.Find("HoldLocation");
         //Fetch the GameObject's Collider (make sure it has a Collider component)
-        collider = GetComponent<Collider>();
-        rigidbody = GetComponent<Rigidbody>();
+        myCollider = GetComponent<Collider>();
+        myRigidbody = GetComponent<Rigidbody>();
     }
 
 
     // Update is called once per frame
     void Update(){
-    /*  if (Input.GetButton("pickup"))
-        { // Define it in the input manager
-            // do something...
-        }
-    */
+
         if (isMoving) {
             moveProgress += Time.deltaTime / pickUpTime;
 
@@ -45,18 +51,57 @@ public class PickMeUp : MonoBehaviour
         }
     }
 
-    void OnMouseDown(){
-        if (!pickedUp){
-            StartPickUp();
-        }
+    private void OnEnable(){
+        actions.Enable();
+    }
+
+    private void OnDisable(){
+        actions.Disable();
     }
 
 
+    void OnTriggerEnter(Collider other) {
+        if(other.tag == "Player"){
+            playerIsNearEnough = true;
+                        Debug.Log("Near = true");
+
+        }
+    }
+
+	void OnTriggerExit(Collider other) {
+		if(other.tag == "Player"){
+			playerIsNearEnough = false;
+                        Debug.Log("Too far away from this object!");
+
+		}
+    }
+    
+    void Interact(){
+        //Debug.Log("Doing a thing!!!! With new input system woo");
+
+        if(!playerIsNearEnough){
+            return;
+        }
+        // if you're not already holding it
+        // and you're not holding something else
+        if(!pickedUp & playerHoldTransform.childCount == 0){
+            // Debug.Log("Picking up object yay!");
+            StartPickUp();
+        }
+
+        else if(pickedUp){
+            // Debug.Log("Set thing down byeeee");
+            SetDown();
+        }
+    }
+
+    private void SetDown(){
+        this.transform.SetParent(null);
+        pickedUp = false;
+    }
     private void StartPickUp(){
-        // Sets "newParent" as the new parent of the child GameObject.
-        Debug.Log("You clicked me!");
-        collider.enabled = false;
-        rigidbody.isKinematic = true;
+        myCollider.enabled = false;
+        myRigidbody.isKinematic = true;
         pickedUp = true;
         isMoving = true;
         moveProgress = 0f;
