@@ -18,6 +18,8 @@ public class PickMeUp : MonoBehaviour
     Vector3 oldPosition;
     public PlayerInputActions actions;
     bool playerIsNearEnough = false;
+    public AudioSource pickUpSound;
+    public AudioSource setDownSound;
 
 
     void Awake(){
@@ -96,10 +98,12 @@ public class PickMeUp : MonoBehaviour
     }
 
     private void SetDown(){
+        setDownSound.Play();
         this.transform.SetParent(null);
         pickedUp = false;
     }
     private void StartPickUp(){
+        pickUpSound.Play();
         myCollider.enabled = false;
         myRigidbody.isKinematic = true;
         pickedUp = true;
