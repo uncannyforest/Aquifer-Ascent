@@ -18,8 +18,9 @@ public class PickMeUp : MonoBehaviour
     Vector3 oldPosition;
     public PlayerInputActions actions;
     bool playerIsNearEnough = false;
-    public AudioSource pickUpSound;
-    public AudioSource setDownSound;
+    private AudioSource objectAudio; 
+    public AudioClip pickUpSound;
+    public AudioClip setDownSound;
 
 
     void Awake(){
@@ -33,6 +34,7 @@ public class PickMeUp : MonoBehaviour
         //Fetch the GameObject's Collider (make sure it has a Collider component)
         myCollider = GetComponent<Collider>();
         myRigidbody = GetComponent<Rigidbody>();
+        objectAudio = GetComponent<AudioSource>();
     }
 
 
@@ -98,12 +100,12 @@ public class PickMeUp : MonoBehaviour
     }
 
     private void SetDown(){
-        setDownSound.Play();
+        objectAudio.PlayOneShot(setDownSound, 0.5f);
         this.transform.SetParent(null);
         pickedUp = false;
     }
     private void StartPickUp(){
-        pickUpSound.Play();
+        objectAudio.PlayOneShot(pickUpSound, 0.5f);
         myCollider.enabled = false;
         myRigidbody.isKinematic = true;
         pickedUp = true;
