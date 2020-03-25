@@ -12,7 +12,6 @@ public class PickMeUp : MonoBehaviour
     private Transform playerHoldTransform;
     Collider myCollider;
     Rigidbody myRigidbody;
-    public bool pickedUp = false;
     bool isMoving = false;
     float moveProgress;
     Vector3 oldPosition;
@@ -22,6 +21,9 @@ public class PickMeUp : MonoBehaviour
     public AudioClip pickUpSound;
     public AudioClip setDownSound;
 
+    public bool PickedUp {
+        get => this.transform.parent == playerHoldTransform;
+    }
 
     void Awake(){
         actions = new PlayerInputActions();
@@ -88,12 +90,12 @@ public class PickMeUp : MonoBehaviour
         }
         // if you're not already holding it
         // and you're not holding something else
-        if(!pickedUp & playerHoldTransform.childCount == 0){
+        if(!PickedUp & playerHoldTransform.childCount == 0){
             // Debug.Log("Picking up object yay!");
             StartPickUp();
         }
 
-        else if(pickedUp){
+        else if(PickedUp){
             // Debug.Log("Set thing down byeeee");
             SetDown();
         }
@@ -102,13 +104,11 @@ public class PickMeUp : MonoBehaviour
     private void SetDown(){
         objectAudio.PlayOneShot(setDownSound, 0.5f);
         this.transform.SetParent(null);
-        pickedUp = false;
     }
     private void StartPickUp(){
         objectAudio.PlayOneShot(pickUpSound, 0.5f);
         myCollider.enabled = false;
         myRigidbody.isKinematic = true;
-        pickedUp = true;
         isMoving = true;
         moveProgress = 0f;
         oldPosition = this.transform.position;

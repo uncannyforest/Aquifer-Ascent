@@ -53,6 +53,6 @@ public class FloatWanderAI : MonoBehaviour
         // If we move the PickMeUp script to the player,
         // set this to GameObject.Find("ThirdPersonController"); instead
         GameObject objectToCheck = gameObject;
-        return !objectToCheck.GetComponent<PickMeUp>().pickedUp;
+        return !objectToCheck.GetComponent<PickMeUp>().PickedUp;
     }
 }
