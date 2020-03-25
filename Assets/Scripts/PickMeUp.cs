@@ -112,12 +112,12 @@ public class PickMeUp : MonoBehaviour
         isMoving = true;
         moveProgress = 0f;
         oldPosition = this.transform.position;
+        this.transform.SetParent(playerHoldTransform);
     }
 
     private void EndPickUp() {
         isMoving = false;
         this.transform.position = playerHoldTransform.position;
-        this.transform.SetParent(playerHoldTransform);
     }
 
     private float QuadInterpolate(float x) {
