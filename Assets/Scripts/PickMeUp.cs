@@ -15,8 +15,6 @@ public class PickMeUp : MonoBehaviour
     bool isMoving = false;
     float moveProgress;
     Vector3 oldPosition;
-    public PlayerInputActions actions;
-    bool playerIsNearEnough = false;
     private AudioSource objectAudio; 
     public AudioClip pickUpSound;
     public AudioClip setDownSound;
@@ -26,12 +24,6 @@ public class PickMeUp : MonoBehaviour
     }
 
     void Awake(){
-        actions = new PlayerInputActions();
-
-        // delagate or event -type syntax, which is kinda weird looking ... 
-        // when the "PickUp" type Input is performed, call Interact()
-        actions.PlayerControls.PickUp.performed += _ => Interact();
-
         playerHoldTransform = GameObject.FindWithTag("Player").transform.Find("HoldLocation");
         //Fetch the GameObject's Collider (make sure it has a Collider component)
         physicsCollider = this.transform.Find("Sphere").GetComponent<Collider>();
@@ -57,57 +49,13 @@ public class PickMeUp : MonoBehaviour
         }
     }
 
-    private void OnEnable(){
-        actions.Enable();
-    }
-
-    private void OnDisable(){
-        actions.Disable();
-    }
-
-
-    void OnTriggerEnter(Collider other) {
-        if(other.tag == "Player"){
-            playerIsNearEnough = true;
-                        Debug.Log("Near = true");
-
-        }
-    }
-
-	void OnTriggerExit(Collider other) {
-		if(other.tag == "Player"){
-			playerIsNearEnough = false;
-                        Debug.Log("Too far away from this object!");
-
-		}
-    }
-    
-    void Interact(){
-        //Debug.Log("Doing a thing!!!! With new input system woo");
-
-        if(!playerIsNearEnough){
-            return;
-        }
-        // if you're not already holding it
-        // and you're not holding something else
-        if(!PickedUp & playerHoldTransform.childCount == 0){
-            // Debug.Log("Picking up object yay!");
-            StartPickUp();
-        }
-
-        else if(PickedUp){
-            // Debug.Log("Set thing down byeeee");
-            SetDown();
-        }
-    }
-
-    private void SetDown(){
+    public void SetDown(){
         objectAudio.PlayOneShot(setDownSound, 0.5f);
         physicsCollider.enabled = true;
         myRigidbody.isKinematic = false;
         this.transform.SetParent(null);
     }
-    private void StartPickUp(){
+    public void StartPickUp(){
         objectAudio.PlayOneShot(pickUpSound, 0.5f);
         physicsCollider.enabled = false;
         myRigidbody.isKinematic = true;
@@ -125,5 +73,5 @@ public class PickMeUp : MonoBehaviour
     private float QuadInterpolate(float x) {
         return -x * (x - 2);
     }
-
 }
+

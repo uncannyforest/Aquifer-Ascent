@@ -1225,6 +1225,24 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 900347253}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &488077749 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 149790, guid: 7737647c22c1fc64a88d5cd030c352ce,
+    type: 3}
+  m_PrefabInstance: {fileID: 374336113}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &488077755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 488077749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce6b731b425ca4e5d8c71d483f94865e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &547983743 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: 1326f1cd5f8fc40d9875321daaa0514c,
@@ -2405,7 +2423,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1808150627}
   m_Layer: 0
-  m_Name: Lights
+  m_Name: GlowingObjects
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2960,6 +2978,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1808150627}
     m_Modifications:
+    - target: {fileID: 1244812502788144696, guid: 0eb13e365665b4feb907433579ff87a3,
+        type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3107556426805797437, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Color.rgba
