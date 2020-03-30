@@ -190,24 +190,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1326f1cd5f8fc40d9875321daaa0514c, type: 3}
---- !u!1 &134009466 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7327089894996067938, guid: 0eb13e365665b4feb907433579ff87a3,
-    type: 3}
-  m_PrefabInstance: {fileID: 1558504632}
-  m_PrefabAsset: {fileID: 0}
---- !u!122 &134009468
-Halo:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 134009466}
-  m_Enabled: 1
-  m_Color:
-    serializedVersion: 2
-    rgba: 4294967295
-  m_Size: 0.25
 --- !u!1001 &184962050
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1824,24 +1806,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 0.1
   updateTime: 0.5
---- !u!1 &1061547022 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7327089894996067938, guid: 0eb13e365665b4feb907433579ff87a3,
-    type: 3}
-  m_PrefabInstance: {fileID: 7327089894185001646}
-  m_PrefabAsset: {fileID: 0}
---- !u!122 &1061547026
-Halo:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1061547022}
-  m_Enabled: 1
-  m_Color:
-    serializedVersion: 2
-    rgba: 4294938068
-  m_Size: 0.25
 --- !u!4 &1063397936 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: 1326f1cd5f8fc40d9875321daaa0514c,
@@ -2130,37 +2094,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ff3366103894bec429eeaa9b86b595e6, type: 3}
---- !u!1 &1544744072 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7327089894996067938, guid: 0eb13e365665b4feb907433579ff87a3,
-    type: 3}
-  m_PrefabInstance: {fileID: 2050738668}
-  m_PrefabAsset: {fileID: 0}
---- !u!122 &1544744074
-Halo:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1544744072}
-  m_Enabled: 1
-  m_Color:
-    serializedVersion: 2
-    rgba: 4294967295
-  m_Size: 0.25
---- !u!135 &1544744077
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1544744072}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1558504632
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2168,41 +2101,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1808150627}
     m_Modifications:
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Range
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Intensity
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_DrawHalo
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Color.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Color.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Color.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 7327089894116536868, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer
@@ -2246,7 +2144,7 @@ PrefabInstance:
     - target: {fileID: 7327089894684991272, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991272, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
@@ -2273,11 +2171,6 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7327089894684991275, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: pickUpTime
-      value: 0.5
-      objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Name
@@ -2293,11 +2186,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 7327089894996067937, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 5de889c0c54e448bbae9f7b234eaf4a9, type: 2}
     - target: {fileID: 7327089894996067938, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer
@@ -2943,36 +2831,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1808150627}
     m_Modifications:
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Range
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Intensity
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_DrawHalo
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Color.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Color.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Color.b
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 7327089894116536868, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer
@@ -3043,11 +2901,6 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7327089894684991275, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: pickUpTime
-      value: 0.5
-      objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Name
@@ -3063,11 +2916,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 7327089894996067937, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 5de889c0c54e448bbae9f7b234eaf4a9, type: 2}
     - target: {fileID: 7327089894996067938, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer
@@ -3098,20 +2946,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1808150627}
     m_Modifications:
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
+    - target: {fileID: 3107556426805797437, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
-      propertyPath: m_Range
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Intensity
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_DrawHalo
-      value: 0
+      propertyPath: m_Color.rgba
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894116536868, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
@@ -3183,11 +3021,6 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7327089894684991275, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: pickUpTime
-      value: 0.5
-      objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Name
@@ -3203,11 +3036,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 7327089894996067937, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 5de889c0c54e448bbae9f7b234eaf4a9, type: 2}
     - target: {fileID: 7327089894996067938, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer

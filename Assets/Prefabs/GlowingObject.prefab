@@ -42,9 +42,9 @@ Light:
   serializedVersion: 10
   m_Type: 2
   m_Shape: 0
-  m_Color: {r: 0.8301362, g: 0.5529412, b: 1, a: 1}
-  m_Intensity: 1.36
-  m_Range: 3.11
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 0.5
+  m_Range: 20
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 7327089894684991275}
   - component: {fileID: 1244812502788144696}
   - component: {fileID: -3384256719804809807}
+  - component: {fileID: 7456130516122914424}
   m_Layer: 0
   m_Name: GlowingObject
   m_TagString: Clickable
@@ -251,6 +252,23 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &7456130516122914424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7327089894684991277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01791cf7b1ac94abbbf4d62094836c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unchargeTime: 20
+  chargeTime: 480
+  maxHaloIntensity: 0.5
+  maxLightIntensity: 0.5
+  currentChargeLevel: 1
 --- !u!1 &7327089894996067938
 GameObject:
   m_ObjectHideFlags: 0
@@ -263,6 +281,7 @@ GameObject:
   - component: {fileID: 7327089894996067966}
   - component: {fileID: 7327089894996067937}
   - component: {fileID: 7158090097261507204}
+  - component: {fileID: 3107556426805797437}
   m_Layer: 10
   m_Name: Sphere
   m_TagString: Untagged
@@ -310,7 +329,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 50a6eada38906468ca7b5b878a7aac37, type: 2}
+  - {fileID: 2100000, guid: 5de889c0c54e448bbae9f7b234eaf4a9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -344,3 +363,15 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!122 &3107556426805797437
+Halo:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7327089894996067938}
+  m_Enabled: 1
+  m_Color:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_Size: 0.25
