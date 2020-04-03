@@ -8,7 +8,7 @@ public class PickMeUp : MonoBehaviour
 
     public float pickUpTime = 0.5f;
 
-    private Rigidbody rb;
+    private Transform originalParent;
     private Transform playerHoldTransform;
     Collider physicsCollider;
     Rigidbody myRigidbody;
@@ -24,6 +24,7 @@ public class PickMeUp : MonoBehaviour
     }
 
     void Awake(){
+        originalParent = this.transform.parent.transform;
         playerHoldTransform = GameObject.FindWithTag("Player").transform.Find("HoldLocation");
         //Fetch the GameObject's Collider (make sure it has a Collider component)
         physicsCollider = this.transform.Find("Sphere").GetComponent<Collider>();
@@ -52,8 +53,8 @@ public class PickMeUp : MonoBehaviour
     public void SetDown(){
         objectAudio.PlayOneShot(setDownSound, 0.5f);
         physicsCollider.enabled = true;
+        this.transform.SetParent(originalParent);
         myRigidbody.isKinematic = false;
-        this.transform.SetParent(null);
     }
     public void StartPickUp(){
         objectAudio.PlayOneShot(pickUpSound, 0.5f);
