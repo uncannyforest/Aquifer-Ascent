@@ -38,20 +38,36 @@ public class PickUpObject : MonoBehaviour
     void OnTriggerEnter(Collider other) {
         Debug.Log("Hiiiii");
         if(other.tag == "CanPickUp") {
-            nearObjects.Add(other.gameObject);
+            GameObject objectToPickUp;
+            if(other.gameObject.GetComponent<PickMeUp>() != null) {
+                objectToPickUp = other.gameObject;
+            } else if (other.transform.parent.GetComponent<PickMeUp>() != null) {
+                objectToPickUp = other.transform.parent.gameObject;
+            } else {
+                Debug.LogError("Object tagged CanPickUp has no PickMeUp script on it or parent");
+                return;
+            }
+            nearObjects.Add(objectToPickUp);
             Debug.Log("Near = true");
-
         }
     }
 
 	void OnTriggerExit(Collider other) {
         if(other.tag == "CanPickUp") {
-			bool foundObject = nearObjects.Remove(other.gameObject);
+            GameObject objectToPickUp;
+            if(other.gameObject.GetComponent<PickMeUp>() != null) {
+                objectToPickUp = other.gameObject;
+            } else if (other.transform.parent.GetComponent<PickMeUp>() != null) {
+                objectToPickUp = other.transform.parent.gameObject;
+            } else {
+                Debug.LogError("Object tagged CanPickUp has no PickMeUp script on it or parent");
+                return;
+            }
+			bool foundObject = nearObjects.Remove(objectToPickUp);
             if (!foundObject) {
                 Debug.LogWarning("Tried to remove object from nearObjects that was not there");
             }
             Debug.Log("Too far away from this object!");
-
 		}
     }
     

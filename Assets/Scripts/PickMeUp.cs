@@ -27,7 +27,7 @@ public class PickMeUp : MonoBehaviour
         originalParent = this.transform.parent.transform;
         playerHoldTransform = GameObject.FindWithTag("Player").transform.Find("HoldLocation");
         //Fetch the GameObject's Collider (make sure it has a Collider component)
-        physicsCollider = this.transform.Find("Sphere").GetComponent<Collider>();
+        physicsCollider = GetComponent<Collider>();
         myRigidbody = GetComponent<Rigidbody>();
         objectAudio = GetComponent<AudioSource>();
     }

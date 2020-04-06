@@ -10,9 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 7327089894116536869}
   - component: {fileID: 7327089894116536866}
+  - component: {fileID: 2378975834256384158}
   m_Layer: 0
   m_Name: Point Light
-  m_TagString: Untagged
+  m_TagString: CanPickUp
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -92,6 +93,19 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!135 &2378975834256384158
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7327089894116536868}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7327089894684991277
 GameObject:
   m_ObjectHideFlags: 0
@@ -102,14 +116,14 @@ GameObject:
   m_Component:
   - component: {fileID: 7327089894684991272}
   - component: {fileID: 7327089894684991275}
-  - component: {fileID: 1244812502788144696}
   - component: {fileID: -3384256719804809807}
   - component: {fileID: 7456130516122914424}
   - component: {fileID: 4324324191667893875}
   - component: {fileID: 5792021157012530770}
-  m_Layer: 0
+  - component: {fileID: 6838846483093510342}
+  m_Layer: 10
   m_Name: GlowingObject
-  m_TagString: CanPickUp
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -142,22 +156,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a13da2b7b6604e5dbb817bb5cf25feb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  objectWithThisPhysicsCollider: {fileID: 7327089894116536868}
   pickUpTime: 0.5
   pickUpSound: {fileID: 8300000, guid: 04df9b11a4dd24c46b51da18fa8cb302, type: 3}
   setDownSound: {fileID: 8300000, guid: 8315785413ece4064a677c8ae611927b, type: 3}
---- !u!135 &1244812502788144696
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7327089894684991277}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 1.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!82 &-3384256719804809807
 AudioSource:
   m_ObjectHideFlags: 0
@@ -301,6 +303,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 0.1
   updateTime: 0.5
+--- !u!135 &6838846483093510342
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7327089894684991277}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.15
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7327089894996067938
 GameObject:
   m_ObjectHideFlags: 0
@@ -312,9 +327,8 @@ GameObject:
   - component: {fileID: 7327089894996067939}
   - component: {fileID: 7327089894996067966}
   - component: {fileID: 7327089894996067937}
-  - component: {fileID: 7158090097261507204}
   - component: {fileID: 3107556426805797437}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -382,19 +396,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!135 &7158090097261507204
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7327089894996067938}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!122 &3107556426805797437
 Halo:
   m_ObjectHideFlags: 0
