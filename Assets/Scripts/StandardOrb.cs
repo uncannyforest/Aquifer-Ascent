@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
 public class StandardOrb : MonoBehaviour
 {
@@ -42,9 +41,7 @@ public class StandardOrb : MonoBehaviour
     }
 
     void setOrbColor(Color color) {
-        UnityEditor.SerializedObject serializedHalo = new UnityEditor.SerializedObject(halo);
-        serializedHalo.FindProperty("m_Color").colorValue = color;
-        serializedHalo.ApplyModifiedProperties();
+        // TODO change halo color
 
         myLight.color = color;
     }
