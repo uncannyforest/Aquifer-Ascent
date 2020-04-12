@@ -11,12 +11,12 @@ public class StandardOrb : MonoBehaviour
     public float currentChargeLevel = 1.0f;
 
     private Light myLight;
-    private Component halo;
+    private Light halo;
 
     // Start is called before the first frame update
     void Start() {
         myLight = gameObject.transform.Find("Point Light").GetComponent<Light>();
-        halo = gameObject.transform.Find("Sphere").GetComponent("Halo");
+        halo = gameObject.transform.Find("Halo").GetComponent<Light>();
     }
 
     // Update is called once per frame
@@ -41,8 +41,7 @@ public class StandardOrb : MonoBehaviour
     }
 
     void setOrbColor(Color color) {
-        // TODO change halo color
-
+        halo.color = color;
         myLight.color = color;
     }
 
