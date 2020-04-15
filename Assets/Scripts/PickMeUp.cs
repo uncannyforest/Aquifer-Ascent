@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(Collider))]
 public class PickMeUp : MonoBehaviour
 {
 
@@ -18,6 +19,7 @@ public class PickMeUp : MonoBehaviour
     private AudioSource objectAudio; 
     public AudioClip pickUpSound;
     public AudioClip setDownSound;
+    private Bounds myColliderBounds;
 
     public bool PickedUp {
         get => this.transform.parent == playerHoldTransform;
@@ -26,8 +28,8 @@ public class PickMeUp : MonoBehaviour
     void Awake(){
         originalParent = this.transform.parent.transform;
         playerHoldTransform = GameObject.FindWithTag("Player").transform.Find("HoldLocation");
-        //Fetch the GameObject's Collider (make sure it has a Collider component)
         physicsCollider = GetComponent<Collider>();
+        myColliderBounds = physicsCollider.bounds;
         myRigidbody = GetComponent<Rigidbody>();
         objectAudio = GetComponent<AudioSource>();
     }
@@ -63,12 +65,18 @@ public class PickMeUp : MonoBehaviour
         isMoving = true;
         moveProgress = 0f;
         oldPosition = this.transform.position;
+        this.transform.rotation = playerHoldTransform.rotation;
         this.transform.SetParent(playerHoldTransform);
     }
 
     private void EndPickUp() {
         isMoving = false;
         this.transform.position = playerHoldTransform.position;
+    }
+
+    public float GetColliderWidth(){
+        // this is broken out here becuase bounds can only be queried when collider is active
+        return myColliderBounds.extents.z;
     }
 
     private float QuadInterpolate(float x) {
