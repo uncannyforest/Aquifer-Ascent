@@ -45,19 +45,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e71d92dffbf74ce5afe8b70e6dc8b04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  growthTime: 343
+  growthProgress: 0
   fractalLevel: 6
-  numBranches: 4
+  numBranches: 3
   branchPosition: {x: 1, y: 0, z: 0}
   branchRotation: {x: 0, y: 0, z: 30}
   branchScale: {x: 0.7, y: 0.55, z: 0.55}
-  trunkBonusBranches: 1
-  targetActiveBuds: 2.5
-  numBranchesCorrectionRate: 0.6
-  branchMissRate: 0.1
-  budDormancyRate: 0.33333334
-  heightJitter: 0.15
-  rotationJitter: 10
-  scaleJitter: 0.05
+  trunkBonusBranches: 0
+  targetActiveBuds: 2.4
+  numBranchesCorrectionRate: 0.1
+  branchMissRate: 0.02
+  budDormancyRate: 0.2
+  heightJitter: 0.1
+  rotationJitter: 7
+  scaleJitter: 0.02
 --- !u!136 &5844812567412870443
 CapsuleCollider:
   m_ObjectHideFlags: 0
