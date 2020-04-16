@@ -254,11 +254,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01791cf7b1ac94abbbf4d62094836c61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unchargeTime: 20
-  chargeTime: 480
+  spawnLocation: {fileID: 0}
+  unchargeTime: 30
+  chargeTime: 450
+  spawnTime: 1
   maxHaloIntensity: 0.5
   maxLightIntensity: 0.5
   currentChargeLevel: 1
+  spawnState: 1
 --- !u!54 &4324324191667893875
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -4,38 +4,70 @@ using UnityEngine;
 
 public class StandardOrb : MonoBehaviour
 {
-    public float unchargeTime = 20f;
-    public float chargeTime = 480f;
-    public float maxHaloIntensity = 0.5f;
-    public float maxLightIntensity = 0.5f;
+    public GameObject spawnLocation;
+    public float unchargeTime = 30f;
+    public float chargeTime = 450f;
+    public float spawnTime = 1f;
     public float currentChargeLevel = 1.0f;
+    public float spawnState = 1.0f;
 
     private Light myLight;
     private Light halo;
+    private float haloIntensity;
 
     // Start is called before the first frame update
     void Start() {
         myLight = gameObject.transform.Find("Point Light").GetComponent<Light>();
         halo = gameObject.transform.Find("Halo").GetComponent<Light>();
+        haloIntensity = halo.intensity;
     }
 
     // Update is called once per frame
     void Update() {
-        if(gameObject.GetComponent<PickMeUp>().PickedUp) {
-            if (currentChargeLevel > 0f) {
-                currentChargeLevel -= Time.deltaTime / unchargeTime;
-                if (currentChargeLevel < 0f) {
-                    currentChargeLevel = 0f;
+        if (spawnState < 1) {
+            if (spawnState >= 0) {
+                spawnState += Time.deltaTime / spawnTime;
+                spawnState = Mathf.Min(1, spawnState);
+                transform.localScale = Vector3.one * spawnState;
+                myLight.intensity = spawnState;
+                halo.intensity = spawnState * haloIntensity;
+            } else {
+                spawnState += Time.deltaTime / spawnTime;
+                if (spawnState < 0) {
+                    transform.localScale = Vector3.one * -spawnState;
+                } else {
+                    if (spawnLocation == null) {
+                        GameObject.Destroy(gameObject);
+                    } else {
+                        if(gameObject.GetComponent<PickMeUp>().PickedUp) {
+                            gameObject.GetComponent<PickMeUp>().SetDown();
+                        }
+                        transform.position = spawnLocation.transform.position;
+                        currentChargeLevel = 1.0f;
+                        setOrbColor(getColorFromCharge());
+                        myLight.intensity = 0;
+                        halo.intensity = 0;
+                    }
                 }
-                setOrbColor(getColorFromCharge());
             }
         } else {
-            if (currentChargeLevel < 1f) {
-                currentChargeLevel += Time.deltaTime / chargeTime;
-                if (currentChargeLevel > 1f) {
-                    currentChargeLevel = 1f;
+            if(gameObject.GetComponent<PickMeUp>().PickedUp) {
+                if (currentChargeLevel > 0f) {
+                    currentChargeLevel -= Time.deltaTime / unchargeTime;
+                    if (currentChargeLevel < 0f) {
+                        currentChargeLevel = 0f;
+                        spawnState = -1;
+                    }
+                    setOrbColor(getColorFromCharge());
                 }
-                setOrbColor(getColorFromCharge());
+            } else {
+                if (currentChargeLevel < 1f) {
+                    currentChargeLevel += Time.deltaTime / chargeTime;
+                    if (currentChargeLevel > 1f) {
+                        currentChargeLevel = 1f;
+                    }
+                    setOrbColor(getColorFromCharge());
+                }
             }
         }
     }
