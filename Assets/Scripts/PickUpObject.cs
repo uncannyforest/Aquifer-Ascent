@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PickUpObject : MonoBehaviour
 {
@@ -38,7 +39,7 @@ public class PickUpObject : MonoBehaviour
                 return;
             }
             nearObjects.Add(objectToPickUp);
-            Debug.Log("Near = true");
+            UpdateInteractionMessages();
         }
     }
 
@@ -57,7 +58,7 @@ public class PickUpObject : MonoBehaviour
             if (!foundObject) {
                 Debug.LogWarning("Tried to remove object from nearObjects that was not there");
             }
-            Debug.Log("Too far away from this object!");
+            UpdateInteractionMessages();
 		}
     }
     
@@ -76,6 +77,7 @@ public class PickUpObject : MonoBehaviour
             ).First();
 
         closestObject.GetComponent<PickMeUp>().StartPickUp();
+        UpdateInteractionMessages();
     }
 
     void OnAnimatorIK()
@@ -113,6 +115,44 @@ public class PickUpObject : MonoBehaviour
             } else {
                 childPickMeUp.SetDown();
             }
+            UpdateInteractionMessages();
+        }
+    }
+
+    void UpdateInteractionMessages() {
+        List<string> interactionMessages = new List<string>();
+        if (playerHoldTransform.childCount > 0) {
+            interactionMessages.Add("release");
+        } else if (nearObjects.Count > 0) {
+            interactionMessages.Add("beckon");
+        }
+
+
+#if (UNITY_IOS || UNITY_ANDROID)
+        GameObject interactNotice = GameObject.Find("Mobile")
+                .transform.Find("Interact/Notice").gameObject;
+#else
+        GameObject interactNotice = GameObject.Find("Nonmobile")
+                .transform.Find("Interact Notice").gameObject;
+#endif 
+
+        Debug.Log(interactNotice);
+
+        if (interactionMessages.Count > 0) {
+            interactNotice.SetActive(true);
+
+            // TODO: handle multiple nearby objects
+            string interactionMessage = interactionMessages[0];
+            
+#if (UNITY_IOS || UNITY_ANDROID)
+            interactionMessage = char.ToUpper(interactionMessage[0]) + interactionMessage.Substring(1);
+#else
+            interactionMessage = "press <color=white>x</color> to <color=white>"
+                + interactionMessage + "</color>";
+#endif 
+            interactNotice.transform.Find("Text").gameObject.GetComponent<Text>().text = interactionMessage;
+        } else {
+            interactNotice.SetActive(false);
         }
     }
 
