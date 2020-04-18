@@ -344,6 +344,5 @@ Shader "Custom/No Vertex Light"
     }
 
 
-    FallBack "VertexLit"
     CustomEditor "StandardShaderGUI"
 }
