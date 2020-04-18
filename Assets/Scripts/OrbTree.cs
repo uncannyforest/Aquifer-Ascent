@@ -5,6 +5,9 @@ using System.Linq;
 
 public class OrbTree : MonoBehaviour
 {
+    public GameObject orbParent;
+    public GameObject unspawnedOrb;
+    public int numLights = 7;
     public float growthTime = 343;
     public float growthProgress = 0;
     public int fractalLevel = 6;
@@ -41,9 +44,20 @@ public class OrbTree : MonoBehaviour
         activeBuds.Add(trunkBud);
         endBranches.Add(trunk);
         fractalLevelFactor = ((fractalLevel + 1f) * (fractalLevel + 1f)); // don't calc this every time
+    
+        UpdateGrowthState();
+
+        for (int i = 0; i < Mathf.Floor(growthProgress * numLights); i++) {
+            AddLight();
+        }
+        StartCoroutine(ScheduleInitialLights(Mathf.CeilToInt(numLights * (1 - growthProgress))));
     }
 
     void Update() {
+        UpdateGrowthState();
+    }
+
+    void UpdateGrowthState() {
         if (growthProgress < 1) {
             growthProgress += (Time.deltaTime / growthTime);
             growthProgress = Mathf.Min(1, growthProgress);
@@ -120,5 +134,18 @@ public class OrbTree : MonoBehaviour
                 }
             }
         }
+    }
+
+    IEnumerator ScheduleInitialLights(int numberOfLights) {
+        for (int i = 0; i < numberOfLights; i++) {
+            yield return new WaitForSeconds(growthTime / numLights);
+            AddLight();
+        }
+    }
+
+    void AddLight() {
+        GameObject bud = activeBuds[Random.Range(0, activeBuds.Count - 1)];
+        GameObject newLight = Instantiate(unspawnedOrb, bud.transform.position, bud.transform.rotation);
+        newLight.transform.parent = orbParent.transform;
     }
 }

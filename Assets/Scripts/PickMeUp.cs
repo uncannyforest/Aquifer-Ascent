@@ -25,7 +25,7 @@ public class PickMeUp : MonoBehaviour
         get => this.transform.parent == playerHoldTransform;
     }
 
-    void Awake(){
+    void Start(){
         originalParent = this.transform.parent.transform;
         playerHoldTransform = GameObject.FindWithTag("Player").transform.Find("HoldLocation");
         physicsCollider = GetComponent<Collider>();

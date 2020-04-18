@@ -8,22 +8,26 @@ public class StandardOrb : MonoBehaviour
     public float unchargeTime = 30f;
     public float chargeTime = 450f;
     public float spawnTime = 1f;
+    public float haloIntensity;
     public float currentChargeLevel = 1.0f;
     public float spawnState = 1.0f;
 
     private Light myLight;
     private Light halo;
-    private float haloIntensity;
 
     // Start is called before the first frame update
     void Start() {
         myLight = gameObject.transform.Find("Point Light").GetComponent<Light>();
         halo = gameObject.transform.Find("Halo").GetComponent<Light>();
-        haloIntensity = halo.intensity;
+        updateOrbState();
     }
 
     // Update is called once per frame
     void Update() {
+        updateOrbState();
+    }
+
+    void updateOrbState() {
         if (spawnState < 1) {
             if (spawnState >= 0) {
                 spawnState += Time.deltaTime / spawnTime;
