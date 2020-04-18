@@ -76,7 +76,7 @@ public class PickMeUp : MonoBehaviour
 
     public float GetColliderWidth(){
         // this is broken out here becuase bounds can only be queried when collider is active
-        return myColliderBounds.extents.z;
+        return myColliderBounds.size.z;
     }
 
     private float QuadInterpolate(float x) {

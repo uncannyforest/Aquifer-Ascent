@@ -258,8 +258,7 @@ MonoBehaviour:
   unchargeTime: 30
   chargeTime: 450
   spawnTime: 1
-  maxHaloIntensity: 0.5
-  maxLightIntensity: 0.5
+  haloIntensity: 0
   currentChargeLevel: 1
   spawnState: 1
 --- !u!54 &4324324191667893875
@@ -303,7 +302,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.15
+  m_Radius: 0.25
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7327089894996067938
 GameObject:

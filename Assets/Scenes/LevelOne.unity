@@ -8225,11 +8225,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1808150627}
     m_Modifications:
-    - target: {fileID: 6838846483093510342, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Radius
-      value: 0.25
-      objectReference: {fileID: 0}
     - target: {fileID: 7327089894116536868, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer
@@ -9065,11 +9060,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1808150627}
     m_Modifications:
-    - target: {fileID: 6838846483093510342, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Radius
-      value: 0.25
-      objectReference: {fileID: 0}
     - target: {fileID: 7327089894116536868, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer
@@ -10051,11 +10041,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1808150627}
     m_Modifications:
-    - target: {fileID: 6838846483093510342, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Radius
-      value: 0.25
-      objectReference: {fileID: 0}
     - target: {fileID: 7327089894116536868, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer
@@ -11333,11 +11318,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1808150627}
     m_Modifications:
-    - target: {fileID: 6838846483093510342, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Radius
-      value: 0.25
-      objectReference: {fileID: 0}
     - target: {fileID: 7327089894116536868, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Layer
@@ -11924,11 +11904,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Enabled
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6838846483093510342, guid: 0eb13e365665b4feb907433579ff87a3,
-        type: 3}
-      propertyPath: m_Radius
-      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 7158090097261507204, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
