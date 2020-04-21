@@ -12,6 +12,8 @@ public class StandardOrb : MonoBehaviour
     public float currentChargeLevel = 1.0f;
     public float spawnState = 1.0f;
 
+    private float maxRange;
+
     private Light myLight;
     private Light halo;
 
@@ -19,6 +21,7 @@ public class StandardOrb : MonoBehaviour
     void Start() {
         myLight = gameObject.transform.Find("Point Light").GetComponent<Light>();
         halo = gameObject.transform.Find("Halo").GetComponent<Light>();
+        maxRange = myLight.range;
         updateOrbState();
     }
 
@@ -33,8 +36,7 @@ public class StandardOrb : MonoBehaviour
                 spawnState += Time.deltaTime / spawnTime;
                 spawnState = Mathf.Min(1, spawnState);
                 transform.localScale = Vector3.one * spawnState;
-                myLight.intensity = spawnState;
-                halo.intensity = spawnState * haloIntensity;
+                setOrbIntensity(spawnState);
             } else {
                 spawnState += Time.deltaTime / spawnTime;
                 if (spawnState < 0) {
@@ -49,8 +51,7 @@ public class StandardOrb : MonoBehaviour
                         transform.position = spawnLocation.transform.position;
                         currentChargeLevel = 1.0f;
                         setOrbColor(getColorFromCharge());
-                        myLight.intensity = 0;
-                        halo.intensity = 0;
+                        setOrbIntensity(0);
                     }
                 }
             }
@@ -74,6 +75,12 @@ public class StandardOrb : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void setOrbIntensity(float intensity) {
+        myLight.intensity = intensity;
+        myLight.range = maxRange * intensity;
+        halo.intensity = haloIntensity * intensity;
     }
 
     void setOrbColor(Color color) {

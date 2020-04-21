@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+// TODO: split into OrbPickUp and PickMeUp once we have other grabbables
 [RequireComponent(typeof(Collider))]
 public class PickMeUp : MonoBehaviour
 {
 
     public float pickUpTime = 0.5f;
+    public float heldIntensity = 0.5f;
 
     private Transform originalParent;
     private Transform playerHoldTransform;
     Collider physicsCollider;
     Rigidbody myRigidbody;
+    private StandardOrb orbScript;
     bool isMoving = false;
     float moveProgress;
     Vector3 oldPosition;
@@ -32,6 +35,7 @@ public class PickMeUp : MonoBehaviour
         myColliderBounds = physicsCollider.bounds;
         myRigidbody = GetComponent<Rigidbody>();
         objectAudio = GetComponent<AudioSource>();
+        orbScript = GetComponent<StandardOrb>();
     }
 
 
@@ -46,6 +50,7 @@ public class PickMeUp : MonoBehaviour
             if (moveProgress >= 1f) {
                 EndPickUp();
             } else {
+                orbScript.setOrbIntensity(1 - (1 - heldIntensity) * moveProgress);
                 this.transform.position =
                         Vector3.Lerp(oldPosition, newPosition, QuadInterpolate(moveProgress));
             }
@@ -57,6 +62,7 @@ public class PickMeUp : MonoBehaviour
         physicsCollider.enabled = true;
         this.transform.SetParent(originalParent);
         myRigidbody.isKinematic = false;
+        orbScript.setOrbIntensity(1);
     }
     public void StartPickUp(){
         objectAudio.PlayOneShot(pickUpSound, 0.5f);
@@ -72,6 +78,8 @@ public class PickMeUp : MonoBehaviour
     private void EndPickUp() {
         isMoving = false;
         this.transform.position = playerHoldTransform.position;
+        orbScript.setOrbIntensity(heldIntensity);
+
     }
 
     public float GetColliderWidth(){
