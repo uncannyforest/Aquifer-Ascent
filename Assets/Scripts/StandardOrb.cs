@@ -14,8 +14,6 @@ public class StandardOrb : MonoBehaviour
     public float spawnState = 1.0f;
     public float heldIntensity = 0.5f;
 
-    private float maxRange;
-
     private Light myLight;
     private Light halo;
 
@@ -23,7 +21,6 @@ public class StandardOrb : MonoBehaviour
     void Start() {
         myLight = gameObject.transform.Find("Point Light").GetComponent<Light>();
         halo = gameObject.transform.Find("Halo").GetComponent<Light>();
-        maxRange = myLight.range;
         UpdateOrbState();
     }
 
@@ -86,7 +83,6 @@ public class StandardOrb : MonoBehaviour
 
     private void SetOrbIntensity(float intensity) {
         myLight.intensity = intensity;
-        myLight.range = maxRange * intensity;
         halo.intensity = haloIntensity * intensity;
     }
 
