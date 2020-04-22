@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(PickMeUp))]
 public class StandardOrb : MonoBehaviour
 {
     public GameObject spawnLocation;
@@ -11,6 +12,7 @@ public class StandardOrb : MonoBehaviour
     public float haloIntensity;
     public float currentChargeLevel = 1.0f;
     public float spawnState = 1.0f;
+    public float heldIntensity = 0.5f;
 
     private float maxRange;
 
@@ -22,21 +24,26 @@ public class StandardOrb : MonoBehaviour
         myLight = gameObject.transform.Find("Point Light").GetComponent<Light>();
         halo = gameObject.transform.Find("Halo").GetComponent<Light>();
         maxRange = myLight.range;
-        updateOrbState();
+        UpdateOrbState();
     }
 
     // Update is called once per frame
     void Update() {
-        updateOrbState();
+        UpdateOrbState();
     }
 
-    void updateOrbState() {
+    // Responds to message sent by PickMeUp
+    void UpdateHeldState(float heldState) {
+        SetOrbIntensity(1 - (1 - heldIntensity) * heldState);
+    }
+
+    private void UpdateOrbState() {
         if (spawnState < 1) {
             if (spawnState >= 0) {
                 spawnState += Time.deltaTime / spawnTime;
                 spawnState = Mathf.Min(1, spawnState);
                 transform.localScale = Vector3.one * spawnState;
-                setOrbIntensity(spawnState);
+                SetOrbIntensity(spawnState);
             } else {
                 spawnState += Time.deltaTime / spawnTime;
                 if (spawnState < 0) {
@@ -50,8 +57,8 @@ public class StandardOrb : MonoBehaviour
                         }
                         transform.position = spawnLocation.transform.position;
                         currentChargeLevel = 1.0f;
-                        setOrbColor(getColorFromCharge());
-                        setOrbIntensity(0);
+                        SetOrbColor(GetColorFromCharge());
+                        SetOrbIntensity(0);
                     }
                 }
             }
@@ -63,7 +70,7 @@ public class StandardOrb : MonoBehaviour
                         currentChargeLevel = 0f;
                         spawnState = -1;
                     }
-                    setOrbColor(getColorFromCharge());
+                    SetOrbColor(GetColorFromCharge());
                 }
             } else {
                 if (currentChargeLevel < 1f) {
@@ -71,24 +78,24 @@ public class StandardOrb : MonoBehaviour
                     if (currentChargeLevel > 1f) {
                         currentChargeLevel = 1f;
                     }
-                    setOrbColor(getColorFromCharge());
+                    SetOrbColor(GetColorFromCharge());
                 }
             }
         }
     }
 
-    public void setOrbIntensity(float intensity) {
+    private void SetOrbIntensity(float intensity) {
         myLight.intensity = intensity;
         myLight.range = maxRange * intensity;
         halo.intensity = haloIntensity * intensity;
     }
 
-    void setOrbColor(Color color) {
+    private void SetOrbColor(Color color) {
         halo.color = color;
         myLight.color = color;
     }
 
-    Color getColorFromCharge() {
+    private Color GetColorFromCharge() {
         float chargeSubLevel, r, g, b;
         if (currentChargeLevel <= 0.2) {
             chargeSubLevel = currentChargeLevel / 0.2f;
