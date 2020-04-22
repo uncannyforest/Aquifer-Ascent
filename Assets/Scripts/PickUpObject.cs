@@ -76,7 +76,7 @@ public class PickUpObject : MonoBehaviour
                 o => Vector3.Distance(o.transform.position, gameObject.transform.position)
             ).First();
 
-        closestObject.GetComponent<PickMeUp>().StartPickUp();
+        closestObject.GetComponent<PickMeUp>().PickUp();
         UpdateInteractionMessages();
     }
 

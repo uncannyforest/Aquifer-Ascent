@@ -50,6 +50,6 @@ public class FloatWanderAI : MonoBehaviour
     }
 
     bool canMove() {
-        return !gameObject.GetComponent<PickMeUp>().PickedUp;
+        return !gameObject.GetComponent<PickMeUp>().IsHeld;
     }
 }

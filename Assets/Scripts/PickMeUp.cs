@@ -16,13 +16,19 @@ public class PickMeUp : MonoBehaviour
     private Transform playerHoldTransform;
     Collider physicsCollider;
     Rigidbody myRigidbody;
-    bool isMoving = false;
     Vector3 oldPosition;
     private AudioSource objectAudio; 
     private Bounds myColliderBounds;
 
-    public bool PickedUp {
+    public bool IsHeld {
         get => this.transform.parent == playerHoldTransform;
+        private set {
+            if (value) {
+                this.transform.SetParent(playerHoldTransform);
+            } else {
+                this.transform.SetParent(originalParent);
+            }
+        }
     }
 
     void Start(){
@@ -37,46 +43,35 @@ public class PickMeUp : MonoBehaviour
 
     // Update is called once per frame
     void Update(){
-
-        if (isMoving) {
+        if (IsHeld && heldState < 1f) {
             heldState += Time.deltaTime / pickUpTime;
+            heldState = Mathf.Min(heldState, 1f);
 
             Vector3 newPosition = playerHoldTransform.position;
-
-            if (heldState >= 1f) {
-                EndPickUp();
-            } else {
-                gameObject.SendMessage("UpdateHeldState", heldState);
-                this.transform.position =
-                        Vector3.Lerp(oldPosition, newPosition, QuadInterpolate(heldState));
-            }
+            this.transform.position =
+                Vector3.Lerp(oldPosition, newPosition, QuadInterpolate(heldState));
+            gameObject.SendMessage("UpdateHeldState", heldState);
+        } else if (!IsHeld && heldState > 0f) {
+            heldState -= Time.deltaTime / pickUpTime;
+            heldState = Mathf.Max(heldState, 0f);
+            gameObject.SendMessage("UpdateHeldState", heldState);
         }
     }
 
     public void SetDown(){
+        IsHeld = false;
         objectAudio.PlayOneShot(setDownSound, 0.5f);
         physicsCollider.enabled = true;
-        this.transform.SetParent(originalParent);
         myRigidbody.isKinematic = false;
-        heldState = 0;
-        gameObject.SendMessage("UpdateHeldState", heldState);
     }
-    public void StartPickUp(){
+
+    public void PickUp(){
+        IsHeld = true;
         objectAudio.PlayOneShot(pickUpSound, 0.5f);
         physicsCollider.enabled = false;
         myRigidbody.isKinematic = true;
-        isMoving = true;
         oldPosition = this.transform.position;
         this.transform.rotation = playerHoldTransform.rotation;
-        this.transform.SetParent(playerHoldTransform);
-    }
-
-    private void EndPickUp() {
-        isMoving = false;
-        this.transform.position = playerHoldTransform.position;
-        heldState = 1;
-        gameObject.SendMessage("UpdateHeldState", heldState);
-
     }
 
     public float GetColliderWidth(){

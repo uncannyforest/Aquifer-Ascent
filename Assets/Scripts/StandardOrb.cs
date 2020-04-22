@@ -52,7 +52,7 @@ public class StandardOrb : MonoBehaviour
                     if (spawnLocation == null) {
                         GameObject.Destroy(gameObject);
                     } else {
-                        if(gameObject.GetComponent<PickMeUp>().PickedUp) {
+                        if(gameObject.GetComponent<PickMeUp>().IsHeld) {
                             gameObject.GetComponent<PickMeUp>().SetDown();
                         }
                         transform.position = spawnLocation.transform.position;
@@ -63,7 +63,7 @@ public class StandardOrb : MonoBehaviour
                 }
             }
         } else {
-            if(gameObject.GetComponent<PickMeUp>().PickedUp) {
+            if(gameObject.GetComponent<PickMeUp>().IsHeld) {
                 if (currentChargeLevel > 0f) {
                     currentChargeLevel -= Time.deltaTime / unchargeTime;
                     if (currentChargeLevel < 0f) {
