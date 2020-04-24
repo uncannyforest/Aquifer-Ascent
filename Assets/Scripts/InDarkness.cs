@@ -51,6 +51,7 @@ public class InDarkness : MonoBehaviour
                 return;
             }
         }
+        Debug.Log("SCAAAAAAAAAAARY!");
     }
     
 }

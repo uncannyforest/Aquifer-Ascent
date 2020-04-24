@@ -14,6 +14,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] float m_RunCycleLegOffset = 0.2f; //specific to the character in sample assets, will need to be modified to work with others
 		[SerializeField] float m_MoveSpeedMultiplier = 1f;
 		[SerializeField] float m_AnimSpeedMultiplier = 1f;
+		[SerializeField] float m_DarknessMoveSpeedMultiplier = 1f;
+		[SerializeField] float m_DarknessAnimSpeedMultiplier = 0.4f;
 		[SerializeField] float m_GroundCheckDistance = 0.1f;
 
 		Rigidbody m_Rigidbody;
@@ -27,6 +29,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		float m_CapsuleHeight;
 		Vector3 m_CapsuleCenter;
 		CapsuleCollider m_Capsule;
+		InDarkness m_DarknessCheck;
 		bool m_Crouching;
 
 
@@ -37,6 +40,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			m_Capsule = GetComponent<CapsuleCollider>();
 			m_CapsuleHeight = m_Capsule.height;
 			m_CapsuleCenter = m_Capsule.center;
+			m_DarknessCheck = transform.Find("DarknessCheck").GetComponent<InDarkness>();
 
 			m_Rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
 			m_OrigGroundCheckDistance = m_GroundCheckDistance;
@@ -136,7 +140,11 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			// which affects the movement speed because of the root motion.
 			if (m_IsGrounded && move.magnitude > 0)
 			{
-				m_Animator.speed = m_AnimSpeedMultiplier;
+				if (m_DarknessCheck.IsInDarkness) {
+					m_Animator.speed = m_DarknessAnimSpeedMultiplier;
+				} else {
+					m_Animator.speed = m_AnimSpeedMultiplier;
+				}
 			}
 			else
 			{
@@ -183,7 +191,14 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			// this allows us to modify the positional speed before it's applied.
 			if (m_IsGrounded && Time.deltaTime > 0)
 			{
-				Vector3 v = (m_Animator.deltaPosition * m_MoveSpeedMultiplier) / Time.deltaTime;
+				float actualMoveSpeedMultiplier;
+				if (m_DarknessCheck.IsInDarkness) {
+					actualMoveSpeedMultiplier = m_DarknessMoveSpeedMultiplier;
+				} else {
+					actualMoveSpeedMultiplier = m_MoveSpeedMultiplier;
+				}
+
+				Vector3 v = (m_Animator.deltaPosition * actualMoveSpeedMultiplier) / Time.deltaTime;
 
 				// we preserve the existing y part of the current velocity.
 				v.y = m_Rigidbody.velocity.y;
