@@ -80,7 +80,7 @@ public class PickUpObject : MonoBehaviour
 
         heldObjectWidth = closestObject.GetComponent<PickMeUp>().GetColliderWidth();
 
-        closestObject.GetComponent<PickMeUp>().StartPickUp();
+        closestObject.GetComponent<PickMeUp>().PickUp();
         UpdateInteractionMessages();
     }
 
