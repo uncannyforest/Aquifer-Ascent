@@ -9,7 +9,9 @@ public class PickUpObject : MonoBehaviour
     private Transform playerHoldTransform;
     private HashSet<GameObject> nearObjects = new HashSet<GameObject>();
     Animator m_Animator;
-    private Vector3 leftHandlePosition, rightHandlePosition;
+    private float heldObjectWidth;
+    public float handWeightCurrent = 0;
+    public float transitionTime = .5f;
 
     // Start is called before the first frame update
     void Awake()
@@ -76,35 +78,47 @@ public class PickUpObject : MonoBehaviour
                 o => Vector3.Distance(o.transform.position, gameObject.transform.position)
             ).First();
 
+        heldObjectWidth = closestObject.GetComponent<PickMeUp>().GetColliderWidth();
+
         closestObject.GetComponent<PickMeUp>().PickUp();
         UpdateInteractionMessages();
     }
 
     void OnAnimatorIK()
     {
+        if(playerHoldTransform.childCount < 1 && handWeightCurrent == 0){
+            return;
+        }
+
+        Vector3 rightHandlePosition = playerHoldTransform.position + (.5f * heldObjectWidth * this.transform.right);
+        Vector3 leftHandlePosition = playerHoldTransform.position - (.5f * heldObjectWidth * this.transform.right);
+
         if(playerHoldTransform.childCount > 0) { // if you're holding something 
-
-            Transform heldObject = playerHoldTransform.GetChild(0);
-            float objectWidth = heldObject.GetComponent<PickMeUp>().GetColliderWidth();
-            rightHandlePosition = playerHoldTransform.position + (.5f * objectWidth * this.transform.right);
-            leftHandlePosition = playerHoldTransform.position - (.5f * objectWidth * this.transform.right);
-
-            // Set the hands' target positions and rotations
-            m_Animator.SetIKPositionWeight(AvatarIKGoal.RightHand,1);
-            m_Animator.SetIKRotationWeight(AvatarIKGoal.RightHand,1);
-            m_Animator.SetIKPositionWeight(AvatarIKGoal.LeftHand,1);
-            m_Animator.SetIKRotationWeight(AvatarIKGoal.LeftHand,1);  
-            m_Animator.SetIKPosition(AvatarIKGoal.RightHand,rightHandlePosition);
-            m_Animator.SetIKRotation(AvatarIKGoal.RightHand,playerHoldTransform.rotation);
-            m_Animator.SetIKPosition(AvatarIKGoal.LeftHand,leftHandlePosition);
-            m_Animator.SetIKRotation(AvatarIKGoal.LeftHand,playerHoldTransform.rotation);  
+            if( handWeightCurrent < 1f ){
+                handWeightCurrent += Time.deltaTime / transitionTime;
+            }else{
+                handWeightCurrent = 1f;
+            }
         }else{
             // Let the hands relax :)
-            m_Animator.SetIKPositionWeight(AvatarIKGoal.RightHand,0);
-            m_Animator.SetIKRotationWeight(AvatarIKGoal.RightHand,0); 	
-            m_Animator.SetIKPositionWeight(AvatarIKGoal.LeftHand,0);
-            m_Animator.SetIKRotationWeight(AvatarIKGoal.LeftHand,0); 
+
+            if( handWeightCurrent > 0f ){
+                handWeightCurrent -= Time.deltaTime / transitionTime;
+            }else{
+                handWeightCurrent = 0f;
+            }
         }
+
+        m_Animator.SetIKPositionWeight(AvatarIKGoal.RightHand,handWeightCurrent);
+        m_Animator.SetIKRotationWeight(AvatarIKGoal.RightHand,handWeightCurrent); 	
+        m_Animator.SetIKPositionWeight(AvatarIKGoal.LeftHand,handWeightCurrent);
+        m_Animator.SetIKRotationWeight(AvatarIKGoal.LeftHand,handWeightCurrent); 
+
+        m_Animator.SetIKPosition(AvatarIKGoal.RightHand,rightHandlePosition);
+        m_Animator.SetIKRotation(AvatarIKGoal.RightHand,playerHoldTransform.rotation);
+        m_Animator.SetIKPosition(AvatarIKGoal.LeftHand,leftHandlePosition);
+        m_Animator.SetIKRotation(AvatarIKGoal.LeftHand,playerHoldTransform.rotation);  
+
     }
     
     void DropAnyPickedUpObjects() {
