@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,10 +10,15 @@ public class StandardOrb : MonoBehaviour
     public float unchargeTime = 30f;
     public float chargeTime = 450f;
     public float spawnTime = 1f;
-    public float haloIntensity;
+    public float haloIntensity = 1.5f;
     public float currentChargeLevel = 1.0f;
     public float spawnState = 1.0f;
-    public float heldIntensity = 0.5f;
+    public float heldIntensity = 0.4f;
+    public ColorTransition[] colorTransitions = {
+        new ColorTransition(1.0f, new Color(1.0f, 1.0f, 1.0f)),
+        new ColorTransition(0.6f, new Color(1.0f, 0.75f, 0.0f)),
+        new ColorTransition(0.2f, new Color(0.5f, 0.125f, 0.0f))
+    };
 
     private Light myLight;
     private Light halo;
@@ -92,23 +98,43 @@ public class StandardOrb : MonoBehaviour
     }
 
     private Color GetColorFromCharge() {
-        float chargeSubLevel, r, g, b;
-        if (currentChargeLevel <= 0.2) {
-            chargeSubLevel = currentChargeLevel / 0.2f;
-            r = 0.5f * chargeSubLevel;
-            g = 0.125f * chargeSubLevel;
-            b = 0.0f;
-        } else if (currentChargeLevel < 0.6) {
-            chargeSubLevel = (currentChargeLevel - 0.2f) / 0.4f;
-            r = 0.5f + (1.0f - 0.5f) * chargeSubLevel;
-            g = 0.125f + (0.75f - 0.125f) * chargeSubLevel;
-            b = 0.0f;
-        } else {
-            chargeSubLevel = (currentChargeLevel - 0.6f) / 0.4f;
-            r = 1.0f;
-            g = 0.75f + 0.25f * chargeSubLevel;
-            b = chargeSubLevel;
+        if (currentChargeLevel >= colorTransitions[0].frame) {
+            return colorTransitions[0].color;
         }
+
+        float chargeSubLevel, r, g, b;
+
+        for (int i = 1; i < colorTransitions.Length; i++) {
+            if (currentChargeLevel >= colorTransitions[i].frame) {
+                ColorTransition higher = colorTransitions[i - 1];
+                ColorTransition lower = colorTransitions[i];
+                chargeSubLevel = (currentChargeLevel - lower.frame)
+                        / (higher.frame - lower.frame);
+                r = lower.color.r + (higher.color.r - lower.color.r) * chargeSubLevel;
+                g = lower.color.g + (higher.color.g - lower.color.g) * chargeSubLevel;
+                b = lower.color.b + (higher.color.b - lower.color.b) * chargeSubLevel;
+
+                return new Color(r, g, b);
+            }
+        }
+
+        ColorTransition lowestToBlack = colorTransitions[colorTransitions.Length - 1];
+        chargeSubLevel = currentChargeLevel / lowestToBlack.frame;
+        r = lowestToBlack.color.r * chargeSubLevel;
+        g = lowestToBlack.color.g * chargeSubLevel;
+        b = lowestToBlack.color.b * chargeSubLevel;
+
         return new Color(r, g, b);
+    }
+
+    [Serializable]
+    public struct ColorTransition {
+        public float frame;
+        public Color color;
+
+        public ColorTransition (float frame, Color color) {
+            this.frame = frame;
+            this.color = color;
+        }
     }
 }
