@@ -49,6 +49,7 @@ MonoBehaviour:
   unspawnedOrb: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
     type: 3}
   numLights: 5
+  spawnNewOrbDistance: 4
   growthTime: 375
   growthProgress: 0
   fractalLevel: 4

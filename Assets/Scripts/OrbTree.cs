@@ -7,10 +7,11 @@ public class OrbTree : MonoBehaviour
 {
     public GameObject orbParent;
     public GameObject unspawnedOrb;
-    public int numLights = 7;
-    public float growthTime = 343;
+    public int numLights = 5;
+    public float spawnNewOrbDistance = 2;
+    public float growthTime = 375;
     public float growthProgress = 0;
-    public int fractalLevel = 6;
+    public int fractalLevel = 4;
     public int numBranches = 3;
     public Vector3 branchPosition = new Vector3(1, 0, 0);
     public Vector3 branchRotation = new Vector3(0, 0, 30);
@@ -27,6 +28,7 @@ public class OrbTree : MonoBehaviour
     GameObject prototype;
     List<GameObject> activeBuds = new List<GameObject>();
     List<GameObject> endBranches = new List<GameObject>(); // each *might* grow an active bud next round
+    List<GameObject> orbs = new List<GameObject>();
 
     int currentFractalLevel = 0;
     float fractalLevelFactor;
@@ -50,7 +52,9 @@ public class OrbTree : MonoBehaviour
         for (int i = 0; i < Mathf.Floor(growthProgress * numLights); i++) {
             AddLight();
         }
-        StartCoroutine(ScheduleInitialLights(Mathf.CeilToInt(numLights * (1 - growthProgress))));
+        StartCoroutine(ScheduleSpawnLights(Mathf.CeilToInt(numLights * (1 - growthProgress)), growthTime / numLights));
+
+        InvokeRepeating("CheckOrbDistance", 1f, 1f);
     }
 
     void Update() {
@@ -136,9 +140,9 @@ public class OrbTree : MonoBehaviour
         }
     }
 
-    IEnumerator ScheduleInitialLights(int numberOfLights) {
+    IEnumerator ScheduleSpawnLights(int numberOfLights, float timeInterval) {
         for (int i = 0; i < numberOfLights; i++) {
-            yield return new WaitForSeconds(growthTime / numLights);
+            yield return new WaitForSeconds(timeInterval);
             AddLight();
         }
     }
@@ -147,5 +151,17 @@ public class OrbTree : MonoBehaviour
         GameObject bud = activeBuds[Random.Range(0, activeBuds.Count - 1)];
         GameObject newLight = Instantiate(unspawnedOrb, bud.transform.position, bud.transform.rotation);
         newLight.transform.parent = orbParent.transform;
+        orbs.Add(newLight);
+    }
+
+    void CheckOrbDistance() {
+        for (int i = orbs.Count - 1; i >= 0; i--) { // backwards iteration is safe for removal
+            GameObject orb = orbs[i];
+            if (Vector3.Distance(orb.transform.position, this.transform.position) > spawnNewOrbDistance) {
+                float timeUntilNewOrb = (1f + 1f / numLights - growthProgress) * growthTime / numLights;
+                StartCoroutine(ScheduleSpawnLights(1, timeUntilNewOrb));
+                orbs.RemoveAt(i);
+            }
+        }
     }
 }

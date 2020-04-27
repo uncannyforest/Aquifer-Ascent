@@ -29,7 +29,6 @@ public class PickUpObject : MonoBehaviour
     }
 
     void OnTriggerEnter(Collider other) {
-        Debug.Log("Hiiiii");
         if(other.tag == "CanPickUp") {
             GameObject objectToPickUp;
             if(other.gameObject.GetComponent<PickMeUp>() != null) {
@@ -149,8 +148,6 @@ public class PickUpObject : MonoBehaviour
         GameObject interactNotice = GameObject.Find("Nonmobile")
                 .transform.Find("Interact Notice").gameObject;
 #endif 
-
-        Debug.Log(interactNotice);
 
         if (interactionMessages.Count > 0) {
             interactNotice.SetActive(true);

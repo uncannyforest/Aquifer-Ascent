@@ -642,9 +642,9 @@ Transform:
   - {fileID: 1189819016}
   - {fileID: 1086024526}
   - {fileID: 780699391}
+  - {fileID: 960352248}
   - {fileID: 1815722518}
   - {fileID: 838106096}
-  - {fileID: 960352248}
   - {fileID: 1253352349}
   - {fileID: 429129583}
   - {fileID: 962577644}
@@ -3514,7 +3514,7 @@ PrefabInstance:
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Name
-      value: GlowingObject (2)
+      value: Second GlowingObject
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
@@ -5578,7 +5578,7 @@ PrefabInstance:
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Name
-      value: GlowingObject (1)
+      value: Second GlowingObject
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
@@ -5978,7 +5978,7 @@ PrefabInstance:
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Name
-      value: GlowingObject
+      value: Second GlowingObject
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
@@ -8455,8 +8455,8 @@ Transform:
   - {fileID: 323071923}
   - {fileID: 1157981060}
   - {fileID: 308424401}
-  - {fileID: 718803547}
   - {fileID: 830384943}
+  - {fileID: 718803547}
   m_Father: {fileID: 301231493}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -9852,10 +9852,20 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5358214779500436783, guid: 0eb13e365665b4feb907433579ff87a3,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 7158090097261507204, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Radius
       value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7327089894116536866, guid: 0eb13e365665b4feb907433579ff87a3,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894116536868, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
@@ -9940,7 +9950,7 @@ PrefabInstance:
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Name
-      value: GlowingObject
+      value: First GlowingObject
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
@@ -9962,6 +9972,11 @@ PrefabInstance:
       propertyPath: spawnLocation
       value: 
       objectReference: {fileID: 1745950904}
+    - target: {fileID: 7456130516122914424, guid: 0eb13e365665b4feb907433579ff87a3,
+        type: 3}
+      propertyPath: spawnState
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8660939059094344859, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_IsActive
