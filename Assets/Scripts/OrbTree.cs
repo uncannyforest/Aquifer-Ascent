@@ -6,6 +6,7 @@ using System.Linq;
 public class OrbTree : MonoBehaviour
 {
     public GameObject orbParent;
+    public string autoFindOrbParentByName = "Free Orbs";
     public GameObject unspawnedOrb;
     public int numLights = 5;
     public float spawnNewOrbDistance = 2;
@@ -36,6 +37,10 @@ public class OrbTree : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (orbParent == null) {
+            orbParent = GameObject.Find(autoFindOrbParentByName);
+        }
+
         prototype = gameObject.transform.Find("Prototype").gameObject;
         GameObject trunkBud = new GameObject("Plumule");
         trunkBud.transform.SetParent(this.transform, false);

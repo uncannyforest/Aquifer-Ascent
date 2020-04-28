@@ -263,12 +263,14 @@ MonoBehaviour:
   spawnState: 0
   heldIntensity: 0.4
   colorTransitions:
-  - frame: 0.5
-    color: {r: 0.8745098, g: 1, b: 0.5019608, a: 1}
+  - frame: 1
+    color: {r: 0.7490196, g: 1, b: 0.5019608, a: 1}
+  - frame: 0.9
+    color: {r: 0.2509804, g: 0.5019608, b: 0, a: 1}
   - frame: 0.3
-    color: {r: 0.3764706, g: 0.5019608, b: 0, a: 1}
+    color: {r: 0.2509804, g: 0.5019608, b: 0, a: 1}
   - frame: 0.1
-    color: {r: 0.5, g: 0.125, b: 0, a: 1}
+    color: {r: 0.5, g: 0.2509804, b: 0, a: 1}
 --- !u!54 &4324324191667893875
 Rigidbody:
   m_ObjectHideFlags: 0
