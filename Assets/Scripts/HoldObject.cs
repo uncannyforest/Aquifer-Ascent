@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PickUpObject : MonoBehaviour
+public class HoldObject : MonoBehaviour
 {
     private Transform playerHoldTransform;
     private HashSet<GameObject> nearObjects = new HashSet<GameObject>();
@@ -31,9 +31,9 @@ public class PickUpObject : MonoBehaviour
     void OnTriggerEnter(Collider other) {
         if(other.tag == "CanPickUp") {
             GameObject objectToPickUp;
-            if(other.gameObject.GetComponent<PickMeUp>() != null) {
+            if(other.gameObject.GetComponent<Holdable>() != null) {
                 objectToPickUp = other.gameObject;
-            } else if (other.transform.parent.GetComponent<PickMeUp>() != null) {
+            } else if (other.transform.parent.GetComponent<Holdable>() != null) {
                 objectToPickUp = other.transform.parent.gameObject;
             } else {
                 Debug.LogError("Object tagged CanPickUp has no PickMeUp script on it or parent");
@@ -47,9 +47,9 @@ public class PickUpObject : MonoBehaviour
 	void OnTriggerExit(Collider other) {
         if(other.tag == "CanPickUp") {
             GameObject objectToPickUp;
-            if(other.gameObject.GetComponent<PickMeUp>() != null) {
+            if(other.gameObject.GetComponent<Holdable>() != null) {
                 objectToPickUp = other.gameObject;
-            } else if (other.transform.parent.GetComponent<PickMeUp>() != null) {
+            } else if (other.transform.parent.GetComponent<Holdable>() != null) {
                 objectToPickUp = other.transform.parent.gameObject;
             } else {
                 Debug.LogError("Object tagged CanPickUp has no PickMeUp script on it or parent");
@@ -77,9 +77,9 @@ public class PickUpObject : MonoBehaviour
                 o => Vector3.Distance(o.transform.position, gameObject.transform.position)
             ).First();
 
-        heldObjectWidth = closestObject.GetComponent<PickMeUp>().GetColliderWidth();
+        heldObjectWidth = closestObject.GetComponent<Holdable>().GetColliderWidth();
 
-        closestObject.GetComponent<PickMeUp>().PickUp();
+        closestObject.GetComponent<Holdable>().PickUp();
         UpdateInteractionMessages();
     }
 
@@ -122,7 +122,7 @@ public class PickUpObject : MonoBehaviour
     
     void DropAnyPickedUpObjects() {
         foreach (Transform child in playerHoldTransform) {
-            PickMeUp childPickMeUp = child.GetComponent<PickMeUp>();
+            Holdable childPickMeUp = child.GetComponent<Holdable>();
             if (childPickMeUp == null) {
                 Debug.LogWarning("Child of playerHold had no PickMeUp script!");
             } else {

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(PickMeUp))]
+[RequireComponent(typeof(Holdable))]
 public class StandardOrb : MonoBehaviour
 {
     public GameObject spawnLocation;
@@ -55,8 +55,8 @@ public class StandardOrb : MonoBehaviour
                     if (spawnLocation == null) {
                         GameObject.Destroy(gameObject);
                     } else {
-                        if(gameObject.GetComponent<PickMeUp>().IsHeld) {
-                            gameObject.GetComponent<PickMeUp>().SetDown();
+                        if(gameObject.GetComponent<Holdable>().IsHeld) {
+                            gameObject.GetComponent<Holdable>().SetDown();
                         }
                         transform.position = spawnLocation.transform.position;
                         currentChargeLevel = 1.0f;
@@ -66,7 +66,7 @@ public class StandardOrb : MonoBehaviour
                 }
             }
         } else {
-            if(gameObject.GetComponent<PickMeUp>().IsHeld) {
+            if(gameObject.GetComponent<Holdable>().IsHeld) {
                 if (currentChargeLevel > 0f) {
                     currentChargeLevel -= Time.deltaTime / unchargeTime;
                     if (currentChargeLevel < 0f) {

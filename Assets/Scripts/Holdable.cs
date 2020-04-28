@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Collider))]
-public class PickMeUp : MonoBehaviour
+public class Holdable : MonoBehaviour
 {
 
     public AudioClip pickUpSound;
