@@ -2,20 +2,30 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class HoldObject : MonoBehaviour
 {
+    public float transitionTime = .5f;
+    public float handWeightCurrent = 0;
+
     private Transform playerHoldTransform;
     private HashSet<GameObject> nearObjects = new HashSet<GameObject>();
     Animator m_Animator;
     private float heldObjectWidth;
-    public float handWeightCurrent = 0;
-    public float transitionTime = .5f;
+
+    FlexibleInput flexibleInput;
+    EnvironmentInteractor environment;
+
+    public bool IsHolding {
+        get => this.playerHoldTransform.childCount > 0;
+    }
 
     // Start is called before the first frame update
     void Awake()
     {
+        flexibleInput = new FlexibleInput(this);
+        environment = new EnvironmentInteractor(this);
+
         playerHoldTransform = gameObject.transform.Find("HoldLocation");
         m_Animator = GetComponent<Animator>();
     }
@@ -30,42 +40,27 @@ public class HoldObject : MonoBehaviour
 
     void OnTriggerEnter(Collider other) {
         if(other.tag == "CanPickUp") {
-            GameObject objectToPickUp;
-            if(other.gameObject.GetComponent<Holdable>() != null) {
-                objectToPickUp = other.gameObject;
-            } else if (other.transform.parent.GetComponent<Holdable>() != null) {
-                objectToPickUp = other.transform.parent.gameObject;
-            } else {
-                Debug.LogError("Object tagged CanPickUp has no PickMeUp script on it or parent");
-                return;
-            }
-            nearObjects.Add(objectToPickUp);
-            UpdateInteractionMessages();
+            GameObject interactableObject = environment.GetInteractableObject(other.gameObject);
+            nearObjects.Add(interactableObject);
+            flexibleInput.UpdateDisplayForNearbyObjects(nearObjects);
         }
     }
 
 	void OnTriggerExit(Collider other) {
         if(other.tag == "CanPickUp") {
-            GameObject objectToPickUp;
-            if(other.gameObject.GetComponent<Holdable>() != null) {
-                objectToPickUp = other.gameObject;
-            } else if (other.transform.parent.GetComponent<Holdable>() != null) {
-                objectToPickUp = other.transform.parent.gameObject;
-            } else {
-                Debug.LogError("Object tagged CanPickUp has no PickMeUp script on it or parent");
-                return;
-            }
-			bool foundObject = nearObjects.Remove(objectToPickUp);
+            GameObject interactableObject = environment.GetInteractableObject(other.gameObject);
+			bool foundObject = nearObjects.Remove(interactableObject);
             if (!foundObject) {
                 Debug.LogWarning("Tried to remove object from nearObjects that was not there");
             }
-            UpdateInteractionMessages();
+            flexibleInput.UpdateDisplayForNearbyObjects(nearObjects);
 		}
     }
     
     void Interact() {
-        if (playerHoldTransform.childCount > 0) {
-            DropAnyPickedUpObjects();
+        if (IsHolding) {
+            environment.DropHeldObject(playerHoldTransform);
+            flexibleInput.UpdateDisplayForNearbyObjects(nearObjects);
             return;
         }
 
@@ -73,14 +68,9 @@ public class HoldObject : MonoBehaviour
             return;
         }
 
-        GameObject closestObject = nearObjects.OrderBy(
-                o => Vector3.Distance(o.transform.position, gameObject.transform.position)
-            ).First();
-
-        heldObjectWidth = closestObject.GetComponent<Holdable>().GetColliderWidth();
-
-        closestObject.GetComponent<Holdable>().PickUp();
-        UpdateInteractionMessages();
+        GameObject heldObject = environment.HoldClosestObject(nearObjects);
+        heldObjectWidth = heldObject.GetComponent<Holdable>().GetColliderWidth();
+        flexibleInput.UpdateDisplayForHeldObject(heldObject);
     }
 
     void OnAnimatorIK()
@@ -120,51 +110,4 @@ public class HoldObject : MonoBehaviour
 
     }
     
-    void DropAnyPickedUpObjects() {
-        foreach (Transform child in playerHoldTransform) {
-            Holdable childPickMeUp = child.GetComponent<Holdable>();
-            if (childPickMeUp == null) {
-                Debug.LogWarning("Child of playerHold had no PickMeUp script!");
-            } else {
-                childPickMeUp.SetDown();
-            }
-            UpdateInteractionMessages();
-        }
-    }
-
-    void UpdateInteractionMessages() {
-        List<string> interactionMessages = new List<string>();
-        if (playerHoldTransform.childCount > 0) {
-            interactionMessages.Add("release");
-        } else if (nearObjects.Count > 0) {
-            interactionMessages.Add("beckon");
-        }
-
-
-#if (UNITY_IOS || UNITY_ANDROID)
-        GameObject interactNotice = GameObject.Find("Mobile")
-                .transform.Find("Interact/Notice").gameObject;
-#else
-        GameObject interactNotice = GameObject.Find("Nonmobile")
-                .transform.Find("Interact Notice").gameObject;
-#endif 
-
-        if (interactionMessages.Count > 0) {
-            interactNotice.SetActive(true);
-
-            // TODO: handle multiple nearby objects
-            string interactionMessage = interactionMessages[0];
-            
-#if (UNITY_IOS || UNITY_ANDROID)
-            interactionMessage = char.ToUpper(interactionMessage[0]) + interactionMessage.Substring(1);
-#else
-            interactionMessage = "press <color=white>x</color> to <color=white>"
-                + interactionMessage + "</color>";
-#endif 
-            interactNotice.transform.Find("Text").gameObject.GetComponent<Text>().text = interactionMessage;
-        } else {
-            interactNotice.SetActive(false);
-        }
-    }
-
 }

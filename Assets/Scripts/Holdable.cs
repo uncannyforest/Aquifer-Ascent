@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 public class Holdable : MonoBehaviour
 {
 
+    public string optionalAction;
     public AudioClip pickUpSound;
     public AudioClip setDownSound;
     public float pickUpTime = 0.5f;
