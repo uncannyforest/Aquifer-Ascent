@@ -9,12 +9,11 @@ public class HoldObject : MonoBehaviour
     public float handWeightCurrent = 0;
 
     private Transform playerHoldTransform;
-    private HashSet<GameObject> nearObjects = new HashSet<GameObject>();
     Animator m_Animator;
     private float heldObjectWidth;
 
     FlexibleInput flexibleInput;
-    EnvironmentInteractor environment;
+    EnvironmentInteractor environmentInteractor;
 
     public bool IsHolding {
         get => this.playerHoldTransform.childCount > 0;
@@ -24,7 +23,7 @@ public class HoldObject : MonoBehaviour
     void Awake()
     {
         flexibleInput = new FlexibleInput(this);
-        environment = new EnvironmentInteractor(this);
+        environmentInteractor = new EnvironmentInteractor(this);
 
         playerHoldTransform = gameObject.transform.Find("HoldLocation");
         m_Animator = GetComponent<Animator>();
@@ -34,43 +33,50 @@ public class HoldObject : MonoBehaviour
     void Update()
     {
         if (SimpleInput.GetButtonDown("Interact1")) {
-            Interact();
+            Interact1();
+        }
+        if (SimpleInput.GetButtonDown("Interact2")) {
+            Interact2();
         }
     }
 
     void OnTriggerEnter(Collider other) {
         if(other.tag == "CanPickUp") {
-            GameObject interactableObject = environment.GetInteractableObject(other.gameObject);
-            nearObjects.Add(interactableObject);
-            flexibleInput.UpdateDisplayForNearbyObjects(nearObjects);
+            environmentInteractor.AddInteractableObject(other.gameObject);
+            flexibleInput.UpdateDisplayForNearbyObjects(environmentInteractor.NearObjects);
         }
     }
 
 	void OnTriggerExit(Collider other) {
         if(other.tag == "CanPickUp") {
-            GameObject interactableObject = environment.GetInteractableObject(other.gameObject);
-			bool foundObject = nearObjects.Remove(interactableObject);
-            if (!foundObject) {
-                Debug.LogWarning("Tried to remove object from nearObjects that was not there");
-            }
-            flexibleInput.UpdateDisplayForNearbyObjects(nearObjects);
+            environmentInteractor.RemoveInteractableObject(other.gameObject);
+            flexibleInput.UpdateDisplayForNearbyObjects(environmentInteractor.NearObjects);
 		}
     }
-    
-    void Interact() {
-        if (IsHolding) {
-            environment.DropHeldObject(playerHoldTransform);
-            flexibleInput.UpdateDisplayForNearbyObjects(nearObjects);
-            return;
-        }
 
-        if (nearObjects.Count == 0) {
-            return;
-        }
-
-        GameObject heldObject = environment.HoldClosestObject(nearObjects);
+    /// <summary> Called by Holdable script once hold initiated </summary>
+    public void OnHoldObject(GameObject heldObject) {
         heldObjectWidth = heldObject.GetComponent<Holdable>().GetColliderWidth();
         flexibleInput.UpdateDisplayForHeldObject(heldObject);
+    }
+
+    /// <summary> Called by Holdable script since sometimes child initiates SetDown </summary>
+    public void OnDropObject(GameObject heldObject) {
+        flexibleInput.UpdateDisplayForNearbyObjects(environmentInteractor.NearObjects);
+    }
+
+    void Interact1() {
+        if (IsHolding) {
+            environmentInteractor.DropHeldObject(playerHoldTransform);
+        } else {
+            environmentInteractor.HoldClosestObject();
+        }
+    }
+
+    void Interact2() {
+        if (IsHolding) {
+            environmentInteractor.UseHeldObject(playerHoldTransform);
+        }
     }
 
     void OnAnimatorIK()

@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 public class Holdable : MonoBehaviour
 {
 
-    public string optionalAction;
+    public string optionalAction = "";
     public AudioClip pickUpSound;
     public AudioClip setDownSound;
     public float pickUpTime = 0.5f;
@@ -64,6 +64,7 @@ public class Holdable : MonoBehaviour
         objectAudio.PlayOneShot(setDownSound, 0.5f);
         physicsCollider.enabled = true;
         myRigidbody.isKinematic = false;
+        playerHoldTransform.parent.GetComponent<HoldObject>().OnDropObject(gameObject);
     }
 
     public void PickUp(){
@@ -73,6 +74,7 @@ public class Holdable : MonoBehaviour
         myRigidbody.isKinematic = true;
         oldPosition = this.transform.position;
         this.transform.rotation = playerHoldTransform.rotation;
+        playerHoldTransform.parent.GetComponent<HoldObject>().OnHoldObject(gameObject);
     }
 
     public float GetColliderWidth(){

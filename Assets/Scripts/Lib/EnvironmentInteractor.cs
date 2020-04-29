@@ -6,12 +6,25 @@ using UnityEngine;
 /// <summary> holds code governing interaction with other game objects </summary>
 public class EnvironmentInteractor {
     private HoldObject script;
+    private HashSet<GameObject> nearObjects = new HashSet<GameObject>();
+
+    public HashSet<GameObject> NearObjects {
+        get => nearObjects;
+    }
 
     public EnvironmentInteractor(HoldObject script) {
         this.script = script;
     }
 
-    public GameObject GetInteractableObject(GameObject trigger) {
+    public void AddInteractableObject(GameObject trigger) {
+        nearObjects.Add(GetInteractableObject(trigger));
+    }
+
+    public void RemoveInteractableObject(GameObject trigger) {
+        nearObjects.Remove(GetInteractableObject(trigger));
+    }
+
+    private GameObject GetInteractableObject(GameObject trigger) {
         if(trigger.GetComponent<Holdable>() != null) {
             return trigger;
         } else if (trigger.transform.parent.GetComponent<Holdable>() != null) {
@@ -22,14 +35,16 @@ public class EnvironmentInteractor {
         }
     }
 
-    public GameObject HoldClosestObject(IEnumerable<GameObject> nearObjects) {
+    public void HoldClosestObject() {
+        if (nearObjects.Count == 0) {
+            return;
+        }
+
         GameObject closestObject = nearObjects.OrderBy(
                 o => Vector3.Distance(o.transform.position, script.transform.position)
             ).First();
 
         closestObject.GetComponent<Holdable>().PickUp();
-
-        return closestObject;
     }
 
     public void DropHeldObject(Transform playerHoldTransform) {
@@ -40,6 +55,12 @@ public class EnvironmentInteractor {
             } else {
                 childPickMeUp.SetDown();
             }
+        }
+    }
+
+    public void UseHeldObject(Transform playerHoldTransform) {
+        foreach (Transform child in playerHoldTransform) {
+            child.SendMessage("Use");
         }
     }
 

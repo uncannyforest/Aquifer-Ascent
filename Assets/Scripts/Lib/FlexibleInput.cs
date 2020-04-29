@@ -16,38 +16,51 @@ public class FlexibleInput {
         }
 
         if (nearObjects.Count > 0) {
-            SetInteractionMessage("beckon", null);
+            SetInteractionMessages("beckon", null);
         } else {
-            SetInteractionMessage(null, null);
+            SetInteractionMessages(null, null);
         }
     }
 
     public void UpdateDisplayForHeldObject(GameObject heldObject) {
-        SetInteractionMessage("release", null);
+        string interact2 = heldObject.GetComponent<Holdable>().optionalAction;
+
+        SetInteractionMessages("release", interact2);
     }
 
-    void SetInteractionMessage(string interact1, string interact2) {
+    void SetInteractionMessages(string interact1, string interact2) {
 
 #if (UNITY_IOS || UNITY_ANDROID)
-        GameObject interactNotice = GameObject.Find("Mobile")
-                .transform.Find("Interact/Notice").gameObject;
+        GameObject interactNotice1 = GameObject.Find("Mobile")
+                .transform.Find("Interact 1/Notice").gameObject;
+        GameObject interactNotice2 = GameObject.Find("Mobile")
+                .transform.Find("Interact 2/Notice").gameObject;
 #else
-        GameObject interactNotice = GameObject.Find("Nonmobile")
-                .transform.Find("Interact Notice").gameObject;
+        GameObject interactNotice1 = GameObject.Find("Nonmobile")
+                .transform.Find("Interact Notice 1").gameObject;
+        GameObject interactNotice2 = GameObject.Find("Nonmobile")
+                .transform.Find("Interact Notice 2").gameObject;
 #endif 
 
-        if (interact1 != null) {
+        SetInteractionMessage(interactNotice1, interact1, "x");
+        SetInteractionMessage(interactNotice2, interact2, "z");
+    }
+
+    void SetInteractionMessage(GameObject interactNotice, string message, string desktopKey) {
+        if (!string.IsNullOrEmpty(message)) {
             interactNotice.SetActive(true);
             
 #if (UNITY_IOS || UNITY_ANDROID)
-            interactionMessage = char.ToUpper(interact1[0]) + interact1.Substring(1);
+            message = char.ToUpper(message[0]) + message.Substring(1);
 #else
-            interact1 = "press <color=white>x</color> to <color=white>"
-                + interact1 + "</color>";
+            message = "press <color=white>" + desktopKey + "</color> to <color=white>"
+                + message + "</color>";
 #endif 
-            interactNotice.transform.Find("Text").gameObject.GetComponent<Text>().text = interact1;
+
+            interactNotice.transform.Find("Text").gameObject.GetComponent<Text>().text = message;
         } else {
             interactNotice.SetActive(false);
         }
+
     }
 }
