@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class FlexibleInput {
+public class FlexibleInputDisplay {
     private HoldObject script;
 
-    public FlexibleInput(HoldObject script) {
+    public FlexibleInputDisplay(HoldObject script) {
         this.script = script;
     }
 
-    public void UpdateDisplayForNearbyObjects(HashSet<GameObject> nearObjects) {
-        if (script.IsHolding) {
-            return; // no state change of IsHolding, nothing to do
+    public void UpdateNoActions() {
+        SetInteractionMessages(null, null);
+    }
+
+    public void UpdateForNearbyObjects(HashSet<GameObject> nearObjects) {
+        if (script.isTransitioning != HoldObject.Transition.None || script.IsHolding) {
+            return; // nearby objects not applicable, nothing to do
         }
 
         if (nearObjects.Count > 0) {
@@ -22,7 +26,7 @@ public class FlexibleInput {
         }
     }
 
-    public void UpdateDisplayForHeldObject(GameObject heldObject) {
+    public void UpdateForHeldObject(GameObject heldObject) {
         string interact2 = heldObject.GetComponent<Holdable>().optionalAction;
 
         SetInteractionMessages("release", interact2);
