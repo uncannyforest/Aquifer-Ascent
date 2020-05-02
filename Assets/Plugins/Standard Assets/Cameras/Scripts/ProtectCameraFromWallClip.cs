@@ -11,12 +11,13 @@ namespace UnityStandardAssets.Cameras
         public float sphereCastRadius = 0.1f;           // the radius of the sphere used to test for object between camera and target
         public bool visualiseInEditor;                  // toggle for visualising the algorithm through lines for the raycast in the editor
         public float closestDistance = 0.5f;            // the closest distance the camera can be from the target
+        public float maxDistance;                       // the original distance to the camera before any modification are made
+        public bool maxDistanceIsChanging = false;
         public bool protecting { get; private set; }    // used for determining if there is an object between the target and the camera
         public string tagToAvoidClipping = "Wall";           // don't clip against objects with this tag (useful for not clipping against the targeted object)
 
         private Transform m_Cam;                  // the transform of the camera
         private Transform m_Pivot;                // the point at which the camera pivots around
-        private float m_OriginalDist;             // the original distance to the camera before any modification are made
         private float m_MoveVelocity;             // the velocity at which the camera moved
         private float m_CurrentDist;              // the current distance from the camera to the target
         private Ray m_Ray = new Ray();                        // the ray used in the lateupdate for casting between the camera and the target
@@ -29,8 +30,8 @@ namespace UnityStandardAssets.Cameras
             // find the camera in the object hierarchy
             m_Cam = GetComponentInChildren<Camera>().transform;
             m_Pivot = m_Cam.parent;
-            m_OriginalDist = m_Cam.localPosition.magnitude;
-            m_CurrentDist = m_OriginalDist;
+            maxDistance = m_Cam.localPosition.magnitude;
+            m_CurrentDist = maxDistance;
 
             // create a new RayHitComparer
             m_RayHitComparer = new RayHitComparer();
@@ -40,7 +41,7 @@ namespace UnityStandardAssets.Cameras
         private void LateUpdate()
         {
             // initially set the target distance
-            float targetDist = m_OriginalDist;
+            float targetDist = maxDistance;
 
             m_Ray.origin = m_Pivot.position + m_Pivot.forward*sphereCastRadius;
             m_Ray.direction = -m_Pivot.forward;
@@ -68,12 +69,12 @@ namespace UnityStandardAssets.Cameras
                 m_Ray.origin += m_Pivot.forward*sphereCastRadius;
 
                 // do a raycast and gather all the intersections
-                m_Hits = Physics.RaycastAll(m_Ray, m_OriginalDist - sphereCastRadius);
+                m_Hits = Physics.RaycastAll(m_Ray, maxDistance - sphereCastRadius);
             }
             else
             {
                 // if there was no collision do a sphere cast to see if there were any other collisions
-                m_Hits = Physics.SphereCastAll(m_Ray, sphereCastRadius, m_OriginalDist + sphereCastRadius);
+                m_Hits = Physics.SphereCastAll(m_Ray, sphereCastRadius, maxDistance + sphereCastRadius);
             }
 
             // sort the collisions by distance
@@ -105,9 +106,13 @@ namespace UnityStandardAssets.Cameras
 
             // hit something so move the camera to a better position
             protecting = hitSomething;
-            m_CurrentDist = Mathf.SmoothDamp(m_CurrentDist, targetDist, ref m_MoveVelocity,
+            if (!maxDistanceIsChanging) {
+                m_CurrentDist = Mathf.SmoothDamp(m_CurrentDist, targetDist, ref m_MoveVelocity,
                                            m_CurrentDist > targetDist ? clipMoveTime : returnTime);
-            m_CurrentDist = Mathf.Clamp(m_CurrentDist, closestDistance, m_OriginalDist);
+            } else {
+                m_CurrentDist = targetDist;
+            }
+            m_CurrentDist = Mathf.Clamp(m_CurrentDist, closestDistance, maxDistance);
             m_Cam.localPosition = -Vector3.forward*m_CurrentDist;
         }
 
