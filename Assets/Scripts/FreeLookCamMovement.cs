@@ -18,24 +18,26 @@ public class FreeLookCamMovement : MonoBehaviour
     [Range(0f, 1f)] [SerializeField] private float m_VTurnSpeed = .03f;   // How fast the rig will rotate up-down and forward-back from user input.
     [SerializeField] private float m_TurnSmoothing = 0.0f;                // How much smoothing to apply to the turn input, to reduce mouse-turn jerkiness
     [SerializeField] private bool m_LockCursor = false;                   // Whether the cursor should be hidden and locked.
-    [SerializeField] private AnimationCurve tiltCurve = new AnimationCurve(
+    [SerializeField] private AnimationCurve m_TiltCurve = new AnimationCurve(
             new Keyframe(0, -45),
             new Keyframe(1, 0),  
             new Keyframe(2f, 7.5f), 
             new Keyframe(3, 10), 
             new Keyframe(5, 75));                
-    [SerializeField] private AnimationCurve distanceCurve = new AnimationCurve(
+    [SerializeField] private AnimationCurve m_DistanceCurve = new AnimationCurve(
             new Keyframe(0, 1f),
             new Keyframe(1, 1f), 
             new Keyframe(2f, 2), 
             new Keyframe(3, 3.5f), 
             new Keyframe(5, 3.5f));
-    [SerializeField] private float defaultTiltDistanceFrame = 2f;
-
+    [SerializeField] private float m_DefaultTiltDistanceFrame = 2f;
+    [SerializeField] private float m_ResetVTurnSpeed = .15f;
+    
     public float m_TiltDistanceFrame;
 
     private Vector3 m_PivotEulers;
     private bool m_TiltDistanceFrameIsChanging = false;
+    private bool m_IsResettingCamera = false;
 
     protected Transform m_Cam; // the transform of the camera
     protected Transform m_Pivot; // the point at which the camera pivots around
@@ -46,7 +48,7 @@ public class FreeLookCamMovement : MonoBehaviour
         m_Cam = GetComponentInChildren<Camera>().transform;
         m_Pivot = m_Cam.parent;
 
-        m_TiltDistanceFrame = defaultTiltDistanceFrame;
+        m_TiltDistanceFrame = m_DefaultTiltDistanceFrame;
         m_PivotEulers = m_Pivot.localRotation.eulerAngles;
 
         // Lock or unlock the cursor.
@@ -57,6 +59,11 @@ public class FreeLookCamMovement : MonoBehaviour
 
     protected void Update()
     {
+        if (CrossPlatformInputManager.GetButtonDown("Reset Camera")) {
+            m_IsResettingCamera = true;
+            m_TiltDistanceFrameIsChanging = true;
+            gameObject.GetComponent<ProtectCameraFromWallClip>().maxDistanceIsChanging = true;
+        }
         HandleRotationMovement();
         if (m_LockCursor && Input.GetMouseButtonUp(0))
         {
@@ -84,7 +91,7 @@ public class FreeLookCamMovement : MonoBehaviour
         if (y != 0 && !m_TiltDistanceFrameIsChanging) {
             m_TiltDistanceFrameIsChanging = true;
             gameObject.GetComponent<ProtectCameraFromWallClip>().maxDistanceIsChanging = true;
-        } else if (y == 0 && m_TiltDistanceFrameIsChanging) {
+        } else if (y == 0 && m_TiltDistanceFrameIsChanging && !m_IsResettingCamera) {
             m_TiltDistanceFrameIsChanging = false;
             gameObject.GetComponent<ProtectCameraFromWallClip>().maxDistanceIsChanging = false;
         }
@@ -99,16 +106,25 @@ public class FreeLookCamMovement : MonoBehaviour
         // Rotate the rig (the root object) around Y axis only:
         Quaternion m_TransformTargetRot = Quaternion.Euler(0f, m_LookAngle, 0f);
 
-        // on platforms with a mouse, we adjust the current angle based on Y mouse input and turn speed
-        m_TiltDistanceFrame -= y*m_VTurnSpeed;
+        // we adjust the current angle based on Y mouse input and turn speed
+        if (!m_IsResettingCamera) {
+            m_TiltDistanceFrame -= y*m_VTurnSpeed;
+        } else {
+            if (Mathf.Abs(m_TiltDistanceFrame - m_DefaultTiltDistanceFrame) < m_ResetVTurnSpeed) {
+                m_IsResettingCamera = false;
+                m_TiltDistanceFrameIsChanging = false;
+                gameObject.GetComponent<ProtectCameraFromWallClip>().maxDistanceIsChanging = false;
+            }
+            m_TiltDistanceFrame = Mathf.MoveTowards(m_TiltDistanceFrame, m_DefaultTiltDistanceFrame, m_ResetVTurnSpeed);
+        }
         // and make sure the new value is within the tilt range
-        m_TiltDistanceFrame = Mathf.Clamp(m_TiltDistanceFrame, 0, tiltCurve.keys[tiltCurve.length-1].time);
+        m_TiltDistanceFrame = Mathf.Clamp(m_TiltDistanceFrame, 0, m_TiltCurve.keys[m_TiltCurve.length-1].time);
 
         // Tilt input around X is applied to the pivot (the child of this object)
         Quaternion m_PivotTargetRot = Quaternion.Euler(
-            tiltCurve.Evaluate(m_TiltDistanceFrame), m_PivotEulers.y , m_PivotEulers.z);
+            m_TiltCurve.Evaluate(m_TiltDistanceFrame), m_PivotEulers.y , m_PivotEulers.z);
         // Tilt input around X is applied to the pivot (the child of this object)
-        float m_TargetDistance = distanceCurve.Evaluate(m_TiltDistanceFrame);
+        float m_TargetDistance = m_DistanceCurve.Evaluate(m_TiltDistanceFrame);
 
         if (m_TurnSmoothing > 0)
         {

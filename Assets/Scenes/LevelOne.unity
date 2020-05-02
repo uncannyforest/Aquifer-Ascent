@@ -3324,7 +3324,7 @@ MonoBehaviour:
   m_VTurnSpeed: 0.03
   m_TurnSmoothing: 0
   m_LockCursor: 0
-  tiltCurve:
+  m_TiltCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -3375,7 +3375,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  distanceCurve:
+  m_DistanceCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -3426,7 +3426,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  defaultTiltDistanceFrame: 2
+  m_DefaultTiltDistanceFrame: 2
+  m_ResetVTurnSpeed: 0.15
   m_TiltDistanceFrame: 0
 --- !u!114 &869391771
 MonoBehaviour:
@@ -3449,6 +3450,7 @@ MonoBehaviour:
   m_FollowTilt: 1
   m_TargetVelocityLowerLimit: 1
   m_SmoothTurnTime: 0.2
+  m_ResetTurnSpeed: 8
 --- !u!1 &869391773
 GameObject:
   m_ObjectHideFlags: 0
