@@ -3450,6 +3450,7 @@ MonoBehaviour:
   m_FollowTilt: 1
   m_TargetVelocityLowerLimit: 1
   m_SmoothTurnTime: 0.2
+  m_WalkBackwardsAngle: 20
   m_ResetTurnSpeed: 8
 --- !u!1 &869391773
 GameObject:
