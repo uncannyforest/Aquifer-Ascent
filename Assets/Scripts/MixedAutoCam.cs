@@ -91,7 +91,7 @@ namespace UnityStandardAssets.Cameras
             float turnSpeedToUse = isResettingCamera ? m_ResetTurnSpeed : m_TurnSpeed;
             transform.rotation = Quaternion.Lerp(transform.rotation, rollRotation, turnSpeedToUse*m_CurrentTurnAmount*deltaTime);
 
-            if (isResettingCamera && Quaternion.Angle(rollRotation, transform.rotation) < 3) {
+            if (isResettingCamera && Quaternion.Angle(rollRotation, transform.rotation) < 2) {
                 isResettingCamera = false;
                 Debug.Log("done");
             }

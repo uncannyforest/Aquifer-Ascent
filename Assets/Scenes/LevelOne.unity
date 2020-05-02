@@ -3297,10 +3297,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 869679545}
-  - component: {fileID: 864173821}
   - component: {fileID: 863873151}
   - component: {fileID: 869391771}
   - component: {fileID: 869391770}
+  - component: {fileID: 864173821}
   m_Layer: 9
   m_Name: MixedCameraRig
   m_TagString: Untagged
@@ -3338,13 +3338,13 @@ MonoBehaviour:
       outWeight: 0
     - serializedVersion: 3
       time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
+      value: -0.23574829
+      inSlope: 26.213837
+      outSlope: 26.213837
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.4058355
     - serializedVersion: 3
       time: 2
       value: 7.5
@@ -3357,12 +3357,12 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 3
       value: 10
-      inSlope: 0
-      outSlope: 0
+      inSlope: 9.03697
+      outSlope: 9.03697
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.24403179
     - serializedVersion: 3
       time: 5
       value: 75
@@ -3389,31 +3389,31 @@ MonoBehaviour:
       outWeight: 0
     - serializedVersion: 3
       time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
+      value: 1.125
+      inSlope: 0.4431037
+      outSlope: 0.4431037
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.43236077
     - serializedVersion: 3
       time: 2
       value: 2
-      inSlope: 0
-      outSlope: 0
+      inSlope: 1.3747895
+      outSlope: 1.3747895
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.20159149
     - serializedVersion: 3
       time: 3
-      value: 3.5
-      inSlope: 0
-      outSlope: 0
+      value: 3.25
+      inSlope: 0.4198083
+      outSlope: 0.4198083
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.21750665
     - serializedVersion: 3
       time: 5
       value: 3.5

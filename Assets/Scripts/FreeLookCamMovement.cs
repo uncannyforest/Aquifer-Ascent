@@ -31,7 +31,7 @@ public class FreeLookCamMovement : MonoBehaviour
             new Keyframe(3, 3.5f), 
             new Keyframe(5, 3.5f));
     [SerializeField] private float m_DefaultTiltDistanceFrame = 2f;
-    [SerializeField] private float m_ResetVTurnSpeed = .15f;
+    [Range(0f, 1f)] [SerializeField] private float m_ResetVTurnSpeed = .15f;
     
     public float m_TiltDistanceFrame;
 
