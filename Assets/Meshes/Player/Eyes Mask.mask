@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!319 &31900000
+AvatarMask:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Eyes Mask
+  m_Mask: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  m_Elements:
+  - m_Path: 
+    m_Weight: 1
+  - m_Path: Armature
+    m_Weight: 0
+  - m_Path: Armature/LeftHip
+    m_Weight: 0
+  - m_Path: Armature/LeftHip/LeftFemur
+    m_Weight: 1
+  - m_Path: Armature/LeftHip/LeftFemur/LeftAnkle
+    m_Weight: 1
+  - m_Path: Armature/LeftHip/LeftFemur/LeftAnkle/LeftAnkle_end
+    m_Weight: 1
+  - m_Path: Armature/RightHip
+    m_Weight: 0
+  - m_Path: Armature/RightHip/RightFemur
+    m_Weight: 1
+  - m_Path: Armature/RightHip/RightFemur/RightAnkle
+    m_Weight: 1
+  - m_Path: Armature/RightHip/RightFemur/RightAnkle/RightAnkle_end
+    m_Weight: 1
+  - m_Path: Armature/Spine
+    m_Weight: 0
+  - m_Path: Armature/Spine/Head
+    m_Weight: 0
+  - m_Path: Armature/Spine/Head/LeftEye
+    m_Weight: 1
+  - m_Path: Armature/Spine/Head/LeftEye/LeftEye_end
+    m_Weight: 1
+  - m_Path: Armature/Spine/Head/RightEye
+    m_Weight: 1
+  - m_Path: Armature/Spine/Head/RightEye/RightEye_end
+    m_Weight: 1
+  - m_Path: Armature/Spine/LeftShoulder
+    m_Weight: 0
+  - m_Path: Armature/Spine/LeftShoulder/LeftHumerus
+    m_Weight: 1
+  - m_Path: Armature/Spine/LeftShoulder/LeftHumerus/LeftForearm
+    m_Weight: 1
+  - m_Path: Armature/Spine/LeftShoulder/LeftHumerus/LeftForearm/LeftForearm_end
+    m_Weight: 1
+  - m_Path: Armature/Spine/RightShoulder
+    m_Weight: 0
+  - m_Path: Armature/Spine/RightShoulder/RightHumerus
+    m_Weight: 1
+  - m_Path: Armature/Spine/RightShoulder/RightHumerus/RightForearm
+    m_Weight: 1
+  - m_Path: Armature/Spine/RightShoulder/RightHumerus/RightForearm/RightForearm_end
+    m_Weight: 1
+  - m_Path: Character
+    m_Weight: 0
+  - m_Path: Eyes
+    m_Weight: 0

@@ -7131,6 +7131,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   transitionTime: 0.5
   handWeightCurrent: 0
+  isTransitioning: 0
 --- !u!114 &1041905606
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8645,6 +8646,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: -8221609900653767914, guid: 7bdf9d22a34b44b1494ad7d027a8045e,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ae4f03a593dc14f79bfb0b12e7784680, type: 2}
     - target: {fileID: -8297694200227731145, guid: 7bdf9d22a34b44b1494ad7d027a8045e,
         type: 3}
       propertyPath: m_RootOrder

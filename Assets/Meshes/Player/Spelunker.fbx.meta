@@ -6,6 +6,9 @@ ModelImporter:
   - first:
       74: -5907125607881781190
     second: Armature|Bend Over
+  - first:
+      74: -2552546163807241679
+    second: Armature|Blinkyyy
   externalObjects: {}
   materials:
     materialImportMode: 1
@@ -76,6 +79,87 @@ ModelImporter:
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Armature|Blinkyyy
+      takeName: Armature|Blink
+      internalID: 0
+      firstFrame: 0
+      lastFrame: 8
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Armature
+        weight: 1
+      - path: Armature/LeftHip
+        weight: 1
+      - path: Armature/LeftHip/LeftFemur
+        weight: 1
+      - path: Armature/LeftHip/LeftFemur/LeftAnkle
+        weight: 1
+      - path: Armature/LeftHip/LeftFemur/LeftAnkle/LeftAnkle_end
+        weight: 1
+      - path: Armature/RightHip
+        weight: 1
+      - path: Armature/RightHip/RightFemur
+        weight: 1
+      - path: Armature/RightHip/RightFemur/RightAnkle
+        weight: 1
+      - path: Armature/RightHip/RightFemur/RightAnkle/RightAnkle_end
+        weight: 1
+      - path: Armature/Spine
+        weight: 1
+      - path: Armature/Spine/Head
+        weight: 1
+      - path: Armature/Spine/Head/LeftEye
+        weight: 1
+      - path: Armature/Spine/Head/LeftEye/LeftEye_end
+        weight: 1
+      - path: Armature/Spine/Head/RightEye
+        weight: 1
+      - path: Armature/Spine/Head/RightEye/RightEye_end
+        weight: 1
+      - path: Armature/Spine/LeftShoulder
+        weight: 1
+      - path: Armature/Spine/LeftShoulder/LeftHumerus
+        weight: 1
+      - path: Armature/Spine/LeftShoulder/LeftHumerus/LeftForearm
+        weight: 1
+      - path: Armature/Spine/LeftShoulder/LeftHumerus/LeftForearm/LeftForearm_end
+        weight: 1
+      - path: Armature/Spine/RightShoulder
+        weight: 1
+      - path: Armature/Spine/RightShoulder/RightHumerus
+        weight: 1
+      - path: Armature/Spine/RightShoulder/RightHumerus/RightForearm
+        weight: 1
+      - path: Armature/Spine/RightShoulder/RightHumerus/RightForearm/RightForearm_end
+        weight: 1
+      - path: Character
+        weight: 1
+      - path: Eyes
+        weight: 1
+      maskType: 1
+      maskSource: {fileID: 31900000, guid: 6835f268082f2441c8ea654ca6001e22, type: 2}
       additiveReferencePoseFrame: 0
     isReadable: 0
   meshes:
