@@ -59,7 +59,7 @@ public class FreeLookCamMovement : MonoBehaviour
 
     protected void Update()
     {
-        if (CrossPlatformInputManager.GetButtonDown("Reset Camera")) {
+        if (SimpleInput.GetButtonDown("Reset Camera")) {
             m_IsResettingCamera = true;
             m_TiltDistanceFrameIsChanging = true;
             gameObject.GetComponent<ProtectCameraFromWallClip>().maxDistanceIsChanging = true;
@@ -85,8 +85,8 @@ public class FreeLookCamMovement : MonoBehaviour
         return;
 
         // Read the user input
-        var x = CrossPlatformInputManager.GetAxis("Mouse X");
-        var y = CrossPlatformInputManager.GetAxis("Mouse Y");
+        var x = SimpleInput.GetAxis("Mouse X");
+        var y = SimpleInput.GetAxis("Mouse Y");
 
         if (y != 0 && !m_TiltDistanceFrameIsChanging) {
             m_TiltDistanceFrameIsChanging = true;

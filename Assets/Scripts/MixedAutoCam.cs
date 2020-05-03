@@ -28,7 +28,7 @@ namespace UnityStandardAssets.Cameras
 
         protected void Update()
         {
-            if (CrossPlatformInputManager.GetButtonDown("Reset Camera")) {
+            if (SimpleInput.GetButtonDown("Reset Camera")) {
                 isResettingCamera = true;
             }
         }
