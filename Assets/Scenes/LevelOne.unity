@@ -10659,27 +10659,6 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 3b18631bab16b42558d80c091feb4044, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 31bd7263837494dd2beb1020ae722592, type: 3}
---- !u!1 &1531212793128706 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1531213445540486, guid: e0815e227ed46e445b99930271e8942c,
-    type: 3}
-  m_PrefabInstance: {fileID: 736300420}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1531212793128707
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1531212793128706}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f751c1741e084dab9294466be359a0f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  button:
-    m_key: Reset Camera
-    value: 0
 --- !u!1 &1615126115412054 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1615126503581138, guid: e0815e227ed46e445b99930271e8942c,
@@ -10701,6 +10680,7 @@ MonoBehaviour:
   button:
     m_key: Reset Camera
     value: 0
+  tapTime: 0.25
 --- !u!224 &224977699882296174 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 224977699150327530, guid: e0815e227ed46e445b99930271e8942c,
