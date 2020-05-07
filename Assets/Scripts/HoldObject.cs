@@ -7,12 +7,15 @@ public class HoldObject : MonoBehaviour
 {
     public float transitionTime = .5f;
     public float handWeightCurrent = 0;
+    public Transition isTransitioning = Transition.None;
+
+    public enum Transition { None, Holding, Dropping };
 
     private Transform playerHoldTransform;
     Animator m_Animator;
     private float heldObjectWidth;
 
-    FlexibleInput flexibleInput;
+    FlexibleInputDisplay inputDisplay;
     EnvironmentInteractor environmentInteractor;
 
     public bool IsHolding {
@@ -22,7 +25,7 @@ public class HoldObject : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        flexibleInput = new FlexibleInput(this);
+        inputDisplay = new FlexibleInputDisplay(this);
         environmentInteractor = new EnvironmentInteractor(this);
 
         playerHoldTransform = gameObject.transform.Find("HoldLocation");
@@ -43,29 +46,51 @@ public class HoldObject : MonoBehaviour
     void OnTriggerEnter(Collider other) {
         if(other.tag == "CanPickUp") {
             environmentInteractor.AddInteractableObject(other.gameObject);
-            flexibleInput.UpdateDisplayForNearbyObjects(environmentInteractor.NearObjects);
+            inputDisplay.UpdateForNearbyObjects(environmentInteractor.NearObjects);
         }
     }
 
 	void OnTriggerExit(Collider other) {
         if(other.tag == "CanPickUp") {
             environmentInteractor.RemoveInteractableObject(other.gameObject);
-            flexibleInput.UpdateDisplayForNearbyObjects(environmentInteractor.NearObjects);
+            inputDisplay.UpdateForNearbyObjects(environmentInteractor.NearObjects);
 		}
     }
 
     /// <summary> Called by Holdable script once hold initiated </summary>
     public void OnHoldObject(GameObject heldObject) {
         heldObjectWidth = heldObject.GetComponent<Holdable>().GetColliderWidth();
-        flexibleInput.UpdateDisplayForHeldObject(heldObject);
+        inputDisplay.UpdateForHeldObject(heldObject);
     }
 
     /// <summary> Called by Holdable script since sometimes child initiates SetDown </summary>
-    public void OnDropObject(GameObject heldObject) {
-        flexibleInput.UpdateDisplayForNearbyObjects(environmentInteractor.NearObjects);
+    public void OnDropObject(GameObject heldObject, bool stoop) {
+        if (stoop) {
+            m_Animator.SetTrigger("Stoop");
+            isTransitioning = Transition.Dropping;
+            inputDisplay.UpdateNoActions();
+        } else {
+            inputDisplay.UpdateForNearbyObjects(environmentInteractor.NearObjects);
+        }
+    }
+
+    void OnMidStoop() {
+        if (isTransitioning == Transition.Dropping) {
+            environmentInteractor.NotifyHeldObjectReadyToDrop(playerHoldTransform);
+        }
+    }
+
+    void OnFinishStoop() {
+        if (isTransitioning == Transition.Dropping) {
+            inputDisplay.UpdateForNearbyObjects(environmentInteractor.NearObjects);
+            isTransitioning = Transition.None;
+        }
     }
 
     void Interact1() {
+        if (isTransitioning != Transition.None) {
+            return;
+        }
         if (IsHolding) {
             environmentInteractor.DropHeldObject(playerHoldTransform);
         } else {
@@ -74,6 +99,9 @@ public class HoldObject : MonoBehaviour
     }
 
     void Interact2() {
+        if (isTransitioning != Transition.None) {
+            return;
+        }
         if (IsHolding) {
             environmentInteractor.UseHeldObject(playerHoldTransform);
         }
@@ -81,14 +109,14 @@ public class HoldObject : MonoBehaviour
 
     void OnAnimatorIK()
     {
-        if(playerHoldTransform.childCount < 1 && handWeightCurrent == 0){
+        if(!IsHolding && handWeightCurrent == 0){
             return;
         }
 
         Vector3 rightHandlePosition = playerHoldTransform.position + (.5f * heldObjectWidth * this.transform.right);
         Vector3 leftHandlePosition = playerHoldTransform.position - (.5f * heldObjectWidth * this.transform.right);
 
-        if(playerHoldTransform.childCount > 0) { // if you're holding something 
+        if(IsHolding) { // if you're holding something 
             if( handWeightCurrent < 1f ){
                 handWeightCurrent += Time.deltaTime / transitionTime;
             }else{

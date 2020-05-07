@@ -59,15 +59,19 @@ public class Holdable : MonoBehaviour
         }
     }
 
-    public void SetDown(){
+    public void Drop(){
+        FinishDrop();
+        playerHoldTransform.parent.GetComponent<HoldObject>().OnDropObject(gameObject, false);
+    }
+
+    public void FinishDrop() {
         IsHeld = false;
         objectAudio.PlayOneShot(setDownSound, 0.5f);
         physicsCollider.enabled = true;
         myRigidbody.isKinematic = false;
-        playerHoldTransform.parent.GetComponent<HoldObject>().OnDropObject(gameObject);
     }
 
-    public void PickUp(){
+    public void Hold(){
         IsHeld = true;
         objectAudio.PlayOneShot(pickUpSound, 0.5f);
         physicsCollider.enabled = false;

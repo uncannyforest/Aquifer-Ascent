@@ -101,9 +101,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7327089894684991272}
+  - component: {fileID: -7354576746815511801}
   - component: {fileID: 7327089894684991275}
-  - component: {fileID: -3384256719804809807}
   - component: {fileID: 7456130516122914424}
+  - component: {fileID: -3384256719804809807}
   - component: {fileID: 4324324191667893875}
   - component: {fileID: 5792021157012530770}
   - component: {fileID: 6838846483093510342}
@@ -131,6 +132,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-7354576746815511801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7327089894684991277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97b0c14a1aaab4ebb9d0f630b06e06ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &7327089894684991275
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147,6 +160,35 @@ MonoBehaviour:
   pickUpSound: {fileID: 8300000, guid: 04df9b11a4dd24c46b51da18fa8cb302, type: 3}
   setDownSound: {fileID: 8300000, guid: 8315785413ece4064a677c8ae611927b, type: 3}
   pickUpTime: 0.5
+--- !u!114 &7456130516122914424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7327089894684991277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01791cf7b1ac94abbbf4d62094836c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnLocation: {fileID: 0}
+  unchargeTime: 60
+  chargeTime: 420
+  spawnTime: 1
+  haloIntensity: 1.5
+  currentChargeLevel: 1
+  spawnState: 0
+  heldIntensity: 0.4
+  colorTransitions:
+  - frame: 1
+    color: {r: 0.7490196, g: 1, b: 0.5019608, a: 1}
+  - frame: 0.9
+    color: {r: 0.2509804, g: 0.5019608, b: 0, a: 1}
+  - frame: 0.3
+    color: {r: 0.2509804, g: 0.5019608, b: 0, a: 1}
+  - frame: 0.1
+    color: {r: 0.5, g: 0.2509804, b: 0, a: 1}
 --- !u!82 &-3384256719804809807
 AudioSource:
   m_ObjectHideFlags: 0
@@ -243,35 +285,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &7456130516122914424
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7327089894684991277}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01791cf7b1ac94abbbf4d62094836c61, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  spawnLocation: {fileID: 0}
-  unchargeTime: 60
-  chargeTime: 420
-  spawnTime: 1
-  haloIntensity: 1.5
-  currentChargeLevel: 1
-  spawnState: 0
-  heldIntensity: 0.4
-  colorTransitions:
-  - frame: 1
-    color: {r: 0.7490196, g: 1, b: 0.5019608, a: 1}
-  - frame: 0.9
-    color: {r: 0.2509804, g: 0.5019608, b: 0, a: 1}
-  - frame: 0.3
-    color: {r: 0.2509804, g: 0.5019608, b: 0, a: 1}
-  - frame: 0.1
-    color: {r: 0.5, g: 0.2509804, b: 0, a: 1}
 --- !u!54 &4324324191667893875
 Rigidbody:
   m_ObjectHideFlags: 0

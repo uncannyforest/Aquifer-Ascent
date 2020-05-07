@@ -44,17 +44,20 @@ public class EnvironmentInteractor {
                 o => Vector3.Distance(o.transform.position, script.transform.position)
             ).First();
 
-        closestObject.GetComponent<Holdable>().PickUp();
+        closestObject.GetComponent<Holdable>().Hold();
     }
 
     public void DropHeldObject(Transform playerHoldTransform) {
         foreach (Transform child in playerHoldTransform) {
             Holdable childPickMeUp = child.GetComponent<Holdable>();
-            if (childPickMeUp == null) {
-                Debug.LogWarning("Child of playerHold had no PickMeUp script!");
-            } else {
-                childPickMeUp.SetDown();
-            }
+            childPickMeUp.Drop();
+        }
+    }
+
+    public void NotifyHeldObjectReadyToDrop(Transform playerHoldTransform) {
+        foreach (Transform child in playerHoldTransform) {
+            Holdable childPickMeUp = child.GetComponent<Holdable>();
+            childPickMeUp.FinishDrop();
         }
     }
 

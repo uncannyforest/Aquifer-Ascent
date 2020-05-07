@@ -56,7 +56,7 @@ public class StandardOrb : MonoBehaviour
                         GameObject.Destroy(gameObject);
                     } else {
                         if(gameObject.GetComponent<Holdable>().IsHeld) {
-                            gameObject.GetComponent<Holdable>().SetDown();
+                            gameObject.GetComponent<Holdable>().Drop();
                         }
                         transform.position = spawnLocation.transform.position;
                         currentChargeLevel = 1.0f;
