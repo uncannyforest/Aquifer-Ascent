@@ -25,7 +25,7 @@ public class HoldObject : MonoBehaviour
         playerHoldTransform = gameObject.transform.Find("HoldLocation");
 
         inputDisplay = new FlexibleInputDisplay(this);
-        environmentInteractor = new EnvironmentInteractor(this);
+        environmentInteractor = new EnvironmentInteractor(this, playerHoldTransform);
         holdAnimationControl = new HoldAnimationControl(this, playerHoldTransform);
     }
 
@@ -65,7 +65,8 @@ public class HoldObject : MonoBehaviour
         if (stoop) {
             isTransitioning = Transition.Dropping;
             inputDisplay.UpdateNoActions();
-            holdAnimationControl.StartStoop();
+            Transform groundTransform = holdAnimationControl.StartStoop();
+            environmentInteractor.NotifyGroundObject(groundTransform);
         } else {
             inputDisplay.UpdateForNearbyObjects(environmentInteractor.NearObjects);
         }
@@ -73,7 +74,7 @@ public class HoldObject : MonoBehaviour
 
     void OnMidStoop() {
         if (isTransitioning == Transition.Dropping) {
-            environmentInteractor.NotifyHeldObjectReadyToDrop(playerHoldTransform);
+            environmentInteractor.NotifyHeldObjectReadyToDrop();
         }
     }
 
@@ -90,7 +91,7 @@ public class HoldObject : MonoBehaviour
             return;
         }
         if (IsHolding) {
-            environmentInteractor.DropHeldObject(playerHoldTransform);
+            environmentInteractor.DropHeldObject();
         } else {
             environmentInteractor.HoldClosestObject();
         }
@@ -101,7 +102,7 @@ public class HoldObject : MonoBehaviour
             return;
         }
         if (IsHolding) {
-            environmentInteractor.UseHeldObject(playerHoldTransform);
+            environmentInteractor.UseHeldObject();
         }
     }
 

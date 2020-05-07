@@ -6,6 +6,7 @@ using UnityEngine;
 [RequireComponent(typeof(StandardOrb))]
 public class Sow : MonoBehaviour
 {
+    public GameObject treePrefab;
     public float sowTime = 15;
 
     private bool sown = false;
@@ -13,6 +14,7 @@ public class Sow : MonoBehaviour
     Vector3 groundPosition;
     Vector3 destinationPosition;
     private float sowState = 0;
+    Transform newTreeParent;
 
     Collider physicsCollider;
     Rigidbody myRigidbody;
@@ -26,6 +28,10 @@ public class Sow : MonoBehaviour
 
     void Update() {
         if (hitGround) {
+            if (sowState >= 1) {
+                InitiateTree();
+            }
+
             sowState += Time.deltaTime / sowTime;
             transform.position = Vector3.Lerp(groundPosition, destinationPosition, sowState);
             standardOrbScript.SetOrbIntensity(1 - sowState);
@@ -43,5 +49,22 @@ public class Sow : MonoBehaviour
             groundPosition = transform.position;
             destinationPosition = groundPosition + Vector3.down * GetComponent<Holdable>().GetColliderWidth() / 2;
         }  
+    }
+
+    void UpdateGroundObject(Transform groundObject) {
+        if (groundObject.parent == null) {
+            Debug.Log("Ground collision object has no parent, wut?");
+            newTreeParent = groundObject;
+        } else if (groundObject.parent.name == "Cave Walls") {
+            newTreeParent = groundObject.parent.parent;
+        } else {
+            newTreeParent = groundObject.parent;
+        }
+    }
+
+    void InitiateTree() {
+        GameObject tree = Instantiate(treePrefab, newTreeParent, true);
+        tree.transform.position = groundPosition;
+        Destroy(this.gameObject);
     }
 }

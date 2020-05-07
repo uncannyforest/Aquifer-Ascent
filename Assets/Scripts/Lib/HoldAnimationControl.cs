@@ -25,10 +25,12 @@ public class HoldAnimationControl {
         animator = script.GetComponent<Animator>();
     }
 
-    public void StartStoop() {
+    /// <return> ground object </return>
+    public Transform StartStoop() {
         animator.SetTrigger(stoopStateName);
         Physics.Raycast(playerHoldTransform.position, Vector3.down, out RaycastHit ground);
         objectGroundPosition = script.transform.InverseTransformPoint(ground.point);
+        return ground.transform;
     }
     
     public void ResetPlayerHoldTransform() {

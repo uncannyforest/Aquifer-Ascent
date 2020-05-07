@@ -144,6 +144,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97b0c14a1aaab4ebb9d0f630b06e06ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  treePrefab: {fileID: 8873116992512103743, guid: fb5c6b66315934df4aeb2878e7500005,
+    type: 3}
+  sowTime: 15
 --- !u!114 &7327089894684991275
 MonoBehaviour:
   m_ObjectHideFlags: 0
