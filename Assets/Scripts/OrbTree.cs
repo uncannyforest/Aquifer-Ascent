@@ -8,7 +8,9 @@ public class OrbTree : MonoBehaviour
     public GameObject orbParent;
     public string autoFindOrbParentByName = "Free Orbs";
     public GameObject unspawnedOrb;
+    public GameObject unspawnedSeedOrb;
     public int numLights = 5;
+    public int seedOrbEvery = 10;
     public float spawnNewOrbDistance = 2;
     public float growthTime = 375;
     public float growthProgress = 0;
@@ -33,6 +35,7 @@ public class OrbTree : MonoBehaviour
 
     int currentFractalLevel = 0;
     float fractalLevelFactor;
+    int orbsUntilSeedOrb;
 
     // Start is called before the first frame update
     void Start()
@@ -51,6 +54,7 @@ public class OrbTree : MonoBehaviour
         activeBuds.Add(trunkBud);
         endBranches.Add(trunk);
         fractalLevelFactor = ((fractalLevel + 1f) * (fractalLevel + 1f)); // don't calc this every time
+        orbsUntilSeedOrb = seedOrbEvery - 1;
     
         UpdateGrowthState();
 
@@ -153,8 +157,17 @@ public class OrbTree : MonoBehaviour
     }
 
     void AddLight() {
+        GameObject whichPrefab;
+        if (orbsUntilSeedOrb > 0) {
+            orbsUntilSeedOrb--;
+            whichPrefab = unspawnedOrb;
+        } else {
+            orbsUntilSeedOrb = seedOrbEvery - 1;
+            whichPrefab = unspawnedSeedOrb;
+        }
+
         GameObject bud = activeBuds[Random.Range(0, activeBuds.Count - 1)];
-        GameObject newLight = Instantiate(unspawnedOrb, bud.transform.position, bud.transform.rotation);
+        GameObject newLight = Instantiate(whichPrefab, bud.transform.position, bud.transform.rotation);
         newLight.transform.parent = orbParent.transform;
         orbs.Add(newLight);
     }

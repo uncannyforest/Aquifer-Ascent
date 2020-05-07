@@ -28,6 +28,7 @@ public class StandardOrb : MonoBehaviour
         myLight = gameObject.transform.Find("Point Light").GetComponent<Light>();
         halo = gameObject.transform.Find("Halo").GetComponent<Light>();
         UpdateOrbState();
+        SetOrbColor(GetColorFromCharge());
     }
 
     // Update is called once per frame

@@ -30,6 +30,7 @@ public class Sow : MonoBehaviour
         if (hitGround) {
             if (sowState >= 1) {
                 InitiateTree();
+                return;
             }
 
             sowState += Time.deltaTime / sowTime;
