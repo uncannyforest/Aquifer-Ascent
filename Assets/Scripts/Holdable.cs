@@ -20,6 +20,7 @@ public class Holdable : MonoBehaviour
     Vector3 oldPosition;
     private AudioSource objectAudio; 
     private Bounds myColliderBounds;
+    private bool isUsed;
 
     public bool IsHeld {
         get => this.transform.parent == playerHoldTransform;
@@ -59,19 +60,21 @@ public class Holdable : MonoBehaviour
         }
     }
 
-    public void Drop(){
+    public void Drop() {
         FinishDrop();
         playerHoldTransform.parent.GetComponent<HoldObject>().OnDropObject(gameObject, false);
     }
 
     public void FinishDrop() {
         IsHeld = false;
-        objectAudio.PlayOneShot(setDownSound, 0.5f);
-        physicsCollider.enabled = true;
-        myRigidbody.isKinematic = false;
+        if (!isUsed) {
+            objectAudio.PlayOneShot(setDownSound, 0.5f);
+            physicsCollider.enabled = true;
+            myRigidbody.isKinematic = false;
+        }
     }
 
-    public void Hold(){
+    public void Hold() {
         IsHeld = true;
         objectAudio.PlayOneShot(pickUpSound, 0.5f);
         physicsCollider.enabled = false;
@@ -81,7 +84,11 @@ public class Holdable : MonoBehaviour
         playerHoldTransform.parent.GetComponent<HoldObject>().OnHoldObject(gameObject);
     }
 
-    public float GetColliderWidth(){
+    public void Use () {
+        isUsed = true;
+    }
+
+    public float GetColliderWidth() {
         // this is broken out here becuase bounds can only be queried when collider is active
         return myColliderBounds.size.z;
     }

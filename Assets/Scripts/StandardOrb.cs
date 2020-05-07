@@ -87,7 +87,7 @@ public class StandardOrb : MonoBehaviour
         }
     }
 
-    private void SetOrbIntensity(float intensity) {
+    public void SetOrbIntensity(float intensity) {
         myLight.intensity = intensity;
         halo.intensity = haloIntensity * intensity;
     }
