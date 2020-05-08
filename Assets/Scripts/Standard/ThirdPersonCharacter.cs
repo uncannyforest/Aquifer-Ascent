@@ -10,6 +10,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] float m_MovingTurnSpeed = 360;
 		[SerializeField] float m_StationaryTurnSpeed = 180;
 		[SerializeField] float m_JumpPower = 12f;
+		[SerializeField] float m_ForwardJumpPower = 3f;
 		[Range(1f, 4f)][SerializeField] float m_GravityMultiplier = 2f;
 		[SerializeField] float m_RunCycleLegOffset = 0.2f; //specific to the character in sample assets, will need to be modified to work with others
 		[SerializeField] float m_MoveSpeedMultiplier = 1f;
@@ -49,6 +50,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 		public void Move(Vector3 move, bool crouch, bool jump)
 		{
+			Vector3 forwardPush = move;
 
 			// convert the world relative moveInput vector into a local-relative
 			// turn amount and forward amount required to head in the desired
@@ -65,7 +67,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			// control and velocity handling is different when grounded and airborne:
 			if (m_IsGrounded)
 			{
-				HandleGroundedMovement(crouch, jump);
+				HandleGroundedMovement(forwardPush, crouch, jump);
 			}
 			else
 			{
@@ -164,13 +166,28 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		}
 
 
-		void HandleGroundedMovement(bool crouch, bool jump)
+		void HandleGroundedMovement(Vector3 forwardPush, bool crouch, bool jump)
 		{
 			// check whether conditions are right to allow a jump:
 			if (jump && !crouch && m_Animator.GetCurrentAnimatorStateInfo(0).IsName("Grounded"))
 			{
 				// jump!
-				m_Rigidbody.velocity = new Vector3(m_Rigidbody.velocity.x, m_JumpPower, m_Rigidbody.velocity.z);
+				Vector3 oldVelocity = new Vector3(m_Rigidbody.velocity.x, 0, m_Rigidbody.velocity.z);
+				Vector3 newVelocity;
+				if (m_DarknessCheck.IsInDarkness) {
+					newVelocity = oldVelocity;
+				} else {
+					Vector3 jumpPush = forwardPush * m_ForwardJumpPower;
+					float newSpeedSquared = oldVelocity.sqrMagnitude
+						+ jumpPush.sqrMagnitude;
+					Vector3 newDirection = oldVelocity + jumpPush;
+					newVelocity = newDirection.normalized * Mathf.Sqrt(newSpeedSquared);
+					Debug.Log("Original velocity:" + oldVelocity.magnitude);
+					Debug.Log("Forward push:" + jumpPush.magnitude);
+					Debug.Log("New velocity:" + newVelocity.magnitude);
+				}
+				
+				m_Rigidbody.velocity = new Vector3(newVelocity.x, m_JumpPower, newVelocity.z);
 				m_IsGrounded = false;
 				m_Animator.applyRootMotion = false;
 				m_GroundCheckDistance = 0.1f;
