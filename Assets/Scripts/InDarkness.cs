@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(TriggerExit))]
 public class InDarkness : MonoBehaviour
 {
     public LayerMask lightLayerMask;
@@ -51,7 +52,6 @@ public class InDarkness : MonoBehaviour
                 return;
             }
         }
-        Debug.Log("SCAAAAAAAAAAARY!");
     }
     
 }

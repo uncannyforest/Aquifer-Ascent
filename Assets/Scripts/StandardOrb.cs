@@ -54,7 +54,7 @@ public class StandardOrb : MonoBehaviour
                     transform.localScale = Vector3.one * -spawnState;
                 } else {
                     if (spawnLocation == null) {
-                        GameObject.Destroy(gameObject);
+                        TriggerObjectDestroyer.Destroy(this.gameObject);
                     } else {
                         if(gameObject.GetComponent<Holdable>().IsHeld) {
                             gameObject.GetComponent<Holdable>().Drop();

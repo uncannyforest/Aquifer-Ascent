@@ -66,6 +66,7 @@ public class Sow : MonoBehaviour
     void InitiateTree() {
         GameObject tree = Instantiate(treePrefab, newTreeParent, true);
         tree.transform.position = groundPosition;
-        Destroy(this.gameObject);
+
+        TriggerObjectDestroyer.Destroy(this.gameObject);
     }
 }

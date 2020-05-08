@@ -93,7 +93,6 @@ namespace UnityStandardAssets.Cameras
 
             if (isResettingCamera && Quaternion.Angle(rollRotation, transform.rotation) < 2) {
                 isResettingCamera = false;
-                Debug.Log("done");
             }
         }
     }
