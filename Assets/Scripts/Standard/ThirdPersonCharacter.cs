@@ -28,6 +28,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		float m_ForwardAmount;
 		Vector3 m_GroundNormal;
 		float m_CapsuleHeight;
+		float m_CapsuleRadius;
 		Vector3 m_CapsuleCenter;
 		CapsuleCollider m_Capsule;
 		InDarkness m_DarknessCheck;
@@ -40,6 +41,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			m_Rigidbody = GetComponent<Rigidbody>();
 			m_Capsule = GetComponent<CapsuleCollider>();
 			m_CapsuleHeight = m_Capsule.height;
+			m_CapsuleRadius = m_Capsule.radius;
 			m_CapsuleCenter = m_Capsule.center;
 			m_DarknessCheck = transform.Find("DarknessCheck").GetComponent<InDarkness>();
 
@@ -233,7 +235,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 #endif
 			// 0.1f is a small offset to start the ray from inside the character
 			// it is also good to note that the transform position in the sample assets is at the base of the character
-			if (Physics.Raycast(transform.position + (Vector3.up * 0.1f), Vector3.down, out hitInfo, m_GroundCheckDistance))
+			if (Physics.SphereCast(transform.position + (Vector3.up * (0.1f + m_CapsuleRadius)), m_CapsuleRadius, Vector3.down, out hitInfo, m_GroundCheckDistance))
 			{
 				m_GroundNormal = hitInfo.normal;
 				m_IsGrounded = true;
