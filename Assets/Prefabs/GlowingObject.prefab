@@ -143,6 +143,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a13da2b7b6604e5dbb817bb5cf25feb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  optionalAction: 
   pickUpSound: {fileID: 8300000, guid: 04df9b11a4dd24c46b51da18fa8cb302, type: 3}
   setDownSound: {fileID: 8300000, guid: 8315785413ece4064a677c8ae611927b, type: 3}
   pickUpTime: 0.5
@@ -297,7 +298,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9abf504e0ba6a4dada5ef46c0b4d8031, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 0.1
+  turnSpeed: 0.02
+  maxMoveSpeed: 0.05
   updateTime: 0.5
 --- !u!135 &6838846483093510342
 SphereCollider:
