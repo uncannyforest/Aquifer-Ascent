@@ -5,6 +5,7 @@ using UnityStandardAssets.Cameras;
 
 /// <summary>FreeLookCam, minus follow player and not storing orientation state<summary>
 [RequireComponent(typeof(ProtectCameraFromWallClip))]
+[RequireComponent(typeof(MixedAutoCam))]
 public class FreeLookCamMovement : MonoBehaviour
 {
     // This script is designed to be placed on the root object of a camera rig,
@@ -38,6 +39,8 @@ public class FreeLookCamMovement : MonoBehaviour
     private Vector3 m_PivotEulers;
     private bool m_TiltDistanceFrameIsChanging = false;
     private bool m_IsResettingCamera = false;
+    private ProtectCameraFromWallClip m_ClipScript;
+    private MixedAutoCam m_AutoScript;
 
     protected Transform m_Cam; // the transform of the camera
     protected Transform m_Pivot; // the point at which the camera pivots around
@@ -54,15 +57,18 @@ public class FreeLookCamMovement : MonoBehaviour
         // Lock or unlock the cursor.
         Cursor.lockState = m_LockCursor ? CursorLockMode.Locked : CursorLockMode.None;
         Cursor.visible = !m_LockCursor;
+
+        m_ClipScript = GetComponent<ProtectCameraFromWallClip>();
+        m_AutoScript = GetComponent<MixedAutoCam>();
     }
 
 
     protected void Update()
     {
-        if (SimpleInput.GetButtonDown("Reset Camera")) {
+        if (SimpleInput.GetButtonDown("Reset Camera") && m_AutoScript.IsDoubleResetReady) {
             m_IsResettingCamera = true;
             m_TiltDistanceFrameIsChanging = true;
-            gameObject.GetComponent<ProtectCameraFromWallClip>().maxDistanceIsChanging = true;
+            m_ClipScript.maxDistanceIsChanging = true;
         }
         HandleRotationMovement();
         if (m_LockCursor && Input.GetMouseButtonUp(0))
