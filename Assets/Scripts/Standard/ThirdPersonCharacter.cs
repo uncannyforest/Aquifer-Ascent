@@ -98,16 +98,11 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 			// the anim speed multiplier allows the overall speed of walking/running to be tweaked in the inspector,
 			// which affects the movement speed because of the root motion.
-			if (m_IsGrounded && move.magnitude > 0)
-			{
-				if (m_DarknessCheck.IsInDarkness) {
-					m_Animator.speed = m_DarknessAnimSpeedMultiplier;
-				} else {
-					m_Animator.speed = m_AnimSpeedMultiplier;
-				}
-			}
-			else
-			{
+			if (m_IsGrounded && m_DarknessCheck.IsInDarkness) {
+				m_Animator.speed = m_DarknessAnimSpeedMultiplier;
+			} else if (m_IsGrounded && move.magnitude > 0) {
+				m_Animator.speed = m_AnimSpeedMultiplier;
+			} else {
 				// don't use that while airborne
 				m_Animator.speed = 1;
 			}
@@ -130,12 +125,12 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			if (jump && m_Animator.GetCurrentAnimatorStateInfo(0).IsName("Grounded"))
 			{
 				// jump!
-				Vector3 oldVelocity = new Vector3(m_Rigidbody.velocity.x, 0, m_Rigidbody.velocity.z);
+				Vector3 jumpPush = forwardPush * m_ForwardJumpPower;
 				Vector3 newVelocity;
 				if (m_DarknessCheck.IsInDarkness) {
-					newVelocity = oldVelocity;
+					newVelocity = jumpPush;
 				} else {
-					Vector3 jumpPush = forwardPush * m_ForwardJumpPower;
+					Vector3 oldVelocity = new Vector3(m_Rigidbody.velocity.x, 0, m_Rigidbody.velocity.z);
 					float newSpeedSquared = oldVelocity.sqrMagnitude
 						+ jumpPush.sqrMagnitude;
 					Vector3 newDirection = oldVelocity + jumpPush;
