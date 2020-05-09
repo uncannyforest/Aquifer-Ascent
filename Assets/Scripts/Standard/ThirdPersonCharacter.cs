@@ -7,6 +7,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 	[RequireComponent(typeof(Animator))]
 	public class ThirdPersonCharacter : MonoBehaviour
 	{
+		[SerializeField] PhysicMaterial m_StationaryMaterial;
+		[SerializeField] PhysicMaterial m_MovingMaterial;
 		[SerializeField] float m_MovingTurnSpeed = 360;
 		[SerializeField] float m_StationaryTurnSpeed = 180;
 		[SerializeField] float m_JumpPower = 12f;
@@ -27,6 +29,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		float m_TurnAmount;
 		float m_ForwardAmount;
 		Vector3 m_GroundNormal;
+		CapsuleCollider m_Capsule;
 		float m_CapsuleRadius;
 		InDarkness m_DarknessCheck;
 
@@ -34,7 +37,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		{
 			m_Animator = GetComponent<Animator>();
 			m_Rigidbody = GetComponent<Rigidbody>();
-			CapsuleCollider m_Capsule = GetComponent<CapsuleCollider>();
+			m_Capsule = GetComponent<CapsuleCollider>();
 			m_CapsuleRadius = m_Capsule.radius;
 			m_DarknessCheck = transform.Find("DarknessCheck").GetComponent<InDarkness>();
 
@@ -43,8 +46,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		}
 
 
-		public void Move(Vector3 move, bool jump)
-		{
+		public void Move(Vector3 move, bool jump) {
 			Vector3 forwardPush = move;
 
 			// convert the world relative moveInput vector into a local-relative
@@ -59,13 +61,16 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 			ApplyExtraTurnRotation();
 
-			// control and velocity handling is different when grounded and airborne:
-			if (m_IsGrounded)
-			{
-				HandleGroundedMovement(forwardPush, jump);
+			if (move.magnitude > 0) {
+				m_Capsule.material = m_MovingMaterial;
+			} else {
+				m_Capsule.material = m_StationaryMaterial;
 			}
-			else
-			{
+
+			// control and velocity handling is different when grounded and airborne:
+			if (m_IsGrounded) {
+				HandleGroundedMovement(forwardPush, jump);
+			} else {
 				HandleAirborneMovement();
 			}
 
