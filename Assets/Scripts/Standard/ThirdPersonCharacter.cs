@@ -5,6 +5,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 	[RequireComponent(typeof(Rigidbody))]
 	[RequireComponent(typeof(CapsuleCollider))]
 	[RequireComponent(typeof(Animator))]
+	[RequireComponent(typeof(InDarkness))]
+	[RequireComponent(typeof(HoldObject))]
 	public class ThirdPersonCharacter : MonoBehaviour
 	{
 		[SerializeField] PhysicMaterial m_StationaryMaterial;
@@ -17,7 +19,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] float m_RunCycleLegOffset = 0.2f; //specific to the character in sample assets, will need to be modified to work with others
 		[SerializeField] float m_MoveSpeedMultiplier = 1f;
 		[SerializeField] float m_AnimSpeedMultiplier = 1f;
-		[SerializeField] float m_DarknessMoveSpeedMultiplier = 1f;
+		[SerializeField] float m_BaseMoveSpeedMultiplier = 1f;
+		[SerializeField] float m_HoldingAnimSpeedMultiplier = 1f;
 		[SerializeField] float m_DarknessAnimSpeedMultiplier = 0.4f;
 		[SerializeField] float m_GroundCheckDistance = 0.1f;
 
@@ -32,6 +35,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		CapsuleCollider m_Capsule;
 		float m_CapsuleRadius;
 		InDarkness m_DarknessCheck;
+		HoldObject m_HoldScript;
 
 		void Start()
 		{
@@ -40,6 +44,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			m_Capsule = GetComponent<CapsuleCollider>();
 			m_CapsuleRadius = m_Capsule.radius;
 			m_DarknessCheck = transform.Find("DarknessCheck").GetComponent<InDarkness>();
+			m_HoldScript = GetComponent<HoldObject>();
 
 			m_Rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
 			m_OrigGroundCheckDistance = m_GroundCheckDistance;
@@ -106,7 +111,11 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			if (m_IsGrounded && m_DarknessCheck.IsInDarkness) {
 				m_Animator.speed = m_DarknessAnimSpeedMultiplier;
 			} else if (m_IsGrounded && move.magnitude > 0) {
-				m_Animator.speed = m_AnimSpeedMultiplier;
+				if (m_HoldScript.IsHolding) {
+					m_Animator.speed = m_HoldingAnimSpeedMultiplier;
+				} else {
+					m_Animator.speed = m_AnimSpeedMultiplier;
+				}
 			} else {
 				// don't use that while airborne
 				m_Animator.speed = 1;
@@ -167,10 +176,10 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			if (m_IsGrounded && Time.deltaTime > 0)
 			{
 				float actualMoveSpeedMultiplier;
-				if (m_DarknessCheck.IsInDarkness) {
-					actualMoveSpeedMultiplier = m_DarknessMoveSpeedMultiplier;
-				} else {
+				if (!m_DarknessCheck.IsInDarkness && !m_HoldScript.IsHolding) {
 					actualMoveSpeedMultiplier = m_MoveSpeedMultiplier;
+				} else {
+					actualMoveSpeedMultiplier = m_BaseMoveSpeedMultiplier;
 				}
 
 				Vector3 v = (m_Animator.deltaPosition * actualMoveSpeedMultiplier) / Time.deltaTime;
