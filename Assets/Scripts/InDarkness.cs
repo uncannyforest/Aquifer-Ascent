@@ -9,6 +9,8 @@ public class InDarkness : MonoBehaviour
     public LayerMask wallLayerMask;
     public float checkInterval = 0.2f;
 
+    private Animator animator;
+
     public bool IsInDarkness {
         get => inDarkness;
     }
@@ -19,7 +21,9 @@ public class InDarkness : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        InvokeRepeating("CheckDarkness", 0.0f, checkInterval);
+        animator = transform.parent.GetComponent<Animator>();
+
+        InvokeRepeating("UpdateDarkness", 0.0f, checkInterval);
     }
 
     // Update is called once per frame
@@ -54,4 +58,14 @@ public class InDarkness : MonoBehaviour
         }
     }
     
+    void UpdateDarkness() {
+        bool oldInDarkness = inDarkness;
+
+        CheckDarkness();
+
+        if (oldInDarkness ^ inDarkness) {
+            animator.SetBool("InDarkness", inDarkness);
+        }
+    }
+
 }
