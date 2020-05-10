@@ -38,6 +38,7 @@ public class InDarkness : MonoBehaviour
     }
 
 	void OnTriggerExit(Collider other) {
+        Debug.Log("YEP!");
         if(((1 << other.gameObject.layer) & lightLayerMask.value) != 0) {
             nearbyLights.Remove(other.gameObject);
         }
@@ -46,6 +47,10 @@ public class InDarkness : MonoBehaviour
     void CheckDarkness() {
         inDarkness = true;
         foreach (GameObject nearbyLight in nearbyLights) {
+            if (nearbyLight == null) {
+                Debug.Log("Failed to remove dead light :(");
+                continue;
+            }
             if (!Physics.Linecast(
                     gameObject.transform.transform.position,
                     nearbyLight.transform.position,
