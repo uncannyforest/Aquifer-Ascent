@@ -9966,7 +9966,7 @@ PrefabInstance:
     - target: {fileID: 5956162459010704432, guid: 079b9148c70524dc9b8fce762d7c769f,
         type: 3}
       propertyPath: checkInterval
-      value: 100
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 5956162459010704433, guid: 079b9148c70524dc9b8fce762d7c769f,
         type: 3}
