@@ -2229,7 +2229,7 @@ GameObject:
   m_Layer: 0
   m_Name: Initial Path 1
   m_TagString: Untagged
-  m_Icon: {fileID: 419385456094870383, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
   m_IsActive: 1
@@ -16162,7 +16162,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d716c0706cae04cbdbabafd81e76c8ca, type: 2}
+  - {fileID: 2100000, guid: 22995b556bae247c6b91ffaaf9252496, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
