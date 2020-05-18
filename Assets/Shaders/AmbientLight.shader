@@ -28,8 +28,9 @@
                 o.pos = UnityObjectToClipPos(vertex);
                 half3 worldNormal = UnityObjectToWorldNormal(normal);
 
-                o.color = lerp(_EquatorColor, _SkyColor, worldNormal.y) * step(0, worldNormal.y);
-                o.color += lerp(_EquatorColor, _GroundColor, abs(worldNormal.y)) * (1 - step(0, worldNormal.y));
+                half normalIsPositive = step(0, worldNormal.y);
+                o.color = lerp(_EquatorColor, _SkyColor, worldNormal.y) * normalIsPositive;
+                o.color += lerp(_EquatorColor, _GroundColor, abs(worldNormal.y)) * (1 - normalIsPositive);
 
                 return o;
             }
