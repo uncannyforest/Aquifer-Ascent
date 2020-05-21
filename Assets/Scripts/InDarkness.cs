@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(TriggerExit))]
-public class InDarkness : MonoBehaviour
+public class InDarkness : BooleanScript
 {
     public LayerMask lightLayerMask;
     public LayerMask wallLayerMask;
@@ -12,6 +12,9 @@ public class InDarkness : MonoBehaviour
     private Animator animator;
 
     public bool IsInDarkness {
+        get => inDarkness;
+    }
+    override public bool IsActive {
         get => inDarkness;
     }
 
