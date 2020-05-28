@@ -1,24 +1,27 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ActionTrigger : MonoBehaviour {
     public BooleanScript trigger;
     public bool invert;
+    public List<BooleanInput> additonalTriggerInputs = new List<BooleanInput>();
     public string result;
     public Animator receivingAnimator;
 
     private bool isActive = false;
 
     void Start() {
-        TriggerAction(trigger.IsActive ^ invert);
-        isActive = trigger.IsActive;
+        isActive = ComputeAllInput();
+        TriggerAction(ComputeAllInput());
     }
 
     void Update() {
-        if (isActive ^ trigger.IsActive) {
-            TriggerAction(trigger.IsActive ^ invert);
-            isActive = trigger.IsActive;
+        bool newIsActive = ComputeAllInput();
+        if (isActive ^ newIsActive) {
+            TriggerAction(newIsActive);
+            isActive = newIsActive;
         }
     }
 
@@ -26,5 +29,36 @@ public class ActionTrigger : MonoBehaviour {
         if (receivingAnimator != null) {
             receivingAnimator.SetBool(result, input);
         }
+    }
+
+    private bool ComputeOneInput(BooleanScript trigger, bool invert) {
+        return trigger.IsActive ^ invert;
+    }
+
+    private bool ComputeAllInput() {
+        bool result = ComputeOneInput(trigger, invert);
+        foreach (BooleanInput input in additonalTriggerInputs) {
+            switch(input.operation) {
+            case BooleanInput.Operation.And:
+                result = result && ComputeOneInput(input.trigger, input.invert);
+                break;
+            case BooleanInput.Operation.Or:
+                result = result || ComputeOneInput(input.trigger, input.invert);
+                break;
+            case BooleanInput.Operation.Xor:
+                result = result ^ ComputeOneInput(input.trigger, input.invert);
+                break;
+            }
+        }
+        return result;
+    }
+
+    [Serializable]
+    public class BooleanInput {
+        public Operation operation;
+        public BooleanScript trigger;
+        public bool invert;
+
+        public enum Operation { And, Or, Xor }
     }
 }
