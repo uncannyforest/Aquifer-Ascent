@@ -67,22 +67,24 @@ public class StandardOrb : MonoBehaviour
                 }
             }
         } else {
-            if(gameObject.GetComponent<Holdable>().IsHeld) {
-                if (currentChargeLevel > 0f) {
-                    currentChargeLevel -= Time.deltaTime / unchargeTime;
-                    if (currentChargeLevel < 0f) {
-                        currentChargeLevel = 0f;
-                        spawnState = -1;
+            if (unchargeTime != 0) {
+                if (gameObject.GetComponent<Holdable>().IsHeld) {
+                    if (currentChargeLevel > 0f) {
+                        currentChargeLevel -= Time.deltaTime / unchargeTime;
+                        if (currentChargeLevel < 0f) {
+                            currentChargeLevel = 0f;
+                            spawnState = -1;
+                        }
+                        SetOrbColor(GetColorFromCharge());
                     }
-                    SetOrbColor(GetColorFromCharge());
-                }
-            } else {
-                if (currentChargeLevel < 1f) {
-                    currentChargeLevel += Time.deltaTime / chargeTime;
-                    if (currentChargeLevel > 1f) {
-                        currentChargeLevel = 1f;
+                } else {
+                    if (currentChargeLevel < 1f) {
+                        currentChargeLevel += Time.deltaTime / chargeTime;
+                        if (currentChargeLevel > 1f) {
+                            currentChargeLevel = 1f;
+                        }
+                        SetOrbColor(GetColorFromCharge());
                     }
-                    SetOrbColor(GetColorFromCharge());
                 }
             }
         }
@@ -93,12 +95,12 @@ public class StandardOrb : MonoBehaviour
         halo.intensity = haloIntensity * intensity;
     }
 
-    private void SetOrbColor(Color color) {
+    public void SetOrbColor(Color color) {
         halo.color = color;
         myLight.color = color;
     }
 
-    private Color GetColorFromCharge() {
+    public Color GetColorFromCharge() {
         if (currentChargeLevel >= colorTransitions[0].frame) {
             return colorTransitions[0].color;
         }

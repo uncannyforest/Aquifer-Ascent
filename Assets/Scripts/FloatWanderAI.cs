@@ -10,15 +10,23 @@ public class FloatWanderAI : MonoBehaviour
     public float updateTime = 0.5f;
 
     private bool alreadyMoving = false;
+    private bool canMove = true;
 
     Rigidbody rigidBody;
+
+    public bool CanMove {
+        get => canMove && !gameObject.GetComponent<Holdable>().IsHeld;
+        set {
+            canMove = value;
+        }
+    }
 
     void Start() {
         rigidBody = GetComponent<Rigidbody>();
     }
 
     void FixedUpdate() {
-        if (canMove()) {
+        if (CanMove) {
             if (alreadyMoving == false) {
                 StartCoroutine(Wander());
             }
@@ -27,12 +35,12 @@ public class FloatWanderAI : MonoBehaviour
 
     IEnumerator Wander() {
         alreadyMoving = true;
-        updateDirection();
+        UpdateDirection();
         yield return new WaitForSeconds(updateTime);
         alreadyMoving = false;
     }
 
-    void updateDirection() {
+    void UpdateDirection() {
         // random point on sphere using equal area projection
         float theta = Random.Range(0f, 2 * Mathf.PI);
         float y = Random.Range(-1f, 1f);
@@ -43,9 +51,5 @@ public class FloatWanderAI : MonoBehaviour
         if (rigidBody.velocity.magnitude > maxMoveSpeed) {
             rigidBody.velocity = rigidBody.velocity.normalized * maxMoveSpeed;
         }
-    }
-
-    bool canMove() {
-        return !gameObject.GetComponent<Holdable>().IsHeld;
     }
 }
