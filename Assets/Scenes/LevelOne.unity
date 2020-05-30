@@ -12135,7 +12135,7 @@ Camera:
   far clip plane: 40
   field of view: 50
   orthographic: 1
-  orthographic size: 2
+  orthographic size: 4
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -16622,7 +16622,7 @@ MonoBehaviour:
   m_TurnSmoothing: 0
   m_LockCursor: 0
   m_MinCameraSize: 1
-  m_DefaultCameraSize: 2
+  m_DefaultCameraSize: 4
   m_MaxCameraSize: 4
   m_ResetVTurnSpeed: 0.15
   m_HoldForIsoTime: 0.2
