@@ -1,4 +1,4 @@
-﻿Shader "Custom/Specular" {
+﻿Shader "Custom/Specular Blinn-Phong" {
     Properties {
         _Color("Albedo", Color)           = (1,1,1,1)
 		_SpecularTint ("Specular", Color) = (0.5, 0.5, 0.5)
