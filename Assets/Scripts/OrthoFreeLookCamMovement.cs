@@ -22,7 +22,6 @@ public class OrthoFreeLookCamMovement : MonoBehaviour
     [SerializeField] private float m_DefaultCameraSize = 2f;
     [SerializeField] private float m_MaxCameraSize = 4f;
     [Range(0f, 1f)] [SerializeField] private float m_ResetVTurnSpeed = .15f;
-    [SerializeField] private float m_HoldForIsoTime = .2f;
     
     public float m_CameraSize {
         get => m_CamConfig.orthographicSize;
@@ -31,10 +30,10 @@ public class OrthoFreeLookCamMovement : MonoBehaviour
         }
     }
 
-    private bool m_IsResettingCamera = false;
+    private bool m_IsResettingDistance = false;
     private bool m_RotDirPos;
-    private int m_AimingForIso = 0;
-    private float m_XKeyHoldTime = 0;
+    private float m_AimingForIso = 0;
+    private bool m_XKeyDown = false;
     private MixedAutoCam m_AutoScript;
 
     protected Camera m_CamConfig;
@@ -58,8 +57,12 @@ public class OrthoFreeLookCamMovement : MonoBehaviour
 
     protected void Update()
     {
-        if (SimpleInput.GetButtonDown("Reset Camera") && m_AutoScript.IsDoubleResetReady) {
-            m_IsResettingCamera = true;
+        if (SimpleInput.GetButtonDown("Reset Camera")) {
+            if (m_AimingForIso == 0) {
+                m_IsResettingDistance = true;
+            } else {
+                m_AimingForIso = 0;
+            }
         }
         HandleRotationMovement();
         if (m_LockCursor && Input.GetMouseButtonUp(0))
@@ -76,6 +79,16 @@ public class OrthoFreeLookCamMovement : MonoBehaviour
         Cursor.visible = true;
     }
 
+    private float AngleClamp(float angle) {
+        while (angle < -179) {
+            angle += 360;
+        }
+        while (angle > 181) {
+            angle -= 360;
+        }
+        return angle;
+    }
+
     private void HandleRotationMovement()
     {
         if(Time.timeScale < float.Epsilon)
@@ -88,48 +101,36 @@ public class OrthoFreeLookCamMovement : MonoBehaviour
         // get current angle
         Vector3 m_TransformEulers = transform.localRotation.eulerAngles;
         float m_LookAngle = m_TransformEulers.y;
-        if (m_LookAngle < -45) {
-            m_LookAngle += 360;
-        } else if (m_LookAngle > 315) {
-            m_LookAngle -= 360;
-        }
+        m_LookAngle = AngleClamp(m_LookAngle);
 
-        // Force iso
         if (x != 0) {
-            if (m_XKeyHoldTime == 0) { // key down
-                m_XKeyHoldTime = Time.time + m_HoldForIsoTime;
-                if (m_AimingForIso != 0) { // reset
-                    m_AimingForIso = 0;
-                }
+            if (!m_XKeyDown) { // initial press
+                m_AimingForIso += (x < 0) ? 90 : -90;
+                m_AimingForIso = AngleClamp(m_AimingForIso);
+                Debug.Log(m_AimingForIso);
+                m_XKeyDown = true;
             }
-            m_RotDirPos = x > 0;
-        } else if (m_XKeyHoldTime != 0) { // release
-            if (Time.time > m_XKeyHoldTime) { // key was held
-                if (m_RotDirPos) {
-                    m_AimingForIso = Mathf.CeilToInt((m_LookAngle - 45) / 90) * 90 + 45;
-                } else {
-                    m_AimingForIso = Mathf.FloorToInt((m_LookAngle - 45) / 90) * 90 + 45;
-                }
-            }
-            m_XKeyHoldTime = 0;
+        } else if (m_XKeyDown) {
+            m_XKeyDown = false;
         }
 
-        if (m_AimingForIso == 0) {
-            if (x != 0) {
-                m_LookAngle += m_RotDirPos ? m_HTurnSpeed : -m_HTurnSpeed;
-            }
-        } else {
-            if (m_RotDirPos) {
-                m_LookAngle += m_HTurnSpeed;
-                if (m_LookAngle > m_AimingForIso) {
+        if (m_AimingForIso != m_LookAngle) {
+            float direction = m_AimingForIso - m_LookAngle;
+            direction = AngleClamp(direction);
+            Debug.Log("Direction: " + direction);
+
+            m_LookAngle += (direction > 0) ? m_HTurnSpeed : -m_HTurnSpeed;
+
+            float newDirection = m_AimingForIso - m_LookAngle;
+            newDirection = AngleClamp(newDirection);
+            if (direction * newDirection <= 0) {
+                if (x == 0) {
                     m_LookAngle = m_AimingForIso;
-                    m_AimingForIso = 0;
-                }
-            } else {
-                m_LookAngle -= m_HTurnSpeed;
-                if (m_LookAngle < m_AimingForIso) {
-                    m_LookAngle = m_AimingForIso;
-                    m_AimingForIso = 0;
+                    Debug.Log("Stopping at " + m_AimingForIso);
+                } else {
+                    m_AimingForIso += (x < 0) ? 90 : -90;
+                    m_AimingForIso = AngleClamp(m_AimingForIso);
+                    Debug.Log("Continuing: " + m_AimingForIso);
                 }
             }
         }
@@ -138,11 +139,11 @@ public class OrthoFreeLookCamMovement : MonoBehaviour
         Quaternion m_TransformTargetRot = Quaternion.Euler(0f, m_LookAngle, 0f);
 
         // we adjust the current angle based on Y mouse input and turn speed
-        if (!m_IsResettingCamera) {
+        if (!m_IsResettingDistance) {
             m_CameraSize -= y*m_VTurnSpeed*m_CameraSize; // multiply by m_CameraSize for more natural, log movement
         } else {
             if (Mathf.Abs(m_CameraSize - m_DefaultCameraSize) < m_ResetVTurnSpeed) {
-                m_IsResettingCamera = false;
+                m_IsResettingDistance = false;
             }
             m_CameraSize = Mathf.MoveTowards(m_CameraSize, m_DefaultCameraSize, m_ResetVTurnSpeed);
         }
