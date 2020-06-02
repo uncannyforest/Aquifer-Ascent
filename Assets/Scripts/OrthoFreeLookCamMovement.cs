@@ -31,7 +31,6 @@ public class OrthoFreeLookCamMovement : MonoBehaviour
     }
 
     private bool m_IsResettingDistance = false;
-    private bool m_RotDirPos;
     private float m_AimingForIso = 0;
     private bool m_XKeyDown = false;
     private MixedAutoCam m_AutoScript;
@@ -103,7 +102,7 @@ public class OrthoFreeLookCamMovement : MonoBehaviour
         float m_LookAngle = m_TransformEulers.y;
         m_LookAngle = AngleClamp(m_LookAngle);
 
-        if (x != 0) {
+        if (x  > .5 || x < -.5) {
             if (!m_XKeyDown) { // initial press
                 m_AimingForIso += (x < 0) ? 90 : -90;
                 m_AimingForIso = AngleClamp(m_AimingForIso);
