@@ -18,6 +18,7 @@ public class FloatWanderAI : MonoBehaviour
         get => canMove && !gameObject.GetComponent<Holdable>().IsHeld;
         set {
             canMove = value;
+            Debug.Log(gameObject.name + " WanderAI.CanMove set to " + value);
         }
     }
 

@@ -36,7 +36,6 @@ public class InDarkness : BooleanScript
     }
 
     void OnTriggerEnter(Collider other) {
-            Debug.Log(transform.parent.name + ": New light nearby MAYBE");
         if(((1 << other.gameObject.layer) & lightLayerMask.value) != 0) {
             Debug.Log(transform.parent.name + ": New light nearby");
             nearbyLights.Add(other.gameObject);
@@ -65,8 +64,6 @@ public class InDarkness : BooleanScript
                     QueryTriggerInteraction.Ignore)) {
                 inDarkness = false;
                 return;
-            } else {
-                Debug.Log(hitInfo.collider.gameObject.name);
             }
         }
     }

@@ -47,6 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trigger: {fileID: 182499208021117281}
   invert: 1
+  additonalTriggerInputs: []
   result: IsOpen
   receivingAnimator: {fileID: 8859232847007365298}
 --- !u!1001 &3050160881643102513
@@ -57,6 +58,11 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -6374528589357692267, guid: ca1072bd17677447cb57c1dd4879e825,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: -4540539275945913696, guid: ca1072bd17677447cb57c1dd4879e825,
         type: 3}
       propertyPath: m_Layer
       value: 11
@@ -130,6 +136,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 6561162727916590439, guid: ca1072bd17677447cb57c1dd4879e825,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ca1072bd17677447cb57c1dd4879e825, type: 3}
