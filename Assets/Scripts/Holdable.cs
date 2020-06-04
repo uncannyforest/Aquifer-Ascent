@@ -69,7 +69,6 @@ public class Holdable : MonoBehaviour
         IsHeld = false;
         if (!isUsed) {
             objectAudio.PlayOneShot(setDownSound, 0.5f);
-            physicsCollider.enabled = true;
             myRigidbody.isKinematic = false;
         }
     }
@@ -77,7 +76,6 @@ public class Holdable : MonoBehaviour
     public void Hold() {
         IsHeld = true;
         objectAudio.PlayOneShot(pickUpSound, 0.5f);
-        physicsCollider.enabled = false;
         myRigidbody.isKinematic = true;
         oldPosition = this.transform.position;
         this.transform.rotation = playerHoldTransform.rotation;

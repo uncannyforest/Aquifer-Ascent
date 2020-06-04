@@ -24,6 +24,7 @@ public class InDarkness : BooleanScript
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("Ready " + transform.parent.name);
         animator = transform.parent.GetComponent<Animator>();
 
         InvokeRepeating("UpdateDarkness", 0.0f, checkInterval);
@@ -35,14 +36,16 @@ public class InDarkness : BooleanScript
     }
 
     void OnTriggerEnter(Collider other) {
+            Debug.Log(transform.parent.name + ": New light nearby MAYBE");
         if(((1 << other.gameObject.layer) & lightLayerMask.value) != 0) {
+            Debug.Log(transform.parent.name + ": New light nearby");
             nearbyLights.Add(other.gameObject);
         }
     }
 
 	void OnTriggerExit(Collider other) {
-        Debug.Log("YEP!");
         if(((1 << other.gameObject.layer) & lightLayerMask.value) != 0) {
+            Debug.Log(transform.parent.name + ": Light no longer nearby");
             nearbyLights.Remove(other.gameObject);
         }
     }
@@ -62,6 +65,8 @@ public class InDarkness : BooleanScript
                     QueryTriggerInteraction.Ignore)) {
                 inDarkness = false;
                 return;
+            } else {
+                Debug.Log(hitInfo.collider.gameObject.name);
             }
         }
     }

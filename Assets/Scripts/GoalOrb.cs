@@ -79,8 +79,9 @@ public class GoalOrb : MonoBehaviour
         orbScript.currentChargeLevel = 1.0f; // disables recolor
         wanderAI.CanMove = false;
 
-        TriggerObjectDestroyer.Hide(gameObject); // must happen before untagging :P
+        TriggerObjectDestroyer.Hide(gameObject); // must happen before untagging
         transform.Find("Halo").tag = "Untagged"; // remove CanPickUp
+        TriggerObjectDestroyer.Show(gameObject); // reset so no effect when Halo tag does not matter
     }
 
     private float CubicInterpolate(float x) {
