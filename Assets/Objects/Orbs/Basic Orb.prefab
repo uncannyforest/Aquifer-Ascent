@@ -108,7 +108,7 @@ GameObject:
   - component: {fileID: 5792021157012530770}
   - component: {fileID: 6838846483093510342}
   m_Layer: 10
-  m_Name: GlowingObject
+  m_Name: Basic Orb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   optionalAction: 
-  defaultParent: {fileID: 0}
+  parentWhenFree: {fileID: 0}
   pickUpSound: {fileID: 8300000, guid: 04df9b11a4dd24c46b51da18fa8cb302, type: 3}
   setDownSound: {fileID: 8300000, guid: 8315785413ece4064a677c8ae611927b, type: 3}
   pickUpTime: 0.5
