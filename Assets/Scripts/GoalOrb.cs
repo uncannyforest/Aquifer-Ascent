@@ -4,7 +4,6 @@ using UnityEngine;
 
 [RequireComponent(typeof(Holdable))]
 [RequireComponent(typeof(StandardOrb))]
-[RequireComponent(typeof(FloatWanderAI))]
 public class GoalOrb : MonoBehaviour
 {
     public GameObject goalArea;
@@ -17,13 +16,11 @@ public class GoalOrb : MonoBehaviour
 
     private LineRenderer hintLine;
     private StandardOrb orbScript;
-    private FloatWanderAI wanderAI;
 
     void Start() {
         this.hintLine = transform.Find("Hint Flare").GetComponent<LineRenderer>();
         this.hintLine.enabled = false;
         this.orbScript = GetComponent<StandardOrb>();
-        this.wanderAI = GetComponent<FloatWanderAI>();
     }
 
     void Update() {
@@ -73,11 +70,12 @@ public class GoalOrb : MonoBehaviour
     }
 
     private void Succeed() {
+        this.transform.parent = goalArea.transform; // communicates to Holdable and WanderAI that it is not free
+
         successStartingPosition = transform.position;
         successStartingColor = orbScript.GetColorFromCharge();
 
         orbScript.currentChargeLevel = 1.0f; // disables recolor
-        wanderAI.CanMove = false;
 
         TriggerObjectDestroyer.Hide(gameObject); // must happen before untagging
         transform.Find("Halo").tag = "Untagged"; // remove CanPickUp

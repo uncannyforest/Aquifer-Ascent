@@ -12,10 +12,16 @@ public class FloatWanderAI : MonoBehaviour
     private bool alreadyMoving = false;
     private bool canMove = true;
 
-    Rigidbody rigidBody;
+    private Rigidbody rigidBody;
+    private Holdable holdableScript;
 
     public bool CanMove {
-        get => canMove && !gameObject.GetComponent<Holdable>().IsHeld;
+        get {
+            if (holdableScript == null) {
+                return canMove;
+            }
+            return canMove && gameObject.GetComponent<Holdable>().IsFree;
+        }
         set {
             canMove = value;
             Debug.Log(gameObject.name + " WanderAI.CanMove set to " + value);
@@ -24,6 +30,7 @@ public class FloatWanderAI : MonoBehaviour
 
     void Start() {
         rigidBody = GetComponent<Rigidbody>();
+        holdableScript = GetComponent<Holdable>();
     }
 
     void FixedUpdate() {

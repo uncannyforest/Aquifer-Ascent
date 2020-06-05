@@ -6,14 +6,13 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Collider))]
 public class Holdable : MonoBehaviour
 {
-
     public string optionalAction = "";
+    public GameObject parentWhenFree;
     public AudioClip pickUpSound;
     public AudioClip setDownSound;
     public float pickUpTime = 0.5f;
 
     private float heldState = 0.0f; // 0 if not held, 1 if held
-    private Transform originalParent;
     private Transform playerHoldTransform;
     Collider physicsCollider;
     Rigidbody myRigidbody;
@@ -28,13 +27,20 @@ public class Holdable : MonoBehaviour
             if (value) {
                 this.transform.SetParent(playerHoldTransform);
             } else {
-                this.transform.SetParent(originalParent);
+                this.transform.SetParent(parentWhenFree.transform);
             }
         }
     }
 
+    public bool IsFree {
+        get => this.transform.parent == parentWhenFree.transform;
+    }
+
     void Start(){
-        originalParent = this.transform.parent.transform;
+        if (parentWhenFree == null) {
+            parentWhenFree = this.transform.parent.gameObject;
+            Debug.Log(gameObject.name + " Holdable script missing ParentWhenFree, setting to " + parentWhenFree.name);
+        }
         playerHoldTransform = GameObject.FindWithTag("Player").transform.Find("HoldLocation");
         physicsCollider = GetComponent<Collider>();
         myColliderBounds = physicsCollider.bounds;

@@ -9,6 +9,7 @@ public class ActionTrigger : MonoBehaviour {
     public List<BooleanInput> additonalTriggerInputs = new List<BooleanInput>();
     public string result;
     public Animator receivingAnimator;
+    public ToggleableScript receivingScript;
 
     private bool isActive = false;
 
@@ -28,6 +29,9 @@ public class ActionTrigger : MonoBehaviour {
     private void TriggerAction(bool input) {
         if (receivingAnimator != null) {
             receivingAnimator.SetBool(result, input);
+        }
+        if (receivingScript != null) {
+            receivingScript.IsActive = input;
         }
     }
 

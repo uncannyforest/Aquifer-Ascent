@@ -8,6 +8,7 @@ public class InDarkness : BooleanScript
     public LayerMask lightLayerMask;
     public LayerMask wallLayerMask;
     public float checkInterval = 0.2f;
+    public bool ignoreNephews;
 
     private Animator animator;
 
@@ -54,6 +55,12 @@ public class InDarkness : BooleanScript
         foreach (GameObject nearbyLight in nearbyLights) {
             if (nearbyLight == null) {
                 Debug.Log("Failed to remove dead light :(");
+                continue;
+            }
+            if (nearbyLight.GetComponent<StandardOrb>().spawnState == 0) {
+                continue;
+            }
+            if (ignoreNephews && nearbyLight.transform.parent.parent == this.transform.parent) {
                 continue;
             }
             if (!Physics.Linecast(

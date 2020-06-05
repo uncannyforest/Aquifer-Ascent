@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Holdable))]
-public class StandardOrb : MonoBehaviour
-{
+public class StandardOrb : ToggleableScript {
+    [SerializeField] private bool isActive = true;
     public GameObject spawnLocation;
     public float unchargeTime = 30f;
     public float chargeTime = 450f;
@@ -22,13 +22,27 @@ public class StandardOrb : MonoBehaviour
 
     private Light myLight;
     private Light halo;
+    private FloatWanderAI wanderAI;
+    
+    private bool isDead = false;
+
+    override public bool IsActive {
+        set {
+            isActive = value;
+            if (wanderAI != null) {
+                wanderAI.CanMove = value;
+            }
+        }
+    }
 
     // Start is called before the first frame update
     void Start() {
         myLight = gameObject.transform.Find("Point Light").GetComponent<Light>();
         halo = gameObject.transform.Find("Halo").GetComponent<Light>();
+        wanderAI = gameObject.GetComponent<FloatWanderAI>();
         UpdateOrbState();
         SetOrbColor(GetColorFromCharge());
+        IsActive = isActive;
     }
 
     // Update is called once per frame
@@ -42,17 +56,13 @@ public class StandardOrb : MonoBehaviour
     }
 
     private void UpdateOrbState() {
-        if (spawnState < 1) {
-            if (spawnState >= 0) {
-                spawnState += Time.deltaTime / spawnTime;
-                spawnState = Mathf.Min(1, spawnState);
-                transform.localScale = Vector3.one * spawnState;
-                SetOrbIntensity(spawnState);
-            } else {
-                spawnState += Time.deltaTime / spawnTime;
-                if (spawnState < 0) {
-                    transform.localScale = Vector3.one * -spawnState;
-                } else {
+        if (!isActive) {
+            if (spawnState > 0) {
+                spawnState -= Time.deltaTime / spawnTime;
+                if (spawnState > 0) {
+                    transform.localScale = Vector3.one * spawnState;
+                    SetOrbIntensity(spawnState);
+                } else if (isDead) {
                     if (spawnLocation == null) {
                         TriggerObjectDestroyer.Destroy(this.gameObject);
                     } else {
@@ -64,8 +74,15 @@ public class StandardOrb : MonoBehaviour
                         SetOrbColor(GetColorFromCharge());
                         SetOrbIntensity(0);
                     }
+                } else {
+                    spawnState = 0;
                 }
             }
+        } else if (spawnState < 1) {
+            spawnState += Time.deltaTime / spawnTime;
+            spawnState = Mathf.Min(1, spawnState);
+            transform.localScale = Vector3.one * spawnState;
+            SetOrbIntensity(spawnState);
         } else {
             if (unchargeTime != 0) {
                 if (gameObject.GetComponent<Holdable>().IsHeld) {
@@ -73,7 +90,8 @@ public class StandardOrb : MonoBehaviour
                         currentChargeLevel -= Time.deltaTime / unchargeTime;
                         if (currentChargeLevel < 0f) {
                             currentChargeLevel = 0f;
-                            spawnState = -1;
+                            isActive = false;
+                            isDead = true;
                         }
                         SetOrbColor(GetColorFromCharge());
                     }
