@@ -1,6 +1,7 @@
 ﻿#if !defined(MY_LIGHTING_INCLUDED)
 #define MY_LIGHTING_INCLUDED
 
+#include "AutoLight.cginc"
 #include "UnityPBSLighting.cginc"
 
 fixed4 _Color;
@@ -24,10 +25,17 @@ v2f vert (float4 vertex : POSITION, float3 normal : NORMAL) {
     return o;
 }
 
+UnityLight CreateLight (v2f i) {
+	UnityLight light;
+	light.dir = normalize(_WorldSpaceLightPos0.xyz - i.worldPos);
+    UNITY_LIGHT_ATTENUATION(attenuation, 0, i.worldPos);
+	light.color = _LightColor0.rgb * attenuation;
+	light.ndotl = DotClamped(i.normal, light.dir);
+	return light;
+}
+
 fixed4 frag (v2f i) : SV_Target {
     i.normal = normalize(i.normal);
-    half3 lightDir = _WorldSpaceLightPos0.xyz;
-    half3 lightColor = _LightColor0.rgb;
 
     float oneMinusReflectivity;
 
@@ -37,10 +45,6 @@ fixed4 frag (v2f i) : SV_Target {
         diffuse, _SpecularTint.rgb, oneMinusReflectivity
     );
 
-    UnityLight light;
-    light.color = lightColor;
-    light.dir = lightDir;
-    light.ndotl = DotClamped(i.normal, lightDir);
     UnityIndirect indirectLight;
     indirectLight.diffuse = 0;
     indirectLight.specular = 0;
@@ -49,7 +53,7 @@ fixed4 frag (v2f i) : SV_Target {
         i.color, _SpecularTint,
         oneMinusReflectivity, _Smoothness,
         i.normal, viewDir,
-        light, indirectLight
+        CreateLight(i), indirectLight
         );
 }
 #endif

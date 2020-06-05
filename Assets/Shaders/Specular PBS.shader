@@ -14,6 +14,9 @@
 
 			#pragma target 3.0
 
+            // add DIRECTIONAL if needed
+            #pragma multi_compile POINT
+
             #pragma vertex vert
             #pragma fragment frag
 
@@ -33,6 +36,9 @@
             CGPROGRAM
 
 			#pragma target 3.0
+
+            // add DIRECTIONAL if needed
+            #pragma multi_compile POINT
 
             #pragma vertex vert
             #pragma fragment frag
