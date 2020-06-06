@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace UnityStandardAssets.Characters.ThirdPerson
@@ -5,6 +6,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 	[RequireComponent(typeof(Rigidbody))]
 	[RequireComponent(typeof(CapsuleCollider))]
 	[RequireComponent(typeof(Animator))]
+	[RequireComponent(typeof(DarknessRescue))]
 	public class ThirdPersonCharacter : MonoBehaviour
 	{
 		[SerializeField] PhysicMaterial m_StationaryMaterial;
@@ -19,6 +21,9 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] float m_AnimSpeedMultiplier = 1f;
 		[SerializeField] float m_GroundCheckDistance = 0.1f;
 
+		[NonSerialized] public bool isStuck = false;
+		[NonSerialized] public Vector3 groundNormal;
+
 		Rigidbody m_Rigidbody;
 		Animator m_Animator;
 		bool m_IsGrounded;
@@ -26,11 +31,11 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		const float k_Half = 0.5f;
 		float m_TurnAmount;
 		float m_ForwardAmount;
-		Vector3 m_GroundNormal;
 		CapsuleCollider m_Capsule;
 		float m_CapsuleRadius;
 		InDarkness m_DarknessCheckHead;
 		InDarkness m_DarknessCheckFeet;
+		DarknessRescue m_DarknessRescue;
 
 		bool IsApproachingDarkness {
 			get => m_DarknessCheckHead.IsInDarkness && m_DarknessCheckFeet.IsInDarkness;
@@ -44,6 +49,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			m_CapsuleRadius = m_Capsule.radius;
 			m_DarknessCheckHead = transform.Find("DarknessCheckHead").GetComponent<InDarkness>();
 			m_DarknessCheckFeet = transform.Find("DarknessCheckFeet").GetComponent<InDarkness>();
+			m_DarknessRescue = GetComponent<DarknessRescue>();
 
 			m_Rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
 			m_OrigGroundCheckDistance = m_GroundCheckDistance;
@@ -59,7 +65,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			if (move.magnitude > 1f) move.Normalize();
 			move = transform.InverseTransformDirection(move);
 			CheckGroundStatus();
-			move = Vector3.ProjectOnPlane(move, m_GroundNormal);
+			move = Vector3.ProjectOnPlane(move, groundNormal);
 			m_TurnAmount = Mathf.Atan2(move.x, move.z);
 			m_ForwardAmount = move.z;
 
@@ -173,8 +179,16 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				
 				if (IsApproachingDarkness) {
 					actualMoveSpeedMultiplier = 0;
+					if (!isStuck) {
+						isStuck = true;
+						m_DarknessRescue.IsStuck = true;
+					}
 				} else {
 					actualMoveSpeedMultiplier = m_MoveSpeedMultiplier;
+					if (isStuck) {
+						isStuck = false;
+						m_DarknessRescue.IsStuck = false;
+					}
 				}
 				Vector3 v = (m_Animator.deltaPosition * actualMoveSpeedMultiplier) / Time.deltaTime;
 
@@ -196,14 +210,14 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			// it is also good to note that the transform position in the sample assets is at the base of the character
 			if (Physics.SphereCast(transform.position + (Vector3.up * (0.1f + m_CapsuleRadius)), m_CapsuleRadius, Vector3.down, out hitInfo, m_GroundCheckDistance))
 			{
-				m_GroundNormal = hitInfo.normal;
+				groundNormal = hitInfo.normal;
 				m_IsGrounded = true;
 				m_Animator.applyRootMotion = true;
 			}
 			else
 			{
 				m_IsGrounded = false;
-				m_GroundNormal = Vector3.up;
+				groundNormal = Vector3.up;
 				m_Animator.applyRootMotion = false;
 			}
 		}

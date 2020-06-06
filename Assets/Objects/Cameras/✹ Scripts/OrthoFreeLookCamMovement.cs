@@ -106,7 +106,6 @@ public class OrthoFreeLookCamMovement : MonoBehaviour
             if (!m_XKeyDown) { // initial press
                 m_AimingForIso += (x < 0) ? 90 : -90;
                 m_AimingForIso = AngleClamp(m_AimingForIso);
-                Debug.Log(m_AimingForIso);
                 m_XKeyDown = true;
             }
         } else if (m_XKeyDown) {
@@ -124,11 +123,9 @@ public class OrthoFreeLookCamMovement : MonoBehaviour
             if (direction * newDirection <= 0) {
                 if (x == 0) {
                     m_LookAngle = m_AimingForIso;
-                    Debug.Log("Camera stopping at " + m_AimingForIso);
                 } else {
                     m_AimingForIso += (x < 0) ? 90 : -90;
                     m_AimingForIso = AngleClamp(m_AimingForIso);
-                    Debug.Log("Camera continuing: " + m_AimingForIso);
                 }
             }
         }

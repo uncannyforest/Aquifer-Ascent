@@ -25,12 +25,9 @@ public class InDarkness : BooleanScript
     {
         Debug.Log("Ready " + transform.parent.name);
 
-        InvokeRepeating("UpdateDarkness", 0.0f, checkInterval);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
+        if (checkInterval != 0) {
+            InvokeRepeating("CheckDarkness", 0.0f, checkInterval);
+        }
     }
 
     void OnTriggerEnter(Collider other) {
@@ -47,7 +44,7 @@ public class InDarkness : BooleanScript
         }
     }
 
-    void CheckDarkness() {
+    public void CheckDarkness() {
         inDarkness = true;
         foreach (GameObject nearbyLight in nearbyLights) {
             if (nearbyLight == null) {
@@ -61,8 +58,8 @@ public class InDarkness : BooleanScript
                 continue;
             }
             if (!Physics.Linecast(
-                    gameObject.transform.transform.position,
-                    nearbyLight.transform.position,
+                    nearbyLight.transform.position,          // putting light first ensures that objects
+                    gameObject.transform.transform.position, // outside cave walls are not considered lit
                     out RaycastHit hitInfo,
                     wallLayerMask,
                     QueryTriggerInteraction.Ignore)) {
@@ -71,11 +68,4 @@ public class InDarkness : BooleanScript
             }
         }
     }
-    
-    void UpdateDarkness() {
-        bool oldInDarkness = inDarkness;
-
-        CheckDarkness();
-    }
-
 }

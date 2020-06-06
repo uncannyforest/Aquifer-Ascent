@@ -172,6 +172,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Large Flower
       objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: ca1072bd17677447cb57c1dd4879e825,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 3001823984375222626, guid: ca1072bd17677447cb57c1dd4879e825,
         type: 3}
       propertyPath: m_Layer
