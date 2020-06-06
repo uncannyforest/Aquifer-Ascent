@@ -17,8 +17,6 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] float m_RunCycleLegOffset = 0.2f; //specific to the character in sample assets, will need to be modified to work with others
 		[SerializeField] float m_MoveSpeedMultiplier = 1f;
 		[SerializeField] float m_AnimSpeedMultiplier = 1f;
-		[SerializeField] float m_DarknessMoveSpeedMultiplier = 1f;
-		[SerializeField] float m_DarknessAnimSpeedMultiplier = 0.4f;
 		[SerializeField] float m_GroundCheckDistance = 0.1f;
 
 		Rigidbody m_Rigidbody;
@@ -31,7 +29,12 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		Vector3 m_GroundNormal;
 		CapsuleCollider m_Capsule;
 		float m_CapsuleRadius;
-		InDarkness m_DarknessCheck;
+		InDarkness m_DarknessCheckHead;
+		InDarkness m_DarknessCheckFeet;
+
+		bool IsApproachingDarkness {
+			get => m_DarknessCheckHead.IsInDarkness && m_DarknessCheckFeet.IsInDarkness;
+		}
 
 		void Start()
 		{
@@ -39,7 +42,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			m_Rigidbody = GetComponent<Rigidbody>();
 			m_Capsule = GetComponent<CapsuleCollider>();
 			m_CapsuleRadius = m_Capsule.radius;
-			m_DarknessCheck = transform.Find("DarknessCheck").GetComponent<InDarkness>();
+			m_DarknessCheckHead = transform.Find("DarknessCheckHead").GetComponent<InDarkness>();
+			m_DarknessCheckFeet = transform.Find("DarknessCheckFeet").GetComponent<InDarkness>();
 
 			m_Rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
 			m_OrigGroundCheckDistance = m_GroundCheckDistance;
@@ -103,9 +107,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 			// the anim speed multiplier allows the overall speed of walking/running to be tweaked in the inspector,
 			// which affects the movement speed because of the root motion.
-			if (m_IsGrounded && m_DarknessCheck.IsInDarkness) {
-				m_Animator.speed = m_DarknessAnimSpeedMultiplier;
-			} else if (m_IsGrounded && move.magnitude > 0) {
+			if (m_IsGrounded && move.magnitude > 0) {
 				m_Animator.speed = m_AnimSpeedMultiplier;
 			} else {
 				// don't use that while airborne
@@ -120,6 +122,10 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			Vector3 extraGravityForce = (Physics.gravity * m_GravityMultiplier) - Physics.gravity;
 			m_Rigidbody.AddForce(extraGravityForce);
 
+			if (IsApproachingDarkness) {
+				m_Rigidbody.velocity = new Vector3(0, m_Rigidbody.velocity.y, 0);
+			}
+
 			m_GroundCheckDistance = m_Rigidbody.velocity.y < 0 ? m_OrigGroundCheckDistance : 0.01f;
 		}
 
@@ -132,18 +138,15 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				// jump!
 				Vector3 jumpPush = forwardPush * m_ForwardJumpPower;
 				Vector3 newVelocity;
-				if (m_DarknessCheck.IsInDarkness) {
-					newVelocity = jumpPush;
-				} else {
-					Vector3 oldVelocity = new Vector3(m_Rigidbody.velocity.x, 0, m_Rigidbody.velocity.z);
-					float newSpeedSquared = oldVelocity.sqrMagnitude
-						+ jumpPush.sqrMagnitude;
-					Vector3 newDirection = oldVelocity + jumpPush;
-					newVelocity = newDirection.normalized * Mathf.Sqrt(newSpeedSquared);
-					Debug.Log("Original velocity:" + oldVelocity.magnitude);
-					Debug.Log("Forward push:" + jumpPush.magnitude);
-					Debug.Log("New velocity:" + newVelocity.magnitude);
-				}
+
+				Vector3 oldVelocity = new Vector3(m_Rigidbody.velocity.x, 0, m_Rigidbody.velocity.z);
+				float newSpeedSquared = oldVelocity.sqrMagnitude
+					+ jumpPush.sqrMagnitude;
+				Vector3 newDirection = oldVelocity + jumpPush;
+				newVelocity = newDirection.normalized * Mathf.Sqrt(newSpeedSquared);
+				Debug.Log("Original velocity:" + oldVelocity.magnitude);
+				Debug.Log("Forward push:" + jumpPush.magnitude);
+				Debug.Log("New velocity:" + newVelocity.magnitude);
 				
 				m_Rigidbody.velocity = new Vector3(newVelocity.x, m_JumpPower, newVelocity.z);
 				m_IsGrounded = false;
@@ -167,12 +170,12 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			if (m_IsGrounded && Time.deltaTime > 0)
 			{
 				float actualMoveSpeedMultiplier;
-				if (m_DarknessCheck.IsInDarkness) {
-					actualMoveSpeedMultiplier = m_DarknessMoveSpeedMultiplier;
+				
+				if (IsApproachingDarkness) {
+					actualMoveSpeedMultiplier = 0;
 				} else {
 					actualMoveSpeedMultiplier = m_MoveSpeedMultiplier;
 				}
-
 				Vector3 v = (m_Animator.deltaPosition * actualMoveSpeedMultiplier) / Time.deltaTime;
 
 				// we preserve the existing y part of the current velocity.

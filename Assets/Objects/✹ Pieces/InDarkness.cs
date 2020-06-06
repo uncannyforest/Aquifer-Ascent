@@ -10,8 +10,6 @@ public class InDarkness : BooleanScript
     public float checkInterval = 0.2f;
     public bool ignoreNephews;
 
-    private Animator animator;
-
     public bool IsInDarkness {
         get => inDarkness;
     }
@@ -26,7 +24,6 @@ public class InDarkness : BooleanScript
     void Start()
     {
         Debug.Log("Ready " + transform.parent.name);
-        animator = transform.parent.GetComponent<Animator>();
 
         InvokeRepeating("UpdateDarkness", 0.0f, checkInterval);
     }
@@ -79,10 +76,6 @@ public class InDarkness : BooleanScript
         bool oldInDarkness = inDarkness;
 
         CheckDarkness();
-
-        if (oldInDarkness ^ inDarkness) {
-            animator.SetBool("InDarkness", inDarkness);
-        }
     }
 
 }
