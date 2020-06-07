@@ -12,5 +12,6 @@ public class ContainerTrigger : ToggleableScript {
                 receivingScript.IsActive = value;
             }
         }
+        get => receivingScript.IsActive;
     }
 }

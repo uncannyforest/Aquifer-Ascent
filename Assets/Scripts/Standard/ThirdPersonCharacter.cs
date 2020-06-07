@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace UnityStandardAssets.Characters.ThirdPerson
@@ -7,6 +8,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 	[RequireComponent(typeof(CapsuleCollider))]
 	[RequireComponent(typeof(Animator))]
 	[RequireComponent(typeof(DarknessRescue))]
+	[RequireComponent(typeof(DarknessNavigate))]
 	public class ThirdPersonCharacter : MonoBehaviour
 	{
 		[SerializeField] PhysicMaterial m_StationaryMaterial;
@@ -20,6 +22,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] float m_MoveSpeedMultiplier = 1f;
 		[SerializeField] float m_AnimSpeedMultiplier = 1f;
 		[SerializeField] float m_GroundCheckDistance = 0.1f;
+		[SerializeField] List<BooleanScript> m_ProhibitMotionWhen;
 
 		[NonSerialized] public bool isStuck = false;
 		[NonSerialized] public Vector3 groundNormal;
@@ -36,8 +39,9 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		InDarkness m_DarknessCheckHead;
 		InDarkness m_DarknessCheckFeet;
 		DarknessRescue m_DarknessRescue;
+		DarknessNavigate m_DarknessNavigate;
 
-		bool IsApproachingDarkness {
+		public bool IsApproachingDarkness {
 			get => m_DarknessCheckHead.IsInDarkness && m_DarknessCheckFeet.IsInDarkness;
 		}
 
@@ -50,6 +54,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			m_DarknessCheckHead = transform.Find("DarknessCheckHead").GetComponent<InDarkness>();
 			m_DarknessCheckFeet = transform.Find("DarknessCheckFeet").GetComponent<InDarkness>();
 			m_DarknessRescue = GetComponent<DarknessRescue>();
+			m_DarknessNavigate = GetComponent<DarknessNavigate>();
 
 			m_Rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
 			m_OrigGroundCheckDistance = m_GroundCheckDistance;
@@ -177,7 +182,17 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			{
 				float actualMoveSpeedMultiplier;
 				
-				if (IsApproachingDarkness) {
+				bool prohibitMotion = false;
+				foreach (BooleanScript script in m_ProhibitMotionWhen) {
+					if (script.isActiveAndEnabled && script.IsActive) {
+						prohibitMotion = true;
+						break;
+					}
+				}
+
+				if (prohibitMotion) {
+					actualMoveSpeedMultiplier = 0;
+				} else if (!m_DarknessNavigate.IsInEffect && IsApproachingDarkness) {
 					actualMoveSpeedMultiplier = 0;
 					if (!isStuck) {
 						isStuck = true;
@@ -197,7 +212,6 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				m_Rigidbody.velocity = v;
 			}
 		}
-
 
 		void CheckGroundStatus()
 		{

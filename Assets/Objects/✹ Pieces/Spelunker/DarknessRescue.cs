@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityStandardAssets.Characters.ThirdPerson;
 
 [RequireComponent(typeof(ThirdPersonCharacter))]
+[RequireComponent(typeof(DarknessNavigate))]
 public class DarknessRescue : MonoBehaviour {
 	public float stuckDelayFixTime = 3f;
 	public float unstuckForce = 1f;
@@ -13,6 +14,7 @@ public class DarknessRescue : MonoBehaviour {
 	private Transform darknessStruggleChecks;
 	private Rigidbody myRigidbody;
 	private ThirdPersonCharacter characterScript;
+	private DarknessNavigate darknessNavigate;
 
 	private Vector3 rescueDirection = Vector3.zero;
 
@@ -37,6 +39,7 @@ public class DarknessRescue : MonoBehaviour {
 		successCheck = transform.Find("DarknessCheck").GetComponent<InDarkness>();
 		myRigidbody = GetComponent<Rigidbody>();
 		characterScript = GetComponent<ThirdPersonCharacter>();
+		darknessNavigate = GetComponent<DarknessNavigate>();
 	}
 
 	void FixedUpdate() {
@@ -61,7 +64,8 @@ public class DarknessRescue : MonoBehaviour {
 			}
 			
 			if (litChecksCount == 0) {
-				Debug.LogWarning("Really stuck!!");
+				Debug.Log("Really stuck!!");
+				darknessNavigate.SetUp();
 			} else {
 				Debug.Log(litChecksCount + " out of 12 nearby areas lit");
 				Vector3 average = positionSum / litChecksCount;
@@ -81,13 +85,8 @@ public class DarknessRescue : MonoBehaviour {
 			CancelInvoke();
 			rescueDirection = Vector3.zero;
 			characterScript.isStuck = false;
-			Debug.Log("Success!");
 		} else {
 			Vector3 move = Vector3.ProjectOnPlane(rescueDirection, characterScript.groundNormal);
-			Debug.Log("Not there yet!");
-			Debug.Log("rescueDirection: " + rescueDirection);
-			Debug.Log("characterScript.groundNormal: " + characterScript.groundNormal);
-			Debug.Log("move: " + move);
 		}
 	}
 

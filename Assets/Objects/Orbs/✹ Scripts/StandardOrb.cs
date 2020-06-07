@@ -23,6 +23,7 @@ public class StandardOrb : ToggleableScript {
     private Light myLight;
     private Light halo;
     private FloatWanderAI wanderAI;
+    private DarknessNavigate playerLightTracking;
     
     private bool isDead = false;
 
@@ -33,6 +34,7 @@ public class StandardOrb : ToggleableScript {
                 wanderAI.CanMove = value;
             }
         }
+        get => isActive;
     }
 
     // Start is called before the first frame update
@@ -43,6 +45,7 @@ public class StandardOrb : ToggleableScript {
         UpdateOrbState();
         SetOrbColor(GetColorFromCharge());
         IsActive = isActive;
+        playerLightTracking = GameObject.FindGameObjectWithTag("Player").GetComponent<DarknessNavigate>();
     }
 
     // Update is called once per frame
@@ -53,6 +56,9 @@ public class StandardOrb : ToggleableScript {
     // Responds to message sent by PickMeUp
     void UpdateHeldState(float heldState) {
         SetOrbIntensity(1 - (1 - heldIntensity) * heldState);
+        if (heldState > 0) {
+            playerLightTracking.NotifyRecentLight(gameObject);
+        }
     }
 
     private void UpdateOrbState() {
@@ -73,6 +79,7 @@ public class StandardOrb : ToggleableScript {
                         currentChargeLevel = 1.0f;
                         SetOrbColor(GetColorFromCharge());
                         SetOrbIntensity(0);
+                        IsActive = true;
                     }
                 } else {
                     spawnState = 0;

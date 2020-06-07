@@ -23,8 +23,6 @@ public class InDarkness : BooleanScript
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("Ready " + transform.parent.name);
-
         if (checkInterval != 0) {
             InvokeRepeating("CheckDarkness", 0.0f, checkInterval);
         }
@@ -32,14 +30,12 @@ public class InDarkness : BooleanScript
 
     void OnTriggerEnter(Collider other) {
         if(((1 << other.gameObject.layer) & lightLayerMask.value) != 0) {
-            Debug.Log(transform.parent.name + ": New light nearby");
             nearbyLights.Add(other.gameObject);
         }
     }
 
 	void OnTriggerExit(Collider other) {
         if(((1 << other.gameObject.layer) & lightLayerMask.value) != 0) {
-            Debug.Log(transform.parent.name + ": Light no longer nearby");
             nearbyLights.Remove(other.gameObject);
         }
     }
@@ -48,7 +44,7 @@ public class InDarkness : BooleanScript
         inDarkness = true;
         foreach (GameObject nearbyLight in nearbyLights) {
             if (nearbyLight == null) {
-                Debug.Log("Failed to remove dead light :(");
+                Debug.LogWarning("Failed to remove dead light :(");
                 continue;
             }
             if (nearbyLight.GetComponent<StandardOrb>().spawnState == 0) {
