@@ -9,6 +9,7 @@ public class DarknessNavigate : MonoBehaviour {
 	public float pathSpacing = 2f;
 	public int numRecentLightsTracked = 3;
 	public float successUpdateFrequency = .2f;
+	public float lightIncrease = 5f;
 
 	private bool isInEffect = false;
 	private LinkedList<GameObject> recentLights = new LinkedList<GameObject>();
@@ -44,6 +45,7 @@ public class DarknessNavigate : MonoBehaviour {
 		colliderCheck.GetComponent<StayWithinCollider>().stayWithin = parent;
 
 		ProducePath();
+		SetLightEffects(true);
 	}
 
 	private void ProducePath() {
@@ -94,6 +96,15 @@ public class DarknessNavigate : MonoBehaviour {
 		Debug.LogError("Unable to exit loop");
 	}
 
+	private void SetLightEffects(bool on) {
+		float intensity = on ? lightIncrease : 1;
+			
+		StandardOrb[] orbs = FindObjectsOfType<StandardOrb>();
+		foreach (StandardOrb orb in orbs) {
+			orb.MultiplyOrbIntensity(intensity);
+		};
+	}
+
 	private void CheckDarkness() {
 		if (!characterScript.IsApproachingDarkness) {
 			TearDown();
@@ -109,5 +120,6 @@ public class DarknessNavigate : MonoBehaviour {
 		foreach (Transform child in parent.transform) {
 			GameObject.Destroy(child.gameObject);
 		}
+		SetLightEffects(false);
 	}
 }

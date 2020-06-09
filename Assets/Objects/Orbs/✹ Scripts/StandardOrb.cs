@@ -120,6 +120,10 @@ public class StandardOrb : ToggleableScript {
         halo.intensity = haloIntensity * intensity;
     }
 
+    public void MultiplyOrbIntensity(float intensity) {
+        SetOrbIntensity(spawnState * intensity);
+    }
+
     public void SetOrbColor(Color color) {
         halo.color = color;
         myLight.color = color;
