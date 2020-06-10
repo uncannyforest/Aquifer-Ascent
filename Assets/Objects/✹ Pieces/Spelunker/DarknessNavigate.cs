@@ -9,22 +9,44 @@ public class DarknessNavigate : MonoBehaviour {
 	public float pathSpacing = 2f;
 	public int numRecentLightsTracked = 3;
 	public float successUpdateFrequency = .2f;
-	public float lightIncrease = 5f;
+	public float lightFactor = 10f;
+	public float pathIntensity = .75f;
+	public float transitionTimeIn = 1f;
+	public float transitionTimeOut = .25f;
 
 	private bool isInEffect = false;
+	private float transition = 0;
 	private LinkedList<GameObject> recentLights = new LinkedList<GameObject>();
 	private ThirdPersonCharacter characterScript;
 	private GameObject colliderCheck;
+	private List<GameObject> pathLights = new List<GameObject>();
 
 	public bool IsInEffect {
 		get => isInEffect;
 	}
 
-    void Start()
-    {
+    void Start() {
 		characterScript = GetComponent<ThirdPersonCharacter>();
 		colliderCheck = transform.Find("ColliderCheck").gameObject;
     }
+
+	void Update() {
+		if (isInEffect && transition < 1) {
+			transition += Time.deltaTime / transitionTimeIn;
+			SetLightEffect(transition);
+			foreach (GameObject light in pathLights) {
+				light.GetComponent<Light>().intensity = transition * pathIntensity;
+			}
+		}
+
+		else if (!isInEffect && transition > 0) {
+			transition -= Time.deltaTime / transitionTimeOut;
+			if (transition < 0) {
+				transition = 0;
+			}
+			SetLightEffect(transition);
+		}
+	}
 
 	public void NotifyRecentLight(GameObject light) {
 		if (recentLights.Count > 0 && light == recentLights.Last.Value) {
@@ -45,7 +67,6 @@ public class DarknessNavigate : MonoBehaviour {
 		colliderCheck.GetComponent<StayWithinCollider>().stayWithin = parent;
 
 		ProducePath();
-		SetLightEffects(true);
 	}
 
 	private void ProducePath() {
@@ -74,6 +95,8 @@ public class DarknessNavigate : MonoBehaviour {
             GameObject pathStep = GameObject.Instantiate(exitPathStep, parent.transform);
 			pathStep.transform.position = currentPosition;
 
+			pathLights.Add(pathStep.transform.GetChild(0).gameObject);
+
 			float moveDistanceLeft = pathSpacing;
 			Vector3 newPosition = Vector3.MoveTowards(currentPosition, path.corners[nextCorner], moveDistanceLeft);;
 
@@ -96,8 +119,8 @@ public class DarknessNavigate : MonoBehaviour {
 		Debug.LogError("Unable to exit loop");
 	}
 
-	private void SetLightEffects(bool on) {
-		float intensity = on ? lightIncrease : 1;
+	private void SetLightEffect(float on) {
+		float intensity = Mathf.Lerp(1, lightFactor, on);
 			
 		StandardOrb[] orbs = FindObjectsOfType<StandardOrb>();
 		foreach (StandardOrb orb in orbs) {
@@ -120,6 +143,5 @@ public class DarknessNavigate : MonoBehaviour {
 		foreach (Transform child in parent.transform) {
 			GameObject.Destroy(child.gameObject);
 		}
-		SetLightEffects(false);
 	}
 }
