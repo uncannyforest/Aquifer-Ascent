@@ -50,6 +50,39 @@ MonoBehaviour:
   additonalTriggerInputs: []
   result: IsOpen
   receivingAnimator: {fileID: 8859232847007365298}
+  receivingScript: {fileID: 0}
+--- !u!114 &9117107656055799609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6446256625336350776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93f9d03c154cd4d6c97a6856dd5568fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sendingAnimator: {fileID: 8859232847007365298}
+  layerIndex: 0
+  animatorState: Closed
+--- !u!114 &3745776581829552733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6446256625336350776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fee2d7ee5e7a4ff88641ad4548ea987, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  trigger: {fileID: 9117107656055799609}
+  invert: 1
+  additonalTriggerInputs: []
+  result: 
+  receivingAnimator: {fileID: 0}
   receivingScript: {fileID: 8704970656297674188}
 --- !u!1 &5942074431172834099
 GameObject:
