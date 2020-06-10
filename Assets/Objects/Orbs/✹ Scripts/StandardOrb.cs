@@ -26,6 +26,7 @@ public class StandardOrb : ToggleableScript {
     private DarknessNavigate playerLightTracking;
     
     private bool isDead = false;
+    private bool isHoldable = true;
 
     override public bool IsActive {
         set {
@@ -33,17 +34,39 @@ public class StandardOrb : ToggleableScript {
             if (wanderAI != null) {
                 wanderAI.CanMove = value;
             }
+            IsHoldable = value; // assumes a previously inactive orb was not meant to stay unholdable
         }
         get => isActive;
     }
 
-    // Start is called before the first frame update
-    void Start() {
+    public bool IsHoldable {
+        set {
+            if (isHoldable ^ value) {
+                Debug.Log(gameObject.name + " was " + (isHoldable ? "" : "not ") + "holdable but now is" + (value ? "" : " not"));
+                TriggerObjectDestroyer.Hide(gameObject); // must happen before untagging
+                if (value) {
+                    halo.tag = "CanPickUp";
+                } else {
+                    halo.tag = "Untagged";
+                }
+                TriggerObjectDestroyer.Show(gameObject); // reset so no effect when Halo tag does not matter
+                isHoldable = value;
+            }
+        }
+    }
+
+    // Awake is called before any Start() calls in the game
+    void Awake() {
         myLight = gameObject.transform.Find("Point Light").GetComponent<Light>();
         halo = gameObject.transform.Find("Halo").GetComponent<Light>();
         wanderAI = gameObject.GetComponent<FloatWanderAI>();
         UpdateOrbState();
         SetOrbColor(GetColorFromCharge());
+        if (!isActive) {
+            isHoldable = isActive;
+            halo.tag = "Untagged";
+        }
+        Debug.Log(gameObject.name + " is " + (isHoldable ? "" : "not ") + "holdable");
         IsActive = isActive;
         playerLightTracking = GameObject.FindGameObjectWithTag("Player").GetComponent<DarknessNavigate>();
     }

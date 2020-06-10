@@ -16,11 +16,13 @@ public class GoalOrb : MonoBehaviour
 
     private LineRenderer hintLine;
     private StandardOrb orbScript;
+    private Holdable holdableScript;
 
     void Start() {
         this.hintLine = transform.Find("Hint Flare").GetComponent<LineRenderer>();
         this.hintLine.enabled = false;
         this.orbScript = GetComponent<StandardOrb>();
+        this.holdableScript = GetComponent<Holdable>();
     }
 
     void Update() {
@@ -76,10 +78,7 @@ public class GoalOrb : MonoBehaviour
         successStartingColor = orbScript.GetColorFromCharge();
 
         orbScript.currentChargeLevel = 1.0f; // disables recolor
-
-        TriggerObjectDestroyer.Hide(gameObject); // must happen before untagging
-        transform.Find("Halo").tag = "Untagged"; // remove CanPickUp
-        TriggerObjectDestroyer.Show(gameObject); // reset so no effect when Halo tag does not matter
+        orbScript.IsHoldable = false;
     }
 
     private float CubicInterpolate(float x) {

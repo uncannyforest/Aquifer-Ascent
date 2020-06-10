@@ -22,7 +22,7 @@ public class HoldObject : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Awake() {
+    void Start() {
         playerHoldTransform = gameObject.transform.Find("HoldLocation");
 
         inputDisplay = new FlexibleInputDisplay(this);
