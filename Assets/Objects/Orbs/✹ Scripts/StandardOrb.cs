@@ -19,12 +19,13 @@ public class StandardOrb : ToggleableScript {
         new ColorTransition(0.6f, new Color(1.0f, 0.75f, 0.0f)),
         new ColorTransition(0.2f, new Color(0.5f, 0.125f, 0.0f))
     };
+    public float explosionFactor = 10;
 
     private Light myLight;
     private Light halo;
     private FloatWanderAI wanderAI;
     private DarknessNavigate playerLightTracking;
-    private GameObject particleSystem;
+    private ParticleSystem childParticleSystem;
     
     private bool isDead = false;
     private bool isHoldable = true;
@@ -70,7 +71,8 @@ public class StandardOrb : ToggleableScript {
         Debug.Log(gameObject.name + " is " + (isHoldable ? "" : "not ") + "holdable");
         IsActive = isActive;
         playerLightTracking = GameObject.FindGameObjectWithTag("Player").GetComponent<DarknessNavigate>();
-        particleSystem = gameObject.transform.Find("Particle System").gameObject;
+        childParticleSystem = gameObject.transform.GetComponentInChildren<ParticleSystem>();
+        childParticleSystem.enableEmission = false;
     }
 
     // Update is called once per frame
@@ -85,9 +87,9 @@ public class StandardOrb : ToggleableScript {
             playerLightTracking.NotifyRecentLight(gameObject);
         }
         if (heldState == 1) {
-            particleSystem.SetActive(true);
-        } else if (particleSystem.activeInHierarchy) {
-            particleSystem.SetActive(false);
+            childParticleSystem.enableEmission = true;
+        } else if (childParticleSystem.isPlaying && childParticleSystem.enableEmission) {
+            childParticleSystem.enableEmission = false;
         }
     }
 
@@ -109,6 +111,7 @@ public class StandardOrb : ToggleableScript {
                         currentChargeLevel = 1.0f;
                         SetOrbColor(GetColorFromCharge());
                         SetOrbIntensity(0);
+                        childParticleSystem.emissionRate /= explosionFactor;
                         IsActive = true;
                     }
                 } else {
@@ -129,6 +132,7 @@ public class StandardOrb : ToggleableScript {
                             currentChargeLevel = 0f;
                             isActive = false;
                             isDead = true;
+                            childParticleSystem.emissionRate *= explosionFactor;
                         }
                         SetOrbColor(GetColorFromCharge());
                     }
