@@ -24,6 +24,7 @@ public class StandardOrb : ToggleableScript {
     private Light halo;
     private FloatWanderAI wanderAI;
     private DarknessNavigate playerLightTracking;
+    private GameObject particleSystem;
     
     private bool isDead = false;
     private bool isHoldable = true;
@@ -69,6 +70,7 @@ public class StandardOrb : ToggleableScript {
         Debug.Log(gameObject.name + " is " + (isHoldable ? "" : "not ") + "holdable");
         IsActive = isActive;
         playerLightTracking = GameObject.FindGameObjectWithTag("Player").GetComponent<DarknessNavigate>();
+        particleSystem = gameObject.transform.Find("Particle System").gameObject;
     }
 
     // Update is called once per frame
@@ -81,6 +83,11 @@ public class StandardOrb : ToggleableScript {
         SetOrbIntensity(1 - (1 - heldIntensity) * heldState);
         if (heldState > 0) {
             playerLightTracking.NotifyRecentLight(gameObject);
+        }
+        if (heldState == 1) {
+            particleSystem.SetActive(true);
+        } else if (particleSystem.activeInHierarchy) {
+            particleSystem.SetActive(false);
         }
     }
 
