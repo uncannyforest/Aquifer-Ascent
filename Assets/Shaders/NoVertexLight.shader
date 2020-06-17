@@ -1,4 +1,4 @@
-﻿// Added "novertexlight" to copy of . . .
+﻿// Added "novertexlight noambient" to copy of . . .
 // Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
 
 Shader "Custom/No Vertex Light"
@@ -83,7 +83,7 @@ Shader "Custom/No Vertex Light"
             #pragma shader_feature_local _GLOSSYREFLECTIONS_OFF
             #pragma shader_feature_local _PARALLAXMAP
 
-            #pragma multi_compile_fwdbase novertexlight
+            #pragma multi_compile_fwdbase novertexlight noambient
             #pragma multi_compile_fog
             #pragma multi_compile_instancing
             // Uncomment the following line to enable dithering LOD crossfade. Note: there are more in the file to uncomment for other passes.
@@ -252,7 +252,7 @@ Shader "Custom/No Vertex Light"
 
             #pragma skip_variants SHADOWS_SOFT DIRLIGHTMAP_COMBINED
 
-            #pragma multi_compile_fwdbase novertexlight
+            #pragma multi_compile_fwdbase novertexlight noambient
             #pragma multi_compile_fog
 
             #pragma vertex vertBase
