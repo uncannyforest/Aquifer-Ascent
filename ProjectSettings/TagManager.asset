@@ -6,6 +6,7 @@ TagManager:
   tags:
   - CanPickUp
   - Cave
+  - Solvent
   layers:
   - Default
   - TransparentFX

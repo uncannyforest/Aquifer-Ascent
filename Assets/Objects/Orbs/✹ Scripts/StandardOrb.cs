@@ -130,9 +130,7 @@ public class StandardOrb : ToggleableScript {
                         currentChargeLevel -= Time.deltaTime / unchargeTime;
                         if (currentChargeLevel < 0f) {
                             currentChargeLevel = 0f;
-                            isActive = false;
-                            isDead = true;
-                            childParticleSystem.emissionRate *= explosionFactor;
+                            Kill();
                         }
                         SetOrbColor(GetColorFromCharge());
                     }
@@ -147,6 +145,12 @@ public class StandardOrb : ToggleableScript {
                 }
             }
         }
+    }
+
+    public void Kill() {
+        isActive = false;
+        isDead = true;
+        childParticleSystem.emissionRate *= explosionFactor;
     }
 
     public void SetOrbIntensity(float intensity) {
