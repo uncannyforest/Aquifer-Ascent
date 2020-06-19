@@ -11,7 +11,6 @@ public class InitialScene : ToggleableScript {
     public class OrbRewardOnFinalFlower {
         public List<GameObject> flowers;
         public GameObject orbPrefab;
-        public GameObject orbParent;
 
         private Dictionary<GameObject, bool> openFlowers;
         private int numOpenFlowers;
@@ -53,7 +52,6 @@ public class InitialScene : ToggleableScript {
 
                 GameObject orb = GameObject.Instantiate(orbPrefab, container.transform);
                 orb.transform.position = container.transform.position;
-                orb.GetComponent<Holdable>().parentWhenFree = orbParent;
 
                 container.receivingScript = orb.GetComponent<StandardOrb>();
 

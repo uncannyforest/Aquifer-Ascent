@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Collider))]
 public class Holdable : MonoBehaviour
 {
     public string optionalAction = "";
-    public GameObject parentWhenFree;
+    public string parentWhenFreeName = "Free Orbs";
     public AudioClip pickUpSound;
     public AudioClip setDownSound;
     public float pickUpTime = 0.5f;
 
+    private Transform parentWhenFree;
     private float heldState = 0.0f; // 0 if not held, 1 if held
     private Transform playerHoldTransform;
     Collider physicsCollider;
@@ -33,14 +35,17 @@ public class Holdable : MonoBehaviour
     }
 
     public bool IsFree {
-        get => this.transform.parent == parentWhenFree.transform;
+        get {
+            if (parentWhenFree == null) {
+                Debug.Log(gameObject.name + " missing parentWhenFree for now");
+            }
+
+            return this.transform.parent == parentWhenFree;
+        }
     }
 
     void Start(){
-        if (parentWhenFree == null) {
-            parentWhenFree = this.transform.parent.gameObject;
-            Debug.Log(gameObject.name + " Holdable script missing ParentWhenFree, setting to " + parentWhenFree.name);
-        }
+        OnChangeActiveScene(SceneManager.GetActiveScene(), SceneManager.GetActiveScene());
         playerHoldTransform = GameObject.FindWithTag("Player").transform.Find("HoldLocation");
         physicsCollider = GetComponent<Collider>();
         myColliderBounds = physicsCollider.bounds;
@@ -48,6 +53,13 @@ public class Holdable : MonoBehaviour
         objectAudio = GetComponent<AudioSource>();
     }
 
+    void OnEnable() {
+        SceneManager.activeSceneChanged += OnChangeActiveScene;
+    }
+    
+    void OnDisable() {
+        SceneManager.activeSceneChanged -= OnChangeActiveScene;
+    }
 
     // Update is called once per frame
     void Update(){
@@ -100,5 +112,14 @@ public class Holdable : MonoBehaviour
     private float QuadInterpolate(float x) {
         return -x * (x - 2);
     }
+
+    void OnChangeActiveScene(Scene current, Scene next) {
+        foreach (GameObject rootObject in next.GetRootGameObjects()) {
+            if (rootObject.name == parentWhenFreeName) {
+                parentWhenFree = rootObject.transform;
+            }
+        }
+    }
+
 }
 
