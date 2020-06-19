@@ -14,13 +14,10 @@
 
 			#pragma target 3.0
 
-            // add DIRECTIONAL if needed
-            #pragma multi_compile POINT
-
             #pragma vertex vert
             #pragma fragment frag
 
-			#include "My Lighting.cginc"
+			#include "MyLighting.cginc"
 
             ENDCG
         }
@@ -37,15 +34,32 @@
 
 			#pragma target 3.0
 
-            // add DIRECTIONAL if needed
-            #pragma multi_compile POINT
+            #pragma multi_compile_fwdadd_fullshadows
 
             #pragma vertex vert
             #pragma fragment frag
 
-			#include "My Lighting.cginc"
+			#include "MyLighting.cginc"
             
             ENDCG
         }
+
+		Pass {
+			Tags {
+				"LightMode" = "ShadowCaster"
+			}
+
+			CGPROGRAM
+
+			#pragma target 3.0
+			#pragma multi_compile_shadowcaster
+
+			#pragma vertex MyShadowVertexProgram
+			#pragma fragment MyShadowFragmentProgram
+
+			#include "MyShadows.cginc"
+
+			ENDCG
+		}
     }
 }
