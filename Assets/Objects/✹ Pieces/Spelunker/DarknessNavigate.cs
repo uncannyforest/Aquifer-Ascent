@@ -87,7 +87,8 @@ public class DarknessNavigate : MonoBehaviour {
 
 		NavMeshPath path = new NavMeshPath();
         NavMesh.CalculatePath(this.transform.position, endPosition, NavMesh.AllAreas, path);
-		
+		Debug.Log("Path corners:" + path.corners.Length);
+
 		Vector3 currentPosition = this.transform.position;
 		int nextCorner = 1;
 		int safeCrash = 100;
@@ -98,7 +99,7 @@ public class DarknessNavigate : MonoBehaviour {
 			pathLights.Add(pathStep.transform.GetChild(0).gameObject);
 
 			float moveDistanceLeft = pathSpacing;
-			Vector3 newPosition = Vector3.MoveTowards(currentPosition, path.corners[nextCorner], moveDistanceLeft);;
+			Vector3 newPosition = Vector3.MoveTowards(currentPosition, path.corners[nextCorner], moveDistanceLeft);
 
 			while (newPosition == path.corners[nextCorner] && safeCrash > 0) {
 				nextCorner++;

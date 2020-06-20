@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Holdable))]
-public class StandardOrb : ToggleableScript {
+public class StandardOrb : MonoBehaviour {
     [SerializeField] private bool isActive = true;
     public GameObject spawnLocation;
     public float unchargeTime = 30f;
@@ -30,7 +30,7 @@ public class StandardOrb : ToggleableScript {
     private bool isDead = false;
     private bool isHoldable = true;
 
-    override public bool IsActive {
+    public bool IsActive {
         set {
             isActive = value;
             if (wanderAI != null) {
@@ -91,6 +91,14 @@ public class StandardOrb : ToggleableScript {
         } else if (childParticleSystem.isPlaying && childParticleSystem.enableEmission) {
             childParticleSystem.enableEmission = false;
         }
+    }
+
+    void NotifyActivate() {
+        IsActive = true;
+    }
+
+    void NotifyDeactivate() {
+        IsActive = false;
     }
 
     private void UpdateOrbState() {

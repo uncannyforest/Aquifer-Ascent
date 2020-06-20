@@ -4,14 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ContainerTrigger : ToggleableScript {
-    public ToggleableScript receivingScript;
-
     override public bool IsActive {
         set {
-            if (receivingScript != null && receivingScript.transform.parent == transform) {
-                receivingScript.IsActive = value;
+            foreach (Transform child in transform) {
+                if (value) {
+                    child.gameObject.SetActive(true);
+                    child.BroadcastMessage("NotifyActivate");
+                } else {
+                    child.BroadcastMessage("NotifyDeactivate");
+                }
             }
         }
-        get => receivingScript.IsActive;
     }
 }

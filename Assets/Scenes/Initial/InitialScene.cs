@@ -53,8 +53,6 @@ public class InitialScene : ToggleableScript {
                 GameObject orb = GameObject.Instantiate(orbPrefab, container.transform);
                 orb.transform.position = container.transform.position;
 
-                container.receivingScript = orb.GetComponent<StandardOrb>();
-
                 complete = true;
             }
 
@@ -68,7 +66,6 @@ public class InitialScene : ToggleableScript {
                 orbRewardOnFinalFlower.Execute();
             }
         }
-        get => false;
     }
 
 }
