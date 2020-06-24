@@ -1,0 +1,28 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+[ExecuteInEditMode]
+public class GuidManager : MonoBehaviour {
+    private Dictionary<string, GameObject> guidToGameObject = new Dictionary<string, GameObject>();
+    private Dictionary<string, int> guidToInstanceId = new Dictionary<string, int>();
+
+    public GameObject this[string guid] {
+        get => guidToGameObject[guid];
+    }
+
+    public bool IsRegisteredAlready(Guid guidScript) {
+        return guidScript.gameObject.GetInstanceID() == guidToInstanceId[guidScript.id];
+    }
+
+    public void Register(Guid guidScript) {
+        guidToGameObject.Add(guidScript.id, guidScript.gameObject);
+        guidToInstanceId.Add(guidScript.id, guidScript.gameObject.GetInstanceID());
+    }
+
+    public void Unregister(Guid guidScript) {
+        guidToGameObject.Remove(guidScript.id);
+        guidToInstanceId.Remove(guidScript.id);
+    }
+}

@@ -5,15 +5,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class ScenePortal : MonoBehaviour
-{
+public class ScenePortal : MonoBehaviour {
     public string otherScene;
     public bool open;
 
     private GameObject player;
+    private GameLoader gameLoader;
 
     void Start() {
         player = GameObject.FindWithTag("Player");
+        gameLoader = GameObject.FindObjectOfType<GameLoader>();
     }
 
     void OnTriggerEnter(Collider other) {
@@ -26,17 +27,13 @@ public class ScenePortal : MonoBehaviour
         }
     }
 
-    void LoadScene() {
-        if (!SceneManager.GetSceneByName(otherScene).isLoaded) {
-            SceneManager.LoadSceneAsync(otherScene, LoadSceneMode.Additive);
-        }
+    private void LoadScene() {
+        StartCoroutine(gameLoader.EnsureSceneLoaded(otherScene));
     }
  
-    void UnloadScene() {
+    private void UnloadScene() {
         SceneManager.SetActiveScene(gameObject.scene);
         
-        if (SceneManager.GetSceneByName(otherScene).isLoaded) {
-            SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(otherScene));
-        }
+        gameLoader.EnsureSceneUnloaded(otherScene);
     }
 }
