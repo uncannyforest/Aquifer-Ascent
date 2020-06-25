@@ -39,6 +39,7 @@ public class State : MonoBehaviour {
         if (IsUnique) {
             return Data.CreateForUniqueObject(guid.id, GetState());
         } else {
+            Debug.Log("Saving prefab " + createNewFromPrefab);
             return Data.CreateForPrefabInstance(createNewFromPrefab, GetState());
         }
     }
@@ -48,7 +49,10 @@ public class State : MonoBehaviour {
         if (data.IsUnique) {
             loadedObject = guidManager[data.Guid];
         } else {
-            loadedObject = GameObject.Instantiate((GameObject) Resources.Load(data.PrefabPath));
+            Debug.Log("Loading prefab " + data.PrefabPath);
+            UnityEngine.Object go = Resources.Load(data.PrefabPath);
+            Debug.Log(go);
+            loadedObject = GameObject.Instantiate((GameObject) go);
         }
         State stateScript = loadedObject.GetComponent<State>();
         yield return stateScript;

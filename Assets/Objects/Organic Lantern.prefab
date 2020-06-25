@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3911497846060522986}
   - component: {fileID: 4677463924376920457}
+  - component: {fileID: 2053319208040882821}
   m_Layer: 0
   m_Name: Orb Goal
   m_TagString: Untagged
@@ -44,6 +45,19 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 2
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2053319208040882821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7532758122677534722}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 398fb623fa2ba47ccb0ae10462c6bc2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 
 --- !u!1001 &5429683893137667490
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -12,7 +12,7 @@ public class Guid : MonoBehaviour {
     void Awake() {
         manager = GameObject.FindObjectOfType<GuidManager>();
 
-        if (id == null || id == "" || manager.IsRegisteredAlready(this)) {
+        if (manager != null && (id == null || id == "" || manager.IsRegisteredAlready(this))) {
             id = System.Guid.NewGuid().ToString();
         }
 

@@ -4,14 +4,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Holdable))]
-public class StandardOrb : MonoBehaviour {
-    [SerializeField] private bool isActive = true;
+public class StandardOrb : MonoBehaviour, State.Stateful {
+
+    public System.Object State { get => state; set => state = (StateFields)value; }
+
+    public StateFields state = new StateFields();
+    [Serializable] public class StateFields {
+        public bool isActive = true;
+        public float currentChargeLevel = 1.0f;
+    }
     public GameObject spawnLocation;
     public float unchargeTime = 30f;
     public float chargeTime = 450f;
     public float spawnTime = 1f;
     public float haloIntensity = 1.5f;
-    public float currentChargeLevel = 1.0f;
     public float spawnState = 1.0f;
     public float heldIntensity = 0.4f;
     public ColorTransition[] colorTransitions = {
@@ -32,13 +38,13 @@ public class StandardOrb : MonoBehaviour {
 
     public bool IsActive {
         set {
-            isActive = value;
+            state.isActive = value;
             if (wanderAI != null) {
                 wanderAI.CanMove = value;
             }
             IsHoldable = value; // assumes a previously inactive orb was not meant to stay unholdable
         }
-        get => isActive;
+        get => state.isActive;
     }
 
     public bool IsHoldable {
@@ -64,12 +70,12 @@ public class StandardOrb : MonoBehaviour {
         wanderAI = gameObject.GetComponent<FloatWanderAI>();
         UpdateOrbState();
         SetOrbColor(GetColorFromCharge());
-        if (!isActive) {
-            isHoldable = isActive;
+        if (!state.isActive) {
+            isHoldable = state.isActive;
             halo.tag = "Untagged";
         }
         Debug.Log(gameObject.name + " is " + (isHoldable ? "" : "not ") + "holdable");
-        IsActive = isActive;
+        IsActive = state.isActive;
         playerLightTracking = GameObject.FindGameObjectWithTag("Player").GetComponent<DarknessNavigate>();
         childParticleSystem = gameObject.transform.GetComponentInChildren<ParticleSystem>();
         childParticleSystem.enableEmission = false;
@@ -102,7 +108,7 @@ public class StandardOrb : MonoBehaviour {
     }
 
     private void UpdateOrbState() {
-        if (!isActive) {
+        if (!state.isActive) {
             if (spawnState > 0) {
                 spawnState -= Time.deltaTime / spawnTime;
                 if (spawnState > 0) {
@@ -116,7 +122,7 @@ public class StandardOrb : MonoBehaviour {
                             gameObject.GetComponent<Holdable>().Drop();
                         }
                         transform.position = spawnLocation.transform.position;
-                        currentChargeLevel = 1.0f;
+                        state.currentChargeLevel = 1.0f;
                         SetOrbColor(GetColorFromCharge());
                         SetOrbIntensity(0);
                         childParticleSystem.emissionRate /= explosionFactor;
@@ -134,19 +140,19 @@ public class StandardOrb : MonoBehaviour {
         } else {
             if (unchargeTime != 0) {
                 if (gameObject.GetComponent<Holdable>().IsHeld) {
-                    if (currentChargeLevel > 0f) {
-                        currentChargeLevel -= Time.deltaTime / unchargeTime;
-                        if (currentChargeLevel < 0f) {
-                            currentChargeLevel = 0f;
+                    if (state.currentChargeLevel > 0f) {
+                        state.currentChargeLevel -= Time.deltaTime / unchargeTime;
+                        if (state.currentChargeLevel < 0f) {
+                            state.currentChargeLevel = 0f;
                             Kill();
                         }
                         SetOrbColor(GetColorFromCharge());
                     }
                 } else {
-                    if (currentChargeLevel < 1f) {
-                        currentChargeLevel += Time.deltaTime / chargeTime;
-                        if (currentChargeLevel > 1f) {
-                            currentChargeLevel = 1f;
+                    if (state.currentChargeLevel < 1f) {
+                        state.currentChargeLevel += Time.deltaTime / chargeTime;
+                        if (state.currentChargeLevel > 1f) {
+                            state.currentChargeLevel = 1f;
                         }
                         SetOrbColor(GetColorFromCharge());
                     }
@@ -156,7 +162,7 @@ public class StandardOrb : MonoBehaviour {
     }
 
     public void Kill() {
-        isActive = false;
+        state.isActive = false;
         isDead = true;
         childParticleSystem.emissionRate *= explosionFactor;
     }
@@ -176,17 +182,17 @@ public class StandardOrb : MonoBehaviour {
     }
 
     public Color GetColorFromCharge() {
-        if (currentChargeLevel >= colorTransitions[0].frame) {
+        if (state.currentChargeLevel >= colorTransitions[0].frame) {
             return colorTransitions[0].color;
         }
 
         float chargeSubLevel, r, g, b;
 
         for (int i = 1; i < colorTransitions.Length; i++) {
-            if (currentChargeLevel >= colorTransitions[i].frame) {
+            if (state.currentChargeLevel >= colorTransitions[i].frame) {
                 ColorTransition higher = colorTransitions[i - 1];
                 ColorTransition lower = colorTransitions[i];
-                chargeSubLevel = (currentChargeLevel - lower.frame)
+                chargeSubLevel = (state.currentChargeLevel - lower.frame)
                         / (higher.frame - lower.frame);
                 r = lower.color.r + (higher.color.r - lower.color.r) * chargeSubLevel;
                 g = lower.color.g + (higher.color.g - lower.color.g) * chargeSubLevel;
@@ -197,7 +203,7 @@ public class StandardOrb : MonoBehaviour {
         }
 
         ColorTransition lowestToBlack = colorTransitions[colorTransitions.Length - 1];
-        chargeSubLevel = currentChargeLevel / lowestToBlack.frame;
+        chargeSubLevel = state.currentChargeLevel / lowestToBlack.frame;
         r = lowestToBlack.color.r * chargeSubLevel;
         g = lowestToBlack.color.g * chargeSubLevel;
         b = lowestToBlack.color.b * chargeSubLevel;

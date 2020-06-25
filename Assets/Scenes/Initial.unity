@@ -364,6 +364,16 @@ PrefabInstance:
       propertyPath: successColor.b
       value: 0.7490196
       objectReference: {fileID: 0}
+    - target: {fileID: 5972976428034790637, guid: ad4c172f3d1a248f297c88712a46314d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5972976428034790637, guid: ad4c172f3d1a248f297c88712a46314d,
+        type: 3}
+      propertyPath: id
+      value: ed8b1fbb-8c53-4ed3-850d-a9687fbd1585
+      objectReference: {fileID: 0}
     - target: {fileID: 7253495972142463275, guid: ad4c172f3d1a248f297c88712a46314d,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -663,6 +673,16 @@ PrefabInstance:
         type: 3}
       propertyPath: successColor.b
       value: 0.7490196
+      objectReference: {fileID: 0}
+    - target: {fileID: 5972976428034790637, guid: ad4c172f3d1a248f297c88712a46314d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5972976428034790637, guid: ad4c172f3d1a248f297c88712a46314d,
+        type: 3}
+      propertyPath: id
+      value: 4e6d35dc-9feb-4e28-833f-850af4336ab2
       objectReference: {fileID: 0}
     - target: {fileID: 7253495972142463275, guid: ad4c172f3d1a248f297c88712a46314d,
         type: 3}
@@ -5342,6 +5362,16 @@ PrefabInstance:
       propertyPath: successColor.b
       value: 0.75
       objectReference: {fileID: 0}
+    - target: {fileID: 5972976428034790637, guid: ad4c172f3d1a248f297c88712a46314d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5972976428034790637, guid: ad4c172f3d1a248f297c88712a46314d,
+        type: 3}
+      propertyPath: id
+      value: 2508f9aa-0818-4581-9f33-6de74cf7a54f
+      objectReference: {fileID: 0}
     - target: {fileID: 7253495972142463275, guid: ad4c172f3d1a248f297c88712a46314d,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -8339,6 +8369,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1808150627}
+  - component: {fileID: 1808150628}
   m_Layer: 0
   m_Name: Free Orbs
   m_TagString: Untagged
@@ -8370,6 +8401,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1808150628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808150626}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 398fb623fa2ba47ccb0ae10462c6bc2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 5b73f02e-da41-4ae8-a372-5b2430454f13
 --- !u!4 &1861797603 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: fa2a2f4f3655d4df081cece6d602a017,
@@ -8688,6 +8732,16 @@ PrefabInstance:
         type: 3}
       propertyPath: successColor.b
       value: 0.7490196
+      objectReference: {fileID: 0}
+    - target: {fileID: 5972976428034790637, guid: ad4c172f3d1a248f297c88712a46314d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5972976428034790637, guid: ad4c172f3d1a248f297c88712a46314d,
+        type: 3}
+      propertyPath: id
+      value: f3a88e63-ef5b-4411-95c9-4601295c9905
       objectReference: {fileID: 0}
     - target: {fileID: 7253495972142463275, guid: ad4c172f3d1a248f297c88712a46314d,
         type: 3}

@@ -77,7 +77,7 @@ public class GoalOrb : MonoBehaviour
         successStartingPosition = transform.position;
         successStartingColor = orbScript.GetColorFromCharge();
 
-        orbScript.currentChargeLevel = 1.0f; // disables recolor
+        orbScript.state.currentChargeLevel = 1.0f; // disables recolor
         orbScript.IsHoldable = false;
     }
 

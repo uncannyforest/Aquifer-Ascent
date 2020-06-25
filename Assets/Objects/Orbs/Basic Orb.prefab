@@ -4861,6 +4861,7 @@ GameObject:
   - component: {fileID: 4324324191667893875}
   - component: {fileID: 5792021157012530770}
   - component: {fileID: 6838846483093510342}
+  - component: {fileID: 960226966118959779}
   m_Layer: 10
   m_Name: Basic Orb
   m_TagString: Untagged
@@ -4899,7 +4900,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   optionalAction: 
-  parentWhenFree: {fileID: 0}
+  parentWhenFreeName: Free Orbs
   pickUpSound: {fileID: 8300000, guid: 04df9b11a4dd24c46b51da18fa8cb302, type: 3}
   setDownSound: {fileID: 8300000, guid: 8315785413ece4064a677c8ae611927b, type: 3}
   pickUpTime: 0.5
@@ -5011,13 +5012,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01791cf7b1ac94abbbf4d62094836c61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isActive: 1
+  state:
+    isActive: 1
+    currentChargeLevel: 1
   spawnLocation: {fileID: 0}
   unchargeTime: 30
   chargeTime: 450
   spawnTime: 1
   haloIntensity: 1.5
-  currentChargeLevel: 1
   spawnState: 0
   heldIntensity: 0.4
   colorTransitions:
@@ -5027,6 +5029,7 @@ MonoBehaviour:
     color: {r: 1, g: 0.75, b: 0, a: 1}
   - frame: 0.2
     color: {r: 0.5, g: 0.125, b: 0, a: 1}
+  explosionFactor: 10
 --- !u!54 &4324324191667893875
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -5071,6 +5074,21 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.25
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &960226966118959779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7327089894684991277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 863a700c2cfc14caaaa575819cdd74db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  createNewFromPrefab: Assets/Objects/Orbs/Basic Orb
+  includePosition: 1
+  includeParent: 1
 --- !u!1 &7327089894996067938
 GameObject:
   m_ObjectHideFlags: 0

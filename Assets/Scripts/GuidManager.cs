@@ -13,7 +13,8 @@ public class GuidManager : MonoBehaviour {
     }
 
     public bool IsRegisteredAlready(Guid guidScript) {
-        return guidScript.gameObject.GetInstanceID() == guidToInstanceId[guidScript.id];
+        bool foundKey = guidToInstanceId.TryGetValue(guidScript.id, out int id);
+        return foundKey && guidScript.gameObject.GetInstanceID() == id;
     }
 
     public void Register(Guid guidScript) {
