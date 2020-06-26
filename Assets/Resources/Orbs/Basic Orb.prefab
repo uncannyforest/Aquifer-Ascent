@@ -5086,7 +5086,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 863a700c2cfc14caaaa575819cdd74db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  createNewFromPrefab: Assets/Objects/Orbs/Basic Orb
+  createNewFromResource: Orbs/Basic Orb
   includePosition: 1
   includeParent: 1
 --- !u!1 &7327089894996067938

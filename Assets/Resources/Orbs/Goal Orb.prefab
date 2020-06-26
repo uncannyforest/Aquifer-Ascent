@@ -1,5 +1,32 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &3102376798456605705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7253495972142463278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c29b286064c0349acbe291eaaf38e98c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  goalArea: {fileID: 0}
+  successColor: {r: 0.75, g: 0.875, b: 1, a: 1}
+--- !u!114 &5972976428034790637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7253495972142463278}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 398fb623fa2ba47ccb0ae10462c6bc2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 
 --- !u!1 &3321935511853804673
 GameObject:
   m_ObjectHideFlags: 0
@@ -128,33 +155,6 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 0
   m_Loop: 0
---- !u!114 &3102376798456605705
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7253495972142463278}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c29b286064c0349acbe291eaaf38e98c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  goalArea: {fileID: 0}
-  successColor: {r: 0.75, g: 0.875, b: 1, a: 1}
---- !u!114 &5972976428034790637
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7253495972142463278}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 398fb623fa2ba47ccb0ae10462c6bc2c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id: 
 --- !u!1001 &73910647566018051
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -170,6 +170,11 @@ PrefabInstance:
     - target: {fileID: 960226966118959779, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: createNewFromPrefab
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 960226966118959779, guid: 0eb13e365665b4feb907433579ff87a3,
+        type: 3}
+      propertyPath: createNewFromResource
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991272, guid: 0eb13e365665b4feb907433579ff87a3,

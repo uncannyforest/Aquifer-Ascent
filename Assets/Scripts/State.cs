@@ -6,7 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public class State : MonoBehaviour {
 
-    public string createNewFromPrefab; // if null, modify object based on guid (must be present)
+    public string createNewFromResource; // if null, modify object based on guid (must be present)
     public bool includePosition;
     public bool includeParent;
 
@@ -15,7 +15,7 @@ public class State : MonoBehaviour {
     private Guid guid; // may be null if createNewFromPrefab is not
     private List<Stateful> statefulComponents = new List<Stateful>();
 
-    private bool IsUnique { get => (createNewFromPrefab == null); }
+    private bool IsUnique { get => (createNewFromResource == "" || createNewFromResource == null); }
 
     void Awake() {
         manager = GameObject.FindObjectOfType<GameLoader>();
@@ -39,8 +39,8 @@ public class State : MonoBehaviour {
         if (IsUnique) {
             return Data.CreateForUniqueObject(guid.id, GetState());
         } else {
-            Debug.Log("Saving prefab " + createNewFromPrefab);
-            return Data.CreateForPrefabInstance(createNewFromPrefab, GetState());
+            Debug.Log("Saving prefab " + createNewFromResource);
+            return Data.CreateForPrefabInstance(createNewFromResource, GetState());
         }
     }
 
@@ -50,9 +50,9 @@ public class State : MonoBehaviour {
             loadedObject = guidManager[data.Guid];
         } else {
             Debug.Log("Loading prefab " + data.PrefabPath);
-            UnityEngine.Object go = Resources.Load(data.PrefabPath);
-            Debug.Log(go);
-            loadedObject = GameObject.Instantiate((GameObject) go);
+            GameObject newObject = Resources.Load<GameObject>(data.PrefabPath);
+            Debug.Log(newObject);
+            loadedObject = GameObject.Instantiate(newObject);
         }
         State stateScript = loadedObject.GetComponent<State>();
         yield return stateScript;

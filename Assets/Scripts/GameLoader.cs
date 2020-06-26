@@ -32,6 +32,7 @@ public class GameLoader : MonoBehaviour {
         if (!SceneManager.GetSceneByName(scene).isLoaded) {
             SceneManager.LoadSceneAsync(scene, LoadSceneMode.Additive);
             yield return null;
+            yield return null;
             stateManager.LoadScene(scene, this);
         }
     }
