@@ -11627,6 +11627,11 @@ PrefabInstance:
       propertyPath: orbParent
       value: 
       objectReference: {fileID: 1808150626}
+    - target: {fileID: 8873116992512103742, guid: fb5c6b66315934df4aeb2878e7500005,
+        type: 3}
+      propertyPath: state.growthProgress
+      value: 0.99
+      objectReference: {fileID: 0}
     - target: {fileID: 8873116992512103743, guid: fb5c6b66315934df4aeb2878e7500005,
         type: 3}
       propertyPath: m_Name
@@ -13987,7 +13992,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 398fb623fa2ba47ccb0ae10462c6bc2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 
+  id: 9d3aa72f-d965-4c4f-af27-bfc28f0f2bdb
 --- !u!1 &1810086427
 GameObject:
   m_ObjectHideFlags: 0

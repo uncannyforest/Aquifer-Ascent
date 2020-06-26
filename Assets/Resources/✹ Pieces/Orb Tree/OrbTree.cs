@@ -3,8 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public class OrbTree : MonoBehaviour
-{
+public class OrbTree : MonoBehaviour, State.Stateful {
+
+    public System.Object State { get => state; set => state = (StateFields)value; }
+
+    public StateFields state = new StateFields();
+    [System.Serializable] public class StateFields {
+        public float growthProgress = 0;
+    }
     public GameObject orbParent;
     public string autoFindOrbParentByName = "Free Orbs";
     public GameObject unspawnedOrb;
@@ -13,7 +19,6 @@ public class OrbTree : MonoBehaviour
     public int seedOrbEvery = 10;
     public float spawnNewOrbDistance = 2;
     public float growthTime = 375;
-    public float growthProgress = 0;
     public int fractalLevel = 4;
     public int numBranches = 3;
     public Vector3 branchPosition = new Vector3(1, 0, 0);
@@ -58,10 +63,10 @@ public class OrbTree : MonoBehaviour
     
         UpdateGrowthState();
 
-        for (int i = 0; i < Mathf.Floor(growthProgress * numLights); i++) {
+        for (int i = 0; i < Mathf.Floor(state.growthProgress * numLights); i++) {
             AddLight();
         }
-        StartCoroutine(ScheduleSpawnLights(Mathf.CeilToInt(numLights * (1 - growthProgress)), growthTime / numLights));
+        StartCoroutine(ScheduleSpawnLights(Mathf.CeilToInt(numLights * (1 - state.growthProgress)), growthTime / numLights));
 
         InvokeRepeating("CheckOrbDistance", 1f, 1f);
     }
@@ -71,12 +76,12 @@ public class OrbTree : MonoBehaviour
     }
 
     void UpdateGrowthState() {
-        if (growthProgress < 1) {
-            growthProgress += (Time.deltaTime / growthTime);
-            growthProgress = Mathf.Min(1, growthProgress);
-            this.transform.localScale = Vector3.one * Mathf.Pow(growthProgress, 1/3f);
+        if (state.growthProgress < 1) {
+            state.growthProgress += (Time.deltaTime / growthTime);
+            state.growthProgress = Mathf.Min(1, state.growthProgress);
+            this.transform.localScale = Vector3.one * Mathf.Pow(state.growthProgress, 1/3f);
 
-            while(growthProgress * fractalLevelFactor >
+            while(state.growthProgress * fractalLevelFactor >
                 (currentFractalLevel + 1) * (currentFractalLevel + 1)) {
                 currentFractalLevel++;
                 foreach (GameObject bud in activeBuds) {
@@ -86,7 +91,7 @@ public class OrbTree : MonoBehaviour
             }
 
             float currentFractalLevelFractionalPart = 
-                (growthProgress * fractalLevelFactor - currentFractalLevel * currentFractalLevel)
+                (state.growthProgress * fractalLevelFactor - currentFractalLevel * currentFractalLevel)
                 / (currentFractalLevel * 2 + 1); // this line is (cfl+1)^2 - cfl^2
 
             foreach (GameObject bud in activeBuds) {
@@ -176,7 +181,7 @@ public class OrbTree : MonoBehaviour
         for (int i = orbs.Count - 1; i >= 0; i--) { // backwards iteration is safe for removal
             GameObject orb = orbs[i];
             if (Vector3.Distance(orb.transform.position, this.transform.position) > spawnNewOrbDistance) {
-                float timeUntilNewOrb = (1f + 1f / numLights - growthProgress) * growthTime / numLights;
+                float timeUntilNewOrb = (1f + 1f / numLights - state.growthProgress) * growthTime / numLights;
                 StartCoroutine(ScheduleSpawnLights(1, timeUntilNewOrb));
                 orbs.RemoveAt(i);
             }
