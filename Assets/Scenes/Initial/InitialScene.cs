@@ -3,7 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InitialScene : ToggleableScript {
+public class InitialScene : ToggleableScript, State.Stateful {
+
+    public System.Object State { get => state; set => state = (StateFields)value; }
+
+    public StateFields state = new StateFields();
+    [Serializable] public class StateFields {
+        public bool orbRewardOnFinalFlowerIsComplete = false;
+    }
 
     public OrbRewardOnFinalFlower orbRewardOnFinalFlower;
 
@@ -14,10 +21,9 @@ public class InitialScene : ToggleableScript {
 
         private Dictionary<GameObject, bool> openFlowers;
         private int numOpenFlowers;
-        private bool complete = false;
 
-        public void Execute() {
-            if (complete) {
+        public void Execute(StateFields state) {
+            if (state.orbRewardOnFinalFlowerIsComplete) {
                 return;
             }
             int newNumOpenFlowers = 0;
@@ -53,7 +59,7 @@ public class InitialScene : ToggleableScript {
                 GameObject orb = GameObject.Instantiate(orbPrefab, container.transform);
                 orb.transform.position = container.transform.position;
 
-                complete = true;
+                state.orbRewardOnFinalFlowerIsComplete = true;
             }
 
             numOpenFlowers = newNumOpenFlowers;
@@ -63,7 +69,7 @@ public class InitialScene : ToggleableScript {
     override public bool IsActive {
         set {
             if (true) { // only update if flower may be opening
-                orbRewardOnFinalFlower.Execute();
+                orbRewardOnFinalFlower.Execute(state);
             }
         }
     }

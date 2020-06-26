@@ -1322,29 +1322,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 210524908}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &213464190 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5967732107254039041, guid: cdc2700236c764684850f2b673ce91f2,
-    type: 3}
-  m_PrefabInstance: {fileID: 5751030700791322120}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &213464192
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 213464190}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1286526b57abd47c09469da8295fe85d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dissolveTime: 2
-  solventLayerMask:
-    serializedVersion: 2
-    m_Bits: 1024
-  solventTag: Solvent
 --- !u!1001 &214619003
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8049,6 +8026,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1791825849}
+  - component: {fileID: 1791825852}
+  - component: {fileID: 1791825851}
   - component: {fileID: 1791825850}
   m_Layer: 0
   m_Name: Cave Rooms
@@ -8099,6 +8078,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306665c25351941f0b39ccdbcc0b9a01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  state:
+    orbRewardOnFinalFlowerIsComplete: 0
   orbRewardOnFinalFlower:
     flowers:
     - {fileID: 1294825910}
@@ -8106,6 +8087,34 @@ MonoBehaviour:
     - {fileID: 1451845401}
     orbPrefab: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
       type: 3}
+--- !u!114 &1791825851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1791825848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 863a700c2cfc14caaaa575819cdd74db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  createNewFromResource: 
+  includePosition: 0
+  includeParent: 0
+--- !u!114 &1791825852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1791825848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 398fb623fa2ba47ccb0ae10462c6bc2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: a8386fdb-4655-4eab-bc45-b38d0203cf8f
 --- !u!1001 &1802142770
 PrefabInstance:
   m_ObjectHideFlags: 0

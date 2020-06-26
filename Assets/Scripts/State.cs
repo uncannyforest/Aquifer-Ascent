@@ -25,9 +25,15 @@ public class State : MonoBehaviour {
 
     void Start() {
         guid = GetComponent<Guid>();
+
+        foreach (MonoBehaviour component in GetComponents<MonoBehaviour>()) {
+            if (component is Stateful) {
+                RegisterComponent((Stateful)component);
+            }
+        }
     }
 
-    public void RegisterComponent(Stateful component) {
+    private void RegisterComponent(Stateful component) {
         statefulComponents.Add(component);
     }
     
