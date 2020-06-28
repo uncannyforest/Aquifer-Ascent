@@ -13,12 +13,13 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
         public bool isActive = true;
         public float currentChargeLevel = 1.0f;
     }
+    public bool mayNeedUpdating = true;
     public GameObject spawnLocation;
-    public float unchargeTime = 30f;
+    public float unchargeTime = 30f; // set to 0 programmatically to lock color
     public float chargeTime = 450f;
     public float spawnTime = 1f;
     public float haloIntensity = 1.5f;
-    public float spawnState = 1.0f;
+    public float spawnState = 0.0f;
     public float heldIntensity = 0.4f;
     public ColorTransition[] colorTransitions = {
         new ColorTransition(1.0f, new Color(1.0f, 1.0f, 1.0f)),
@@ -108,8 +109,22 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
     }
 
     private void UpdateOrbState() {
-        if (!state.isActive) {
-            if (spawnState > 0) {
+        bool updateSpawnState = mayNeedUpdating ||
+            (!state.isActive && spawnState > 0) || (state.isActive && spawnState < 1);
+        bool updateCharge = unchargeTime != 0 && (mayNeedUpdating ||
+            gameObject.GetComponent<Holdable>().IsHeld || state.currentChargeLevel < 1);
+        mayNeedUpdating = updateSpawnState;
+
+        if (updateSpawnState) {
+            if (state.isActive) {
+                spawnState += Time.deltaTime / spawnTime;
+                if (spawnState >= 1) {
+                    spawnState = 1;
+                    mayNeedUpdating = false;
+                }
+                transform.localScale = Vector3.one * spawnState;
+                SetOrbIntensity(spawnState);
+            } else {
                 spawnState -= Time.deltaTime / spawnTime;
                 if (spawnState > 0) {
                     transform.localScale = Vector3.one * spawnState;
@@ -130,34 +145,28 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
                     }
                 } else {
                     spawnState = 0;
+                    mayNeedUpdating = false;
                 }
             }
-        } else if (spawnState < 1) {
-            spawnState += Time.deltaTime / spawnTime;
-            spawnState = Mathf.Min(1, spawnState);
-            transform.localScale = Vector3.one * spawnState;
-            SetOrbIntensity(spawnState);
-        } else {
-            if (unchargeTime != 0) {
-                if (gameObject.GetComponent<Holdable>().IsHeld) {
-                    if (state.currentChargeLevel > 0f) {
-                        state.currentChargeLevel -= Time.deltaTime / unchargeTime;
-                        if (state.currentChargeLevel < 0f) {
-                            state.currentChargeLevel = 0f;
-                            Kill();
-                        }
-                        SetOrbColor(GetColorFromCharge());
+        }
+        if (updateCharge) {
+            if (gameObject.GetComponent<Holdable>().IsHeld) {
+                if (state.currentChargeLevel > 0f) {
+                    state.currentChargeLevel -= Time.deltaTime / unchargeTime;
+                    if (state.currentChargeLevel < 0f) {
+                        state.currentChargeLevel = 0f;
+                        Kill();
                     }
-                } else {
-                    if (state.currentChargeLevel < 1f) {
-                        state.currentChargeLevel += Time.deltaTime / chargeTime;
-                        if (state.currentChargeLevel > 1f) {
-                            state.currentChargeLevel = 1f;
-                        }
-                        SetOrbColor(GetColorFromCharge());
+                }
+            } else {
+                if (state.currentChargeLevel < 1f) {
+                    state.currentChargeLevel += Time.deltaTime / chargeTime;
+                    if (state.currentChargeLevel > 1f) {
+                        state.currentChargeLevel = 1f;
                     }
                 }
             }
+            SetOrbColor(GetColorFromCharge());
         }
     }
 

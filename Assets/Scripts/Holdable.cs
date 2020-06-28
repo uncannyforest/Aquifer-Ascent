@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,7 +14,7 @@ public class Holdable : MonoBehaviour
     public AudioClip setDownSound;
     public float pickUpTime = 0.5f;
 
-    private Transform parentWhenFree;
+    [NonSerialized] public Transform parentWhenFree;
     private float heldState = 0.0f; // 0 if not held, 1 if held
     private Transform playerHoldTransform;
     Collider physicsCollider;

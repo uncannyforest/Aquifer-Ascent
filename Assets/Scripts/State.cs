@@ -43,6 +43,9 @@ public class State : MonoBehaviour {
 
     public Data SaveObject() {
         if (IsUnique) {
+            if (!guidManager.Contains(guid.id)) {
+                Debug.LogError("Guid manager contains no guid " + guid.id + " for " + gameObject.name);
+            }
             return Data.CreateForUniqueObject(guid.id, GetState());
         } else {
             Debug.Log("Saving prefab " + createNewFromResource);
@@ -70,7 +73,17 @@ public class State : MonoBehaviour {
         var dictionary = new Dictionary<Type, System.Object>();
 
         if (includeParent) {
-            dictionary.Add(typeof(Transform), transform.parent.GetComponent<Guid>().id);
+            if (transform.parent == null) {
+                Debug.LogError("No parent to save for " + gameObject.name);
+            }
+            if (transform.parent.GetComponent<Guid>() == null) {
+                Debug.LogError("No guid component for " + transform.parent.name);
+            }
+            string parentId = transform.parent.GetComponent<Guid>().id;
+            dictionary.Add(typeof(Transform), parentId);
+            if (!guidManager.Contains(parentId)) {
+                Debug.LogError("Guid manager contains no guid " + parentId + " for " + transform.parent.name);
+            }
         }
         if (includePosition) {
             dictionary.Add(typeof(Vector3), transform.position);

@@ -17,7 +17,7 @@ public class InitialScene : ToggleableScript, State.Stateful {
     [Serializable]
     public class OrbRewardOnFinalFlower {
         public List<GameObject> flowers;
-        public GameObject orbPrefab;
+        public GameObject orbToMove;
 
         private Dictionary<GameObject, bool> openFlowers;
         private int numOpenFlowers;
@@ -56,8 +56,8 @@ public class InitialScene : ToggleableScript, State.Stateful {
 
                 ContainerTrigger container = lastFlower.transform.GetComponentInChildren<ContainerTrigger>();
 
-                GameObject orb = GameObject.Instantiate(orbPrefab, container.transform);
-                orb.transform.position = container.transform.position;
+                orbToMove.transform.position = container.transform.position;
+                orbToMove.GetComponent<StandardOrb>().state.isActive = true;
 
                 state.orbRewardOnFinalFlowerIsComplete = true;
             }

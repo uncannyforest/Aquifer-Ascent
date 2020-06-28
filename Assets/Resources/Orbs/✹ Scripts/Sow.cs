@@ -14,16 +14,17 @@ public class Sow : MonoBehaviour
     Vector3 groundPosition;
     Vector3 destinationPosition;
     private float sowState = 0;
-    Transform newTreeParent;
 
     Collider physicsCollider;
     Rigidbody myRigidbody;
     StandardOrb standardOrbScript;
+    Holdable holdableScript;
 
     void Start() {
         physicsCollider = GetComponent<Collider>();
         myRigidbody = GetComponent<Rigidbody>();
         standardOrbScript = GetComponent<StandardOrb>();
+        holdableScript = GetComponent<Holdable>();
     }
 
     void Update() {
@@ -48,23 +49,12 @@ public class Sow : MonoBehaviour
         if (sown && heldState == 0) {
             hitGround = true;
             groundPosition = transform.position;
-            destinationPosition = groundPosition + Vector3.down * GetComponent<Holdable>().GetColliderWidth() / 2;
+            destinationPosition = groundPosition + Vector3.down * holdableScript.GetColliderWidth() / 2;
         }  
     }
 
-    void UpdateGroundObject(Transform groundObject) {
-        if (groundObject.parent == null) {
-            Debug.Log("Ground collision object has no parent, wut?");
-            newTreeParent = groundObject;
-        } else if (groundObject.parent.name == "Cave Walls") {
-            newTreeParent = groundObject.parent.parent;
-        } else {
-            newTreeParent = groundObject.parent;
-        }
-    }
-
     void InitiateTree() {
-        GameObject tree = Instantiate(treePrefab, newTreeParent, true);
+        GameObject tree = Instantiate(treePrefab, holdableScript.parentWhenFree, true);
         tree.transform.position = groundPosition;
 
         TriggerObjectDestroyer.Destroy(this.gameObject);

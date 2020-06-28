@@ -19,6 +19,9 @@ public class GoalOrb : MonoBehaviour
     private Holdable holdableScript;
 
     void Start() {
+        if (!holdableScript.IsFree) {
+            orbScript.chargeTime = 0;
+        }
         this.hintLine = transform.Find("Hint Flare").GetComponent<LineRenderer>();
         this.hintLine.enabled = false;
         this.orbScript = GetComponent<StandardOrb>();
@@ -77,7 +80,7 @@ public class GoalOrb : MonoBehaviour
         successStartingPosition = transform.position;
         successStartingColor = orbScript.GetColorFromCharge();
 
-        orbScript.state.currentChargeLevel = 1.0f; // disables recolor
+        orbScript.chargeTime = 0; // disables recolor
         orbScript.IsHoldable = false;
     }
 

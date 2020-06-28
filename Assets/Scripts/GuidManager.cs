@@ -12,9 +12,16 @@ public class GuidManager : MonoBehaviour {
         get => guidToGameObject[guid];
     }
 
+    public bool Contains(string guid) {
+        return guidToGameObject.ContainsKey(guid);
+    }
+
     public bool IsRegisteredAlready(Guid guidScript) {
         bool foundKey = guidToInstanceId.TryGetValue(guidScript.id, out int id);
-        return foundKey && guidScript.gameObject.GetInstanceID() == id;
+        if (foundKey) {
+            Debug.Log(guidScript.gameObject.GetInstanceID() + " != " + id + "??");
+        }
+        return foundKey && guidScript.gameObject.GetInstanceID() != id;
     }
 
     public void Register(Guid guidScript) {
