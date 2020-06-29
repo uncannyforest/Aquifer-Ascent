@@ -19,16 +19,20 @@ public class GoalOrb : MonoBehaviour
     private Holdable holdableScript;
 
     void Start() {
+        this.orbScript = GetComponent<StandardOrb>();
+        this.holdableScript = GetComponent<Holdable>();
         if (!holdableScript.IsFree) {
             orbScript.chargeTime = 0;
         }
         this.hintLine = transform.Find("Hint Flare").GetComponent<LineRenderer>();
         this.hintLine.enabled = false;
-        this.orbScript = GetComponent<StandardOrb>();
-        this.holdableScript = GetComponent<Holdable>();
     }
 
     void Update() {
+        if (hintLine == null) {
+            Debug.LogWarning("Hint Flare missing for a frame");
+            return;
+        }
         if (hintLine.enabled) {
             UpdateHintLine();
         }

@@ -35,4 +35,8 @@ public class StateManager {
 
         persistentState[scene] = sceneState;
     }
+
+    public bool IncludesScene(string scene) {
+        return persistentState.ContainsKey(scene);
+    }
 }

@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 public class State : MonoBehaviour {
 
     public string createNewFromResource; // if null, modify object based on guid (must be present)
+    public bool destroyOnSceneReload = false;
     public bool includePosition;
     public bool includeParent;
 
@@ -19,6 +20,12 @@ public class State : MonoBehaviour {
 
     void Awake() {
         manager = GameObject.FindObjectOfType<GameLoader>();
+
+        if (destroyOnSceneReload && manager.SceneIsSavedToPersistentState(gameObject.scene.name)) {
+            GameObject.Destroy(this.gameObject);
+            return;
+        }
+
         manager.Register(this); 
         guidManager = GameObject.FindObjectOfType<GuidManager>();
     }
@@ -97,7 +104,8 @@ public class State : MonoBehaviour {
 
     private void SetState(Dictionary<Type, System.Object> state) {
         if (includeParent) {
-            transform.parent = guidManager[(string)(state[typeof(Transform)])].transform;
+            string parentId = (string) (state[typeof(Transform)]);
+            transform.parent = guidManager[parentId].transform;
         }
         if (includePosition) {
             transform.position = (Vector3)(state[typeof(Vector3)]);

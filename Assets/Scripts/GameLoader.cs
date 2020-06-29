@@ -33,6 +33,10 @@ public class GameLoader : MonoBehaviour {
             SceneManager.LoadSceneAsync(scene, LoadSceneMode.Additive);
             yield return null;
             yield return null;
+            yield return null;
+            yield return null;
+            yield return null;
+            yield return null;
             stateManager.LoadScene(scene, this);
         }
     }
@@ -43,4 +47,6 @@ public class GameLoader : MonoBehaviour {
             SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(scene));
         }
     }
+
+    public bool SceneIsSavedToPersistentState(string scene) => stateManager.IncludesScene(scene);
 }
