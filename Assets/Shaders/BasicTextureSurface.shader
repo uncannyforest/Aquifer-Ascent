@@ -3,6 +3,7 @@
         _Color ("Main Color", Color) = (1,0.5,0.5,1)
         _MainTex ("Texture", 2D) = "white" {}
         _BumpMap ("Normal Map", 2D) = "bump" {}
+		_BumpScale ("Normal Map Scale", Float) = 1
         _SpecularColor ("Specular", Color) = (0.0,0.0,0.0,1)
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 1.0
     }
@@ -17,11 +18,13 @@
         fixed4 _Color;
         sampler2D _MainTex;
         sampler2D _BumpMap;
+        float _BumpScale;
         fixed4 _SpecularColor;
         half _Smoothness;
         void surf (Input IN, inout SurfaceOutputStandardSpecular o) {
             o.Albedo = tex2D (_MainTex, IN.uv_MainTex).rgb * _Color.rgb;
             o.Normal = UnpackNormal (tex2D (_BumpMap, IN.uv_BumpMap));
+            o.Normal.xy *= _BumpScale;
             o.Specular = _SpecularColor;
             o.Smoothness = _Smoothness;
         }
