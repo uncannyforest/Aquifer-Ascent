@@ -15,7 +15,7 @@ public class ActionTrigger : MonoBehaviour {
 
     void Start() {
         isActive = ComputeAllInput();
-        TriggerAction(ComputeAllInput());
+        TriggerAction(isActive);
     }
 
     void Update() {

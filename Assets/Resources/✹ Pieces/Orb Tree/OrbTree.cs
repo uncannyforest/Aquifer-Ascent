@@ -12,7 +12,6 @@ public class OrbTree : MonoBehaviour, State.Stateful {
         public float growthProgress = 0;
     }
     public bool mayNeedUpdating = true;
-    public Transform orbParent;
     public GameObject unspawnedOrb;
     public GameObject unspawnedSeedOrb;
     public int numLights = 5;
@@ -33,6 +32,7 @@ public class OrbTree : MonoBehaviour, State.Stateful {
     public float rotationJitter = 7;
     public float scaleJitter = .02f;
 
+    Transform orbParent;
     GameObject prototype;
     List<GameObject> activeBuds = new List<GameObject>();
     List<GameObject> endBranches = new List<GameObject>(); // each *might* grow an active bud next round

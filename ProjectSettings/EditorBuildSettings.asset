@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/LevelOne.unity
+    path: Assets/Scenes/MoreLights.unity
     guid: e6ed6d7fa7e8c48c685f96549eebb6f8
   - enabled: 1
     path: Assets/Scenes/PermanentElements.unity

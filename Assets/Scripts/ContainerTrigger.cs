@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ContainerTrigger : ToggleableScript {
+    private bool isActive;
+
     override public bool IsActive {
         set {
+            isActive = value;
             foreach (Transform child in transform) {
                 if (value) {
                     child.gameObject.SetActive(true);
@@ -15,5 +18,9 @@ public class ContainerTrigger : ToggleableScript {
                 }
             }
         }
+    }
+
+    public void Refresh() {
+        IsActive = isActive;
     }
 }
