@@ -8,7 +8,9 @@ public class Sow : MonoBehaviour
 {
     public GameObject treePrefab;
     public float sowTime = 15;
+    public string actionName = "sow";
 
+    private Transform fertileGround;
     private bool sown = false;
     private bool hitGround = false;
     Vector3 groundPosition;
@@ -40,6 +42,20 @@ public class Sow : MonoBehaviour
         }
     }
 
+    void OnTriggerEnter(Collider other) {
+        if(other.tag == "CanSowHere" && other.GetComponentInChildren<OrbTree>() == null) {
+            fertileGround = other.transform;
+            holdableScript.SetOptionalAction(actionName);
+        }
+    }
+
+	void OnTriggerExit(Collider other) {
+        if(other.transform == fertileGround && !sown) {
+            fertileGround = null;
+            holdableScript.SetOptionalAction(null);
+		}
+    }
+
     void Use() {  
         sown = true;
         transform.parent.parent.GetComponent<HoldObject>().OnDropObject(gameObject, true);
@@ -54,7 +70,7 @@ public class Sow : MonoBehaviour
     }
 
     void InitiateTree() {
-        GameObject tree = Instantiate(treePrefab, holdableScript.parentWhenFree, true);
+        GameObject tree = Instantiate(treePrefab, fertileGround, true);
         tree.transform.position = groundPosition;
 
         TriggerObjectDestroyer.Destroy(this.gameObject);

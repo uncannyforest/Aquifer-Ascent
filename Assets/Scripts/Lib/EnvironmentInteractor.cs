@@ -69,12 +69,5 @@ public class EnvironmentInteractor {
         }
     }
 
-    public void NotifyGroundObject(Transform groundObject) {
-        foreach (Transform child in playerHoldTransform) {
-            Holdable childPickMeUp = child.GetComponent<Holdable>();
-            childPickMeUp.SendMessage("UpdateGroundObject", groundObject);
-        }
-    }
-
 
 }

@@ -67,7 +67,6 @@ public class HoldObject : MonoBehaviour
             isTransitioning = Transition.Dropping;
             inputDisplay.UpdateNoActions();
             Transform groundTransform = holdAnimationControl.StartStoop();
-            environmentInteractor.NotifyGroundObject(groundTransform);
         } else {
             inputDisplay.UpdateForNearbyObjects(environmentInteractor.NearObjects);
         }

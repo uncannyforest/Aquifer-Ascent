@@ -105,6 +105,11 @@ public class Holdable : MonoBehaviour
         isUsed = true;
     }
 
+    public void SetOptionalAction(string optionalAction) {
+        this.optionalAction = optionalAction;
+        playerHoldTransform.parent.GetComponent<HoldObject>().OnHoldObject(gameObject);
+    }
+
     public float GetColliderWidth() {
         // this is broken out here becuase bounds can only be queried when collider is active
         return myColliderBounds.size.z;

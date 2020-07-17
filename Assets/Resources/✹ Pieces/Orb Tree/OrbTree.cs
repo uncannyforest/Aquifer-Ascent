@@ -14,6 +14,7 @@ public class OrbTree : MonoBehaviour, State.Stateful {
     public bool mayNeedUpdating = true;
     public GameObject unspawnedOrb;
     public GameObject unspawnedSeedOrb;
+    public string orbParentName = "Free Orbs";
     public int numLights = 5;
     public int seedOrbEvery = 10;
     public float spawnNewOrbDistance = 2;
@@ -43,10 +44,13 @@ public class OrbTree : MonoBehaviour, State.Stateful {
     int orbsUntilSeedOrb;
 
     // Start is called before the first frame update
-    void Start()
-    {
+    void Start() {
         if (orbParent == null) {
-            orbParent = transform.parent;
+            foreach (GameObject rootObject in gameObject.scene.GetRootGameObjects()) {
+                if (rootObject.name == orbParentName) {
+                    orbParent = rootObject.transform;
+                }
+            }
         }
 
         prototype = gameObject.transform.Find("Prototype").gameObject;

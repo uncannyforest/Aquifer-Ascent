@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   createNewFromResource: Orb Tree
+  destroyOnSceneReload: 0
   includePosition: 1
   includeParent: 1
 --- !u!114 &8873116992512103742
@@ -61,17 +62,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e71d92dffbf74ce5afe8b70e6dc8b04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  orbParent: {fileID: 0}
-  autoFindOrbParentByName: Free Orbs
+  state:
+    growthProgress: 0
+  mayNeedUpdating: 1
   unspawnedOrb: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
     type: 3}
-  unspawnedSeedOrb: {fileID: 7327089894684991277, guid: 5ac7d5c5e6e1f46529785c0df3ba3032,
+  unspawnedSeedOrb: {fileID: 2708242860527730315, guid: c97a73800ffb440ffbdaa885138d0cd7,
     type: 3}
+  orbParentName: Free Orbs
   numLights: 5
   seedOrbEvery: 10
   spawnNewOrbDistance: 4
   growthTime: 375
-  growthProgress: 0
   fractalLevel: 4
   numBranches: 3
   branchPosition: {x: 1, y: 0, z: 0}
