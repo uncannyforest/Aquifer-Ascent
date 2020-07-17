@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/OrbTreeLevel.unity
     guid: 1eae399af5fdf4f7fae9a51965455669
+  - enabled: 1
+    path: Assets/Scenes/CavePieceDemo.unity
+    guid: 46930b471111942529adf34e793edc4e
   m_configObjects: {}
