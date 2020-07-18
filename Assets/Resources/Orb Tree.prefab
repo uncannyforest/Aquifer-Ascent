@@ -64,14 +64,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   state:
     growthProgress: 0
+    orbsUntilSeedOrb: 7
   mayNeedUpdating: 1
   unspawnedOrb: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
     type: 3}
   unspawnedSeedOrb: {fileID: 2708242860527730315, guid: c97a73800ffb440ffbdaa885138d0cd7,
     type: 3}
   orbParentName: Free Orbs
-  numLights: 5
-  seedOrbEvery: 10
+  numLights: 4
+  seedOrbEvery: 4
   spawnNewOrbDistance: 4
   growthTime: 375
   fractalLevel: 4

@@ -10,15 +10,16 @@ public class OrbTree : MonoBehaviour, State.Stateful {
     public StateFields state = new StateFields();
     [System.Serializable] public class StateFields {
         public float growthProgress = 0;
+        public int orbsUntilSeedOrb = 7;
     }
     public bool mayNeedUpdating = true;
     public GameObject unspawnedOrb;
     public GameObject unspawnedSeedOrb;
     public string orbParentName = "Free Orbs";
-    public int numLights = 5;
-    public int seedOrbEvery = 10;
-    public float spawnNewOrbDistance = 2;
-    public float growthTime = 375;
+    public int numLights = 4;
+    public int seedOrbEvery = 4;
+    public float spawnNewOrbDistance = 4;
+    public float growthTime = 320;
     public int fractalLevel = 4;
     public int numBranches = 3;
     public Vector3 branchPosition = new Vector3(1, 0, 0);
@@ -41,7 +42,6 @@ public class OrbTree : MonoBehaviour, State.Stateful {
 
     int currentFractalLevel = 0;
     float fractalLevelFactor;
-    int orbsUntilSeedOrb;
 
     // Start is called before the first frame update
     void Start() {
@@ -63,7 +63,6 @@ public class OrbTree : MonoBehaviour, State.Stateful {
         activeBuds.Add(trunkBud);
         endBranches.Add(trunk);
         fractalLevelFactor = ((fractalLevel + 1f) * (fractalLevel + 1f)); // don't calc this every time
-        orbsUntilSeedOrb = seedOrbEvery - 1;
     
         UpdateGrowthState();
 
@@ -71,6 +70,7 @@ public class OrbTree : MonoBehaviour, State.Stateful {
 
         orbs = GameObject.FindObjectsOfType<StandardOrb>().Select(s => s.gameObject).ToList();
         CheckOrbDistance(false);
+        state.orbsUntilSeedOrb -= orbs.Count;
 
         for (int i = 0; i < Mathf.Floor(state.growthProgress * numLights); i++) {
             AddLight();
@@ -174,11 +174,11 @@ public class OrbTree : MonoBehaviour, State.Stateful {
 
     void AddLight() {
         GameObject whichPrefab;
-        if (orbsUntilSeedOrb > 0) {
-            orbsUntilSeedOrb--;
+        if (state.orbsUntilSeedOrb > 0) {
+            state.orbsUntilSeedOrb--;
             whichPrefab = unspawnedOrb;
         } else {
-            orbsUntilSeedOrb = seedOrbEvery - 1;
+            state.orbsUntilSeedOrb = seedOrbEvery - 1;
             whichPrefab = unspawnedSeedOrb;
         }
 
@@ -188,11 +188,15 @@ public class OrbTree : MonoBehaviour, State.Stateful {
         orbs.Add(newLight);
     }
 
-    void CheckOrbDistance(bool andScheduleRespawn = true) {
+    void CheckOrbDistance() {
+        CheckOrbDistance(true);
+    }
+
+    void CheckOrbDistance(bool scheduleRespawn) {
         for (int i = orbs.Count - 1; i >= 0; i--) { // backwards iteration is safe for removal
             GameObject orb = orbs[i];
-            if (Vector3.Distance(orb.transform.position, this.transform.position) > spawnNewOrbDistance) {
-                if (andScheduleRespawn) {
+            if (!orb || Vector3.Distance(orb.transform.position, this.transform.position) > spawnNewOrbDistance) {
+                if (scheduleRespawn) {
                     float timeUntilNewOrb = (1f + 1f / numLights - state.growthProgress) * growthTime / numLights;
                     StartCoroutine(ScheduleSpawnLights(1, timeUntilNewOrb));
                 }

@@ -4005,8 +4005,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8873116992512103742, guid: fb5c6b66315934df4aeb2878e7500005,
         type: 3}
-      propertyPath: seedOrbEvery
-      value: 3
+      propertyPath: state.orbsUntilSeedOrb
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8873116992512103743, guid: fb5c6b66315934df4aeb2878e7500005,
         type: 3}
