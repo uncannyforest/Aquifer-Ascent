@@ -53,7 +53,6 @@ public class OrthoFreeLookCamMovement : MonoBehaviour
         m_AutoScript = GetComponent<MixedAutoCam>();
     }
 
-
     protected void Update()
     {
         if (SimpleInput.GetButtonDown("Reset Camera")) {
@@ -76,6 +75,10 @@ public class OrthoFreeLookCamMovement : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        // prep Enable
+        m_AimingForIso = 0;
+        transform.localRotation = Quaternion.Euler(0f, m_AimingForIso, 0f);
     }
 
     private float AngleClamp(float angle) {

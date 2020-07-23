@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
+using UnityEngine.Events;
 
 namespace UnityStandardAssets.Characters.ThirdPerson
 {
@@ -14,6 +15,14 @@ namespace UnityStandardAssets.Characters.ThirdPerson
         private bool m_Jump;                      // the world-relative desired move direction, calculated from the camForward and user input.
 
         
+        public Camera Camera {
+            set {m_Cam = value.transform;}
+        }
+
+        static public void WhoaHey() {
+
+        }
+
         private void Start()
         {
             // get the transform of the main camera

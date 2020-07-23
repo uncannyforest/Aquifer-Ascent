@@ -26,6 +26,12 @@ namespace UnityStandardAssets.Cameras
 
         private bool isResettingCamera = false;
 
+        public float YRotation {
+            set {
+                transform.rotation = Quaternion.Euler(0, value, 0);
+            }
+        }
+
         public bool IsDoubleResetReady {
             get {
                 Quaternion rollRotation = Quaternion.LookRotation(m_Target.forward, m_RollUp);
