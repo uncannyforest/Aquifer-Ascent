@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Cave_Moss_Floor
-  m_Shader: {fileID: 4800000, guid: 5fca67fcc476b424482da3f1e6590311, type: 3}
+  m_Shader: {fileID: 4800000, guid: 58bed18a8df924852a13239266461a39, type: 3}
   m_ShaderKeywords: _DETAIL_MULX2 _EMISSION _NORMALMAP _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
     _SPECULARHIGHLIGHTS_OFF
   m_LightmapFlags: 0
@@ -29,7 +29,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap1:
-        m_Texture: {fileID: 2800000, guid: b30a311e3f3954dec83a08d5c6fe3aac, type: 3}
+        m_Texture: {fileID: 2800000, guid: c40b7e294c5824c76a3d02de07979101, type: 3}
         m_Scale: {x: 8, y: 8}
         m_Offset: {x: 0, y: 0}
     - _BumpMap2:
@@ -69,7 +69,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: d665d4ab6a6bc43caa9552a0d22c42f2, type: 3}
+        m_Texture: {fileID: 2800000, guid: 0e2ab591b8f83482aa393c3cbbf0c526, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
