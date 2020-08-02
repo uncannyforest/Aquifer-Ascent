@@ -854,7 +854,7 @@ PrefabInstance:
     - target: {fileID: 7456130516122914424, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: state.currentChargeLevel
-      value: 0.1
+      value: 0.5
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 960226966118959779, guid: 0eb13e365665b4feb907433579ff87a3, type: 3}
