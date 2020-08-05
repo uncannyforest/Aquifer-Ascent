@@ -21,7 +21,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] float m_RunCycleLegOffset = 0.2f; //specific to the character in sample assets, will need to be modified to work with others
 		[SerializeField] float m_MoveSpeedMultiplier = 1f;
 		[SerializeField] float m_AnimSpeedMultiplier = 1f;
-		[SerializeField] float m_GroundCheckDistance = 0.1f;
+		[SerializeField] float m_GroundCheckDistance = 0.125f; // This distance and radius make 
+		[SerializeField] float m_GroundCheckRadius = 0.05f;    // slopes walkable up to approx. 45 deg
 		[SerializeField] List<BooleanScript> m_ProhibitMotionWhen;
 
 		[NonSerialized] public bool isStuck = false;
@@ -30,12 +31,11 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		Rigidbody m_Rigidbody;
 		Animator m_Animator;
 		bool m_IsGrounded;
-		float m_OrigGroundCheckDistance;
+		float m_ActualGroundCheckDistance;
 		const float k_Half = 0.5f;
 		float m_TurnAmount;
 		float m_ForwardAmount;
 		CapsuleCollider m_Capsule;
-		float m_CapsuleRadius;
 		InDarkness m_DarknessCheckHead;
 		InDarkness m_DarknessCheckFeet;
 		DarknessRescue m_DarknessRescue;
@@ -50,16 +50,14 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			m_Animator = GetComponent<Animator>();
 			m_Rigidbody = GetComponent<Rigidbody>();
 			m_Capsule = GetComponent<CapsuleCollider>();
-			m_CapsuleRadius = m_Capsule.radius;
 			m_DarknessCheckHead = transform.Find("DarknessCheckHead").GetComponent<InDarkness>();
 			m_DarknessCheckFeet = transform.Find("DarknessCheckFeet").GetComponent<InDarkness>();
 			m_DarknessRescue = GetComponent<DarknessRescue>();
 			m_DarknessNavigate = GetComponent<DarknessNavigate>();
 
 			m_Rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
-			m_OrigGroundCheckDistance = m_GroundCheckDistance;
+			m_ActualGroundCheckDistance = m_GroundCheckDistance;
 		}
-
 
 		public void Move(Vector3 move, bool jump) {
 			Vector3 forwardPush = move;
@@ -76,7 +74,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 			ApplyExtraTurnRotation();
 
-			if (move.magnitude > 0) {
+			if (move.magnitude > 0 || !m_IsGrounded) {
 				m_Capsule.material = m_MovingMaterial;
 			} else {
 				m_Capsule.material = m_StationaryMaterial;
@@ -137,7 +135,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				m_Rigidbody.velocity = new Vector3(0, m_Rigidbody.velocity.y, 0);
 			}
 
-			m_GroundCheckDistance = m_Rigidbody.velocity.y < 0 ? m_OrigGroundCheckDistance : 0.01f;
+			m_ActualGroundCheckDistance = m_Rigidbody.velocity.y < 0 ? m_GroundCheckDistance : 0.01f;
 		}
 
 
@@ -162,7 +160,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				m_Rigidbody.velocity = new Vector3(newVelocity.x, m_JumpPower, newVelocity.z);
 				m_IsGrounded = false;
 				m_Animator.applyRootMotion = false;
-				m_GroundCheckDistance = 0.1f;
+				m_ActualGroundCheckDistance = 0.1f;
 			}
 		}
 
@@ -213,16 +211,24 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			}
 		}
 
+		void OnDrawGizmos() {
+			Gizmos.DrawSphere(transform.position + (Vector3.up * (0.1f - m_ActualGroundCheckDistance)), m_GroundCheckRadius);
+		}
+ 
 		void CheckGroundStatus()
 		{
 			RaycastHit hitInfo;
 #if UNITY_EDITOR
 			// helper to visualise the ground check ray in the scene view
-			Debug.DrawLine(transform.position + (Vector3.up * 0.1f), transform.position + (Vector3.up * 0.1f) + (Vector3.down * m_GroundCheckDistance));
+			Debug.DrawLine(transform.position + (Vector3.up * 0.1f), transform.position + (Vector3.up * 0.1f) + (Vector3.down * m_ActualGroundCheckDistance));
 #endif
 			// 0.1f is a small offset to start the ray from inside the character
 			// it is also good to note that the transform position in the sample assets is at the base of the character
-			if (Physics.SphereCast(transform.position + (Vector3.up * (0.1f + m_CapsuleRadius)), m_CapsuleRadius, Vector3.down, out hitInfo, m_GroundCheckDistance))
+			bool sphereCast = Physics.SphereCast(transform.position + (Vector3.up * (0.1f + m_GroundCheckRadius)), m_GroundCheckRadius, Vector3.down, out hitInfo, m_ActualGroundCheckDistance + m_GroundCheckRadius);
+			// m_RunningAvgGroundSlope = m_RunningAvgGroundSlope < slope ?
+			// 	 (m_RunningAvgGroundSlope * (m_SlopeCheckSmoother - 1) + slope) / m_SlopeCheckSmoother : slope;
+			// Debug.Log("Slope: " + (1 - hitInfo.normal.y) + " / new running avg:" + m_RunningAvgGroundSlope);
+			if (sphereCast)
 			{
 				groundNormal = hitInfo.normal;
 				m_IsGrounded = true;
@@ -231,7 +237,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			else
 			{
 				m_IsGrounded = false;
-				groundNormal = Vector3.up;
+				groundNormal = sphereCast ? hitInfo.normal : Vector3.up;
 				m_Animator.applyRootMotion = false;
 			}
 		}

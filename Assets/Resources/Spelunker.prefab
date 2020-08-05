@@ -67,7 +67,8 @@ MonoBehaviour:
   m_RunCycleLegOffset: 1
   m_MoveSpeedMultiplier: 1.1
   m_AnimSpeedMultiplier: 1.3
-  m_GroundCheckDistance: 0.3
+  m_GroundCheckDistance: 0.125
+  m_GroundCheckRadius: 0.05
   m_ProhibitMotionWhen:
   - {fileID: 6800054507372943635}
 --- !u!114 &1278065832207973124
@@ -120,12 +121,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b347398c86d1479a87a55ec15ec508e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startPosition: {fileID: 0}
-  endPosition: {fileID: 0}
   exitPathStep: {fileID: 6148629669635398518, guid: 801d232a277fd4457bf58250b3a8272d,
     type: 3}
   parent: {fileID: 0}
   pathSpacing: 0
+  numRecentLightsTracked: 3
+  successUpdateFrequency: 0.2
+  lightFactor: 10
+  pathIntensity: 0.75
+  transitionTimeIn: 1
+  transitionTimeOut: 0.25
 --- !u!1 &1310612449047840309
 GameObject:
   m_ObjectHideFlags: 0
