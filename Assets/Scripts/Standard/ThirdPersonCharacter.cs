@@ -149,10 +149,10 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				Vector3 newVelocity;
 
 				Vector3 oldVelocity = new Vector3(m_Rigidbody.velocity.x, 0, m_Rigidbody.velocity.z);
-				float newSpeedSquared = oldVelocity.sqrMagnitude
-					+ jumpPush.sqrMagnitude;
+				float newSpeed = oldVelocity.magnitude >= jumpPush.magnitude * 2 ?
+					oldVelocity.magnitude : oldVelocity.magnitude / 2 + jumpPush.magnitude;
 				Vector3 newDirection = oldVelocity + jumpPush;
-				newVelocity = newDirection.normalized * Mathf.Sqrt(newSpeedSquared);
+				newVelocity = newDirection.normalized * newSpeed;
 				Debug.Log("Original velocity:" + oldVelocity.magnitude);
 				Debug.Log("Forward push:" + jumpPush.magnitude);
 				Debug.Log("New velocity:" + newVelocity.magnitude);
