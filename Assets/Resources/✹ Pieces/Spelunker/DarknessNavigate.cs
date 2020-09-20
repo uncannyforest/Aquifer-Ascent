@@ -71,7 +71,7 @@ public class DarknessNavigate : MonoBehaviour {
 
 	private void ProducePath() {
 		Vector3 endPosition = Vector3.zero;
-		while (recentLights.Count > 0) {
+		while (recentLights.Count > 0 && endPosition == Vector3.zero) {
 			GameObject recentLight = recentLights.First.Value;
 			recentLights.RemoveFirst();
 

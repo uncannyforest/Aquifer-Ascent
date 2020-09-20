@@ -28,6 +28,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[NonSerialized] public bool isStuck = false;
 		[NonSerialized] public Vector3 groundNormal;
 
+		int m_CollidingLayerMask;
 		Rigidbody m_Rigidbody;
 		Animator m_Animator;
 		bool m_IsGrounded;
@@ -54,6 +55,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			m_DarknessCheckFeet = transform.Find("DarknessCheckFeet").GetComponent<InDarkness>();
 			m_DarknessRescue = GetComponent<DarknessRescue>();
 			m_DarknessNavigate = GetComponent<DarknessNavigate>();
+
+			m_CollidingLayerMask = GetCollidingLayerMask();
 
 			m_Rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
 			m_ActualGroundCheckDistance = m_GroundCheckDistance;
@@ -224,7 +227,13 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 #endif
 			// 0.1f is a small offset to start the ray from inside the character
 			// it is also good to note that the transform position in the sample assets is at the base of the character
-			bool sphereCast = Physics.SphereCast(transform.position + (Vector3.up * (0.1f + m_GroundCheckRadius)), m_GroundCheckRadius, Vector3.down, out hitInfo, m_ActualGroundCheckDistance + m_GroundCheckRadius);
+			bool sphereCast = Physics.SphereCast(
+				transform.position + (Vector3.up * (0.1f + m_GroundCheckRadius)),
+				m_GroundCheckRadius,
+				Vector3.down,
+				out hitInfo,
+				m_ActualGroundCheckDistance + m_GroundCheckRadius,
+				m_CollidingLayerMask);
 			// m_RunningAvgGroundSlope = m_RunningAvgGroundSlope < slope ?
 			// 	 (m_RunningAvgGroundSlope * (m_SlopeCheckSmoother - 1) + slope) / m_SlopeCheckSmoother : slope;
 			// Debug.Log("Slope: " + (1 - hitInfo.normal.y) + " / new running avg:" + m_RunningAvgGroundSlope);
@@ -240,6 +249,16 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				groundNormal = sphereCast ? hitInfo.normal : Vector3.up;
 				m_Animator.applyRootMotion = false;
 			}
+		}
+
+		private int GetCollidingLayerMask() {
+			int layerMask = 0;
+			for (int i = 0; i < 32; i++) {
+				if (!Physics.GetIgnoreLayerCollision(gameObject.layer, i)) {
+					layerMask |= 1 << i;
+				}
+			}
+			return layerMask;
 		}
 	}
 }
