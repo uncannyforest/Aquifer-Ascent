@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityStandardAssets.Characters.ThirdPerson;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 
 public class DarknessNavigate : MonoBehaviour {
 	public GameObject exitPathStep;
@@ -13,10 +14,12 @@ public class DarknessNavigate : MonoBehaviour {
 	public float pathIntensity = .75f;
 	public float transitionTimeIn = 1f;
 	public float transitionTimeOut = .25f;
+	public Vector3 earlyFallback;
 
 	private bool isInEffect = false;
 	private float transition = 0;
 	private LinkedList<GameObject> recentLights = new LinkedList<GameObject>();
+	private LinkedList<string> recentSceneTransitions = new LinkedList<string>();
 	private ThirdPersonCharacter characterScript;
 	private GameObject colliderCheck;
 	private List<GameObject> pathLights = new List<GameObject>();
@@ -28,15 +31,14 @@ public class DarknessNavigate : MonoBehaviour {
     void Start() {
 		characterScript = GetComponent<ThirdPersonCharacter>();
 		colliderCheck = transform.Find("ColliderCheck").gameObject;
+		SceneManager.activeSceneChanged += OnActiveSceneChanged;
+		SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
 	void Update() {
 		if (isInEffect && transition < 1) {
 			transition += Time.deltaTime / transitionTimeIn;
 			SetLightEffect(transition);
-			foreach (GameObject light in pathLights) {
-				light.GetComponent<Light>().intensity = transition * pathIntensity;
-			}
 		}
 
 		else if (!isInEffect && transition > 0) {
@@ -46,6 +48,34 @@ public class DarknessNavigate : MonoBehaviour {
 			}
 			SetLightEffect(transition);
 		}
+	}
+
+	void OnActiveSceneChanged(Scene current, Scene next) {
+		NotifyActiveScene(next);
+	}
+
+	void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+		if (IsInEffect) {
+			Debug.Log("Continuing path");
+			foreach (Transform child in parent.transform) {
+				GameObject.Destroy(child.gameObject);
+			}
+			pathLights = new List<GameObject>();
+			ProducePath();
+			SetLightEffect(transition);
+		}
+	}
+
+	public void NotifyActiveScene(Scene activeScene) {
+		string name = activeScene.name;
+
+		if (IsInEffect ||
+				(recentSceneTransitions.Count > 0 && recentSceneTransitions.Last.Value == name)) {
+			return;
+		}
+
+		recentSceneTransitions.AddLast(name);
+		Debug.Log("Scene tracked for DarknessNavigate: " + name);
 	}
 
 	public void NotifyRecentLight(GameObject light) {
@@ -69,25 +99,56 @@ public class DarknessNavigate : MonoBehaviour {
 		ProducePath();
 	}
 
-	private void ProducePath() {
-		Vector3 endPosition = Vector3.zero;
-		while (recentLights.Count > 0 && endPosition == Vector3.zero) {
+	private Vector3 FindRecentLight() {
+		while (recentLights.Count > 0) {
 			GameObject recentLight = recentLights.First.Value;
 			recentLights.RemoveFirst();
 
 			if (recentLight != null && recentLight.activeInHierarchy
 					&& recentLight.GetComponent<StandardOrb>().IsActive) {
         		Physics.Raycast(recentLight.transform.position, Vector3.down, out RaycastHit ground);
-				endPosition = ground.point;
+				return ground.point;
 			}
 		}
-		if (endPosition == Vector3.zero) {
-			Debug.LogError("No valid recent lights");
+
+		Debug.Log("No recent lights, checking scene portals . . .");
+		return FindRecentSceneTransition();
+	}
+
+	private Vector3 FindRecentSceneTransition() {
+		while (recentSceneTransitions.Count > 0) {
+			string recentSceneTransition = recentSceneTransitions.First.Value;
+			recentSceneTransitions.RemoveFirst();
+
+			Debug.Log("Recent scene: " + recentSceneTransition);
+
+			if (recentSceneTransition == SceneManager.GetActiveScene().name) {
+				continue;
+			}
+
+        	ScenePortal[] portals = GameObject.FindObjectsOfType<ScenePortal>();
+			foreach (ScenePortal portal in portals) {
+				Debug.Log("Checking against scene portal: " + portal.otherScene);
+				if (portal.open && portal.otherScene == recentSceneTransition) {
+        			Physics.Raycast(portal.transform.position, Vector3.down, out RaycastHit ground);
+					return ground.point;
+				}
+			}
 		}
+
+		Debug.LogWarning("No valid recent lights or scene");
+		return earlyFallback;
+	}
+
+	private void ProducePath() {
+		Vector3 endPosition = FindRecentLight();
 
 		NavMeshPath path = new NavMeshPath();
         NavMesh.CalculatePath(this.transform.position, endPosition, NavMesh.AllAreas, path);
 		Debug.Log("Path corners:" + path.corners.Length);
+		if (path.corners.Length == 0) {
+			Debug.LogError("No path!? Is navigation mesh baked?");
+		}
 
 		Vector3 currentPosition = this.transform.position;
 		int nextCorner = 1;
@@ -104,7 +165,8 @@ public class DarknessNavigate : MonoBehaviour {
 			while (newPosition == path.corners[nextCorner] && safeCrash > 0) {
 				nextCorner++;
 				if (nextCorner == path.corners.Length) {
-					return; // Done! Stop here!
+					// Done! Stop here!
+					return;
 				}
 
 				moveDistanceLeft -= Vector3.Distance(currentPosition, newPosition);
@@ -127,6 +189,10 @@ public class DarknessNavigate : MonoBehaviour {
 		foreach (StandardOrb orb in orbs) {
 			orb.MultiplyOrbIntensity(intensity);
 		};
+
+		foreach (GameObject light in pathLights) {
+			light.GetComponent<Light>().intensity = transition * pathIntensity;
+		}
 	}
 
 	private void CheckDarkness() {
@@ -138,11 +204,13 @@ public class DarknessNavigate : MonoBehaviour {
 	private void TearDown() {
 		isInEffect = false;
 		CancelInvoke();
+		NotifyActiveScene(SceneManager.GetActiveScene());
 
 		colliderCheck.SetActive(false);
 
 		foreach (Transform child in parent.transform) {
 			GameObject.Destroy(child.gameObject);
 		}
+		pathLights = new List<GameObject>();
 	}
 }
