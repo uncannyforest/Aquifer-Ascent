@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Cave_Moss_Floor
+  m_Name: Cave_Moss_Floor_End
   m_Shader: {fileID: 4800000, guid: 5b10d554420d74979a38bf6230b00aaa, type: 3}
   m_ShaderKeywords: _DETAIL_MULX2 _EMISSION _NORMALMAP _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
     _SPECULARHIGHLIGHTS_OFF
@@ -40,10 +40,6 @@ Material:
         m_Texture: {fileID: 2800000, guid: b30a311e3f3954dec83a08d5c6fe3aac, type: 3}
         m_Scale: {x: 8, y: 8}
         m_Offset: {x: 0, y: 0}
-    - _BumpMapFactor1:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _DecalTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -73,7 +69,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 0e2ab591b8f83482aa393c3cbbf0c526, type: 3}
+        m_Texture: {fileID: 2800000, guid: 2f3ff4e92b49840c483b7410fc996a23, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -115,8 +111,6 @@ Material:
     m_Floats:
     - PixelSnap: 0
     - _BlendOp: 0
-    - _BumpMapFactor1: 1
-    - _BumpMapFactor2: 1
     - _BumpScale: 0.5
     - _CameraFadingEnabled: 0
     - _CameraFarFadeDistance: 2
