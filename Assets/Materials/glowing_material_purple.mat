@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: glowing_material_purple 2
+  m_Name: glowing_material_purple
   m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_ShaderKeywords: _EMISSION _GLOSSYREFLECTIONS_OFF
   m_LightmapFlags: 1
@@ -75,3 +75,4 @@ Material:
     m_Colors:
     - _Color: {r: 0.97307104, g: 0.7877358, b: 1, a: 0.48235294}
     - _EmissionColor: {r: 0.8470242, g: 0.36320752, b: 1, a: 1}
+  m_BuildTextureStacks: []
