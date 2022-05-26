@@ -195,7 +195,7 @@ public class OrbTree : MonoBehaviour, State.Stateful {
     void CheckOrbDistance(bool scheduleRespawn) {
         for (int i = orbs.Count - 1; i >= 0; i--) { // backwards iteration is safe for removal
             GameObject orb = orbs[i];
-            if (!orb || Vector3.Distance(orb.transform.position, this.transform.position) > spawnNewOrbDistance) {
+            if (!orb || (orb.transform.parent != orbParent && Vector3.Distance(orb.transform.position, this.transform.position) > spawnNewOrbDistance)) {
                 if (scheduleRespawn) {
                     float timeUntilNewOrb = (1f + 1f / numLights - state.growthProgress) * growthTime / numLights;
                     StartCoroutine(ScheduleSpawnLights(1, timeUntilNewOrb));

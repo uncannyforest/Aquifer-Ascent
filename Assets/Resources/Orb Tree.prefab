@@ -71,8 +71,8 @@ MonoBehaviour:
   unspawnedSeedOrb: {fileID: 2708242860527730315, guid: c97a73800ffb440ffbdaa885138d0cd7,
     type: 3}
   orbParentName: Free Orbs
-  numLights: 4
-  seedOrbEvery: 4
+  numLights: 3
+  seedOrbEvery: 3
   spawnNewOrbDistance: 4
   growthTime: 375
   fractalLevel: 4
@@ -157,6 +157,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -181,3 +182,4 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
