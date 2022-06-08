@@ -8,8 +8,9 @@ OcclusionCullingSettings:
     smallestOccluder: 5
     smallestHole: 0.05
     backfaceThreshold: 100
-  m_SceneGUID: 00000000000000000000000000000000
-  m_OcclusionCullingData: {fileID: 0}
+  m_SceneGUID: a388ff524a82b433b8b498bfa3834b50
+  m_OcclusionCullingData: {fileID: 36300000, guid: 9921d2fdd4987437c813433e92bd3753,
+    type: 2}
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
@@ -318,7 +319,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb8198343a60e4c1e96ffcf3e064e32a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startScene: CavePieceDemo
+  startScene: Initial
 --- !u!114 &865100772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -685,7 +686,7 @@ PrefabInstance:
     - target: {fileID: 7757260547587279943, guid: 05330d818251943688824d690aeb9c68,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 05330d818251943688824d690aeb9c68, type: 3}
@@ -722,7 +723,7 @@ PrefabInstance:
     - target: {fileID: 8549625763485487281, guid: fb5a68e4cbeb0488fbca24519737b1d3,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8549625763485487282, guid: fb5a68e4cbeb0488fbca24519737b1d3,
         type: 3}
