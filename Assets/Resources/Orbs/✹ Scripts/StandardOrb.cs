@@ -12,6 +12,7 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
     [Serializable] public class StateFields {
         public bool isActive = true;
         public float currentChargeLevel = 1.0f;
+        public bool isHoldable = true;
     }
     public bool mayNeedUpdating = true;
     public GameObject spawnLocation;
@@ -35,7 +36,10 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
     private ParticleSystem childParticleSystem;
     
     private bool isDead = false;
-    private bool isHoldable = true;
+    private bool isHoldable {
+        get => state.isHoldable;
+        set => state.isHoldable = value;
+    }
 
     public bool IsActive {
         set {
@@ -72,7 +76,7 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
         UpdateOrbState();
         SetOrbColor(GetColorFromCharge());
         if (!state.isActive) {
-            isHoldable = state.isActive;
+            isHoldable = false;
             halo.tag = "Untagged";
         }
         Debug.Log(gameObject.name + " is " + (isHoldable ? "" : "not ") + "holdable");

@@ -549,7 +549,7 @@ MonoBehaviour:
   defaultTransitionDuration: 5
   orthoCam: {fileID: 8549625765113180533}
   perspectiveCam: {fileID: 2051596838}
-  defaultCamera: {fileID: 8549625765113180533}
+  defaultIsOrtho: 1
   onSwitchCamera:
     m_PersistentCalls:
       m_Calls:

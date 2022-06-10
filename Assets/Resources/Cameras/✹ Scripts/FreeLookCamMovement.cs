@@ -42,15 +42,10 @@ public class FreeLookCamMovement : MonoBehaviour
     private ProtectCameraFromWallClip m_ClipScript;
     private MixedAutoCam m_AutoScript;
 
-    protected Transform m_Cam; // the transform of the camera
-    protected Transform m_Pivot; // the point at which the camera pivots around
+    public Transform m_Pivot; // the point at which the camera pivots around
 
     protected void Awake()
     {
-        // find the camera in the object hierarchy
-        m_Cam = GetComponentInChildren<Camera>().transform;
-        m_Pivot = m_Cam.parent;
-
         m_TiltDistanceFrame = m_DefaultTiltDistanceFrame;
         m_PivotEulers = m_Pivot.localRotation.eulerAngles;
 

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fee52b9eecc4e4a5c85b51e83298fb9b, type: 3}
+  m_Name: Scarf Materials
+  m_EditorClassIdentifier: 
+  materials:
+  - {fileID: 2100000, guid: 22995b556bae247c6b91ffaaf9252496, type: 2}
+  - {fileID: 2100000, guid: eb3b9fcdf0aa5446bab869f246e18440, type: 2}
+  - {fileID: 2100000, guid: 4f4d7760bed1846f5bf4bf529294748c, type: 2}
+  - {fileID: 2100000, guid: 3af5e983607df4c6e90b4807607041a3, type: 2}
+  - {fileID: 2100000, guid: fd9482f666c264350b189002763fd164, type: 2}
