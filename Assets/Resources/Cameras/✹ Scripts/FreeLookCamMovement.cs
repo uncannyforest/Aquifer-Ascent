@@ -31,6 +31,7 @@ public class FreeLookCamMovement : MonoBehaviour
             new Keyframe(2f, 2), 
             new Keyframe(3, 3.5f), 
             new Keyframe(5, 3.5f));
+    [SerializeField] private float m_DistanceCurveConstantFactor = .5f; // rather than changing the whole curve . . .
     [SerializeField] private float m_DefaultTiltDistanceFrame = 2f;
     [Range(0f, 1f)] [SerializeField] private float m_ResetVTurnSpeed = .15f;
     
@@ -125,7 +126,7 @@ public class FreeLookCamMovement : MonoBehaviour
         Quaternion m_PivotTargetRot = Quaternion.Euler(
             m_TiltCurve.Evaluate(m_TiltDistanceFrame), m_PivotEulers.y , m_PivotEulers.z);
         // Tilt input around X is applied to the pivot (the child of this object)
-        float m_TargetDistance = m_DistanceCurve.Evaluate(m_TiltDistanceFrame);
+        float m_TargetDistance = m_DistanceCurve.Evaluate(m_TiltDistanceFrame) * m_DistanceCurveConstantFactor;
 
         if (m_TurnSmoothing > 0)
         {
