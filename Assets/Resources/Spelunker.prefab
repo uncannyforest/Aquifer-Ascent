@@ -68,7 +68,7 @@ MonoBehaviour:
   m_MoveSpeedMultiplier: 1.1
   m_AnimSpeedMultiplier: 1.3
   m_GroundCheckDistance: 0.125
-  m_GroundCheckRadius: 0.05
+  m_GroundCheckRadius: 0.2
   m_ProhibitMotionWhen:
   - {fileID: 6800054507372943635}
 --- !u!114 &1278065832207973124

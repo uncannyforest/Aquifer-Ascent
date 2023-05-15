@@ -52,6 +52,7 @@ public class Holdable : MonoBehaviour
         myColliderBounds = physicsCollider.bounds;
         myRigidbody = GetComponent<Rigidbody>();
         objectAudio = GetComponent<AudioSource>();
+        parentWhenFree = this.transform.parent;
     }
 
     void OnEnable() {

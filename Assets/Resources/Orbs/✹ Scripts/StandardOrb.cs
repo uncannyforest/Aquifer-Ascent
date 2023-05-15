@@ -21,6 +21,7 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
     public float spawnTime = 1f;
     public float haloIntensity = 1.5f;
     public float spawnState = 0.0f;
+    public bool pleaseNeverHoldMe = false;
     public float heldIntensity = 0.4f;
     public ColorTransition[] colorTransitions = {
         new ColorTransition(1.0f, new Color(1.0f, 1.0f, 1.0f)),
@@ -47,7 +48,8 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
             if (wanderAI != null) {
                 wanderAI.CanMove = value;
             }
-            IsHoldable = value; // assumes a previously inactive orb was not meant to stay unholdable
+            if (!pleaseNeverHoldMe)
+                IsHoldable = value; // assumes a previously inactive orb was not meant to stay unholdable
         }
         get => state.isActive;
     }
@@ -157,18 +159,18 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
             if (gameObject.GetComponent<Holdable>().IsHeld) {
                 if (state.currentChargeLevel > 0f) {
                     state.currentChargeLevel -= Time.deltaTime / unchargeTime;
-                    if (state.currentChargeLevel < 0f) {
-                        state.currentChargeLevel = 0f;
-                        Kill();
-                    }
                 }
             } else {
-                if (state.currentChargeLevel < 1f) {
+                if (state.currentChargeLevel < 1f || chargeTime < 0) {
                     state.currentChargeLevel += Time.deltaTime / chargeTime;
                     if (state.currentChargeLevel > 1f) {
                         state.currentChargeLevel = 1f;
                     }
                 }
+            }
+            if (state.currentChargeLevel < 0f) {
+                state.currentChargeLevel = 0f;
+                Kill();
             }
             SetOrbColor(GetColorFromCharge());
         }
