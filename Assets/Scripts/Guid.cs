@@ -13,6 +13,7 @@ public class Guid : MonoBehaviour {
 
     void Awake() {
         manager = GameObject.FindObjectOfType<GuidManager>();
+        if (manager == null) return;
 
         if (manager != null && (id == null || id == "" || manager.IsRegisteredAlready(this))) {
             if (Application.isPlaying) {
@@ -28,6 +29,6 @@ public class Guid : MonoBehaviour {
     }
 
     void OnDestroy() {
-        manager.Unregister(this);
+        if (manager != null) manager.Unregister(this);
     }
 }

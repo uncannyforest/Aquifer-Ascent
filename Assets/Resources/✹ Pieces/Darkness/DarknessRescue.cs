@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityStandardAssets.Characters.ThirdPerson;
 
-[RequireComponent(typeof(ThirdPersonCharacter))]
 [RequireComponent(typeof(ApproachingDarkness))]
 public class DarknessRescue : MonoBehaviour {
+    public ThirdPersonCharacter character;
+    public InDarkness darknessCheck;
     public float stuckDelayFixTime = 3f;
     public float unstuckForce = 1f;
 
@@ -13,10 +14,8 @@ public class DarknessRescue : MonoBehaviour {
 
     private float struggleTime;
 
-    private InDarkness successCheck;
     private Transform darknessStruggleChecks;
     private Rigidbody myRigidbody;
-    private ThirdPersonCharacter characterScript;
     private ApproachingDarkness approachingDarkness;
 
     private Vector3 rescueDirection = Vector3.zero;
@@ -42,15 +41,13 @@ public class DarknessRescue : MonoBehaviour {
 
     void Start() {
         darknessStruggleChecks = transform.Find("DarknessStruggle");
-        successCheck = transform.Find("DarknessCheck").GetComponent<InDarkness>();
-        myRigidbody = GetComponent<Rigidbody>();
-        characterScript = GetComponent<ThirdPersonCharacter>();
+        myRigidbody = character.GetComponent<Rigidbody>();
         approachingDarkness = GetComponent<ApproachingDarkness>();
     }
 
     void FixedUpdate() {
         if (rescueDirection != Vector3.zero) {
-            Vector3 move = Vector3.ProjectOnPlane(rescueDirection, characterScript.groundNormal);
+            Vector3 move = Vector3.ProjectOnPlane(rescueDirection, character.groundNormal);
             myRigidbody.AddForce(move);
         }
     }
@@ -81,28 +78,28 @@ public class DarknessRescue : MonoBehaviour {
                     unstuckForce * lightDirection.x,
                     0,
                     unstuckForce * lightDirection.z);
-                InvokeRepeating("CheckSuccess", 0f, successCheck.checkInterval);
+                InvokeRepeating("CheckSuccess", 0f, darknessCheck.checkInterval);
                 SetStuckStatus(false); // force reset in case this needs to be repeated
             }
         }
     }
 
     private void CheckSuccess() {
-        if (!successCheck.IsInDarkness) {
+        if (!darknessCheck.IsInDarkness) {
             CancelInvoke();
             rescueDirection = Vector3.zero;
             SetStuckStatus(false);
         } else {
-            Vector3 move = Vector3.ProjectOnPlane(rescueDirection, characterScript.groundNormal);
+            Vector3 move = Vector3.ProjectOnPlane(rescueDirection, character.groundNormal);
         }
     }
 
     void OnDrawGizmosSelected() {
-        if (characterScript == null) {
+        if (character == null) {
             return;
         }
 
-        Vector3 move = Vector3.ProjectOnPlane(rescueDirection, characterScript.groundNormal) / unstuckForce;
+        Vector3 move = Vector3.ProjectOnPlane(rescueDirection, character.groundNormal) / unstuckForce;
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + move);
     }

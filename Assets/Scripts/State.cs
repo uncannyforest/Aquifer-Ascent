@@ -20,6 +20,7 @@ public class State : MonoBehaviour {
 
     void Awake() {
         manager = GameObject.FindObjectOfType<GameLoader>();
+        if (manager == null) return;
 
         if (destroyOnSceneReload && manager.SceneIsSavedToPersistentState(gameObject.scene.name)) {
             GameObject.Destroy(this.gameObject);
@@ -45,7 +46,7 @@ public class State : MonoBehaviour {
     }
     
     void OnDestroy() {
-        manager.Unregister(this);
+        if (manager != null) manager.Unregister(this);
     }
 
     public Data SaveObject() {
