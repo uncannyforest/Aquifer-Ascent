@@ -10,7 +10,10 @@ public class EnvironmentInteractor {
     private HashSet<GameObject> nearObjects = new HashSet<GameObject>();
 
     public HashSet<GameObject> NearObjects {
-        get => nearObjects;
+        get {
+            nearObjects.RemoveWhere(go => go == null);
+            return nearObjects;
+        }
     }
 
     public EnvironmentInteractor(HoldObject script, Transform playerHoldTransform) {
@@ -38,11 +41,11 @@ public class EnvironmentInteractor {
     }
 
     public void HoldClosestObject() {
-        if (nearObjects.Count == 0) {
+        if (NearObjects.Count == 0) {
             return;
         }
 
-        GameObject closestObject = nearObjects.OrderBy(
+        GameObject closestObject = NearObjects.OrderBy(
                 o => Vector3.Distance(o.transform.position, script.transform.position)
             ).First();
 
