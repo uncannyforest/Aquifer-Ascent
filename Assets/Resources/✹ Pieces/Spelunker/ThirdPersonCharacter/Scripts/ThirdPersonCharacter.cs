@@ -7,8 +7,6 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 	[RequireComponent(typeof(Rigidbody))]
 	[RequireComponent(typeof(CapsuleCollider))]
 	[RequireComponent(typeof(Animator))]
-	[RequireComponent(typeof(DarknessRescue))]
-	[RequireComponent(typeof(DarknessNavigate))]
 	public class ThirdPersonCharacter : MonoBehaviour
 	{
 		[SerializeField] PhysicMaterial m_StationaryMaterial;
@@ -26,7 +24,6 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] float m_GroundCheckRadius = 0.05f;    // slopes walkable up to approx. 45 deg
 		[SerializeField] List<BooleanScript> m_ProhibitMotionWhen;
 
-		[NonSerialized] public bool isStuck = false;
 		[NonSerialized] public Vector3 groundNormal;
 
 		int m_CollidingLayerMask;
@@ -38,24 +35,12 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		float m_TurnAmount;
 		float m_ForwardAmount;
 		CapsuleCollider m_Capsule;
-		InDarkness m_DarknessCheckHead;
-		InDarkness m_DarknessCheckFeet;
-		DarknessRescue m_DarknessRescue;
-		DarknessNavigate m_DarknessNavigate;
-
-		public bool IsApproachingDarkness {
-			get => m_DarknessCheckHead.IsInDarkness && m_DarknessCheckFeet.IsInDarkness;
-		}
 
 		void Start()
 		{
 			m_Animator = GetComponent<Animator>();
 			m_Rigidbody = GetComponent<Rigidbody>();
 			m_Capsule = GetComponent<CapsuleCollider>();
-			m_DarknessCheckHead = transform.Find("DarknessCheckHead").GetComponent<InDarkness>();
-			m_DarknessCheckFeet = transform.Find("DarknessCheckFeet").GetComponent<InDarkness>();
-			m_DarknessRescue = GetComponent<DarknessRescue>();
-			m_DarknessNavigate = GetComponent<DarknessNavigate>();
 
 			m_CollidingLayerMask = GetCollidingLayerMask();
 
@@ -136,7 +121,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			Vector3 extraGravityForce = (Physics.gravity * m_GravityMultiplier);
 			m_Rigidbody.AddForce(extraGravityForce);
 
-			if (IsApproachingDarkness) {
+			if (MovementIsProhibited) {
 				m_Rigidbody.velocity = new Vector3(0, m_Rigidbody.velocity.y, 0);
 			}
 
@@ -183,32 +168,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			// this allows us to modify the positional speed before it's applied.
 			if (m_IsGrounded && Time.deltaTime > 0)
 			{
-				float actualMoveSpeedMultiplier;
-				
-				bool prohibitMotion = false;
-				foreach (BooleanScript script in m_ProhibitMotionWhen) {
-					if (script.isActiveAndEnabled && script.IsActive) {
-						prohibitMotion = true;
-						break;
-					}
-				}
-
-				if (prohibitMotion) {
-					actualMoveSpeedMultiplier = 0;
-				} else if (!m_DarknessNavigate.IsInEffect && IsApproachingDarkness) {
-					actualMoveSpeedMultiplier = 0;
-					if (!isStuck) {
-						isStuck = true;
-						m_DarknessRescue.IsStuck = true;
-					}
-				} else {
-					actualMoveSpeedMultiplier = m_MoveSpeedMultiplier;
-					if (isStuck) {
-						isStuck = false;
-						m_DarknessRescue.IsStuck = false;
-					}
-				}
-				Vector3 v = (m_Animator.deltaPosition * actualMoveSpeedMultiplier) / Time.deltaTime;
+				Vector3 v = MovementIsProhibited ? Vector3.zero : (m_Animator.deltaPosition * m_MoveSpeedMultiplier) / Time.deltaTime;
 
 				// we preserve the existing y part of the current velocity.
 				v.y = m_Rigidbody.velocity.y;
@@ -261,6 +221,15 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				}
 			}
 			return layerMask;
+		}
+
+		private bool MovementIsProhibited {
+			get {
+				foreach (BooleanScript script in m_ProhibitMotionWhen)
+					if (script.isActiveAndEnabled && script.IsActive)
+						return true;
+				return false;
+			}
 		}
 	}
 }

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using UnityEngine;
 
@@ -10,6 +9,8 @@ public class HoldObject : MonoBehaviour
     public Transition isTransitioning = Transition.None;
 
     public enum Transition { None, Holding, Dropping };
+
+    public Action<GameObject> Hold;
 
     private Transform playerHoldTransform;
 
@@ -59,6 +60,7 @@ public class HoldObject : MonoBehaviour
     public void OnHoldObject(GameObject heldObject) {
         holdAnimationControl.heldObjectWidth = heldObject.GetComponent<Holdable>().GetColliderWidth();
         inputDisplay.UpdateForHeldObject(heldObject);
+        if (Hold != null) Hold(heldObject);
     }
 
     /// <summary> Called by Holdable script since sometimes child initiates SetDown </summary>

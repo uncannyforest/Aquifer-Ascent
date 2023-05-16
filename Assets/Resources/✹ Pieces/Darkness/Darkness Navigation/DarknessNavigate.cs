@@ -1,12 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityStandardAssets.Characters.ThirdPerson;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 
 public class DarknessNavigate : MonoBehaviour {
 	public GameObject exitPathStep;
-	public GameObject parent;
 	public float pathSpacing = 2f;
 	public int numRecentLightsTracked = 3;
 	public float successUpdateFrequency = .2f;
@@ -20,7 +18,7 @@ public class DarknessNavigate : MonoBehaviour {
 	private float transition = 0;
 	private LinkedList<GameObject> recentLights = new LinkedList<GameObject>();
 	private LinkedList<string> recentSceneTransitions = new LinkedList<string>();
-	private ThirdPersonCharacter characterScript;
+	private ApproachingDarkness darknessCheck;
 	private GameObject colliderCheck;
 	private List<GameObject> pathLights = new List<GameObject>();
 
@@ -29,10 +27,12 @@ public class DarknessNavigate : MonoBehaviour {
 	}
 
     void Start() {
-		characterScript = GetComponent<ThirdPersonCharacter>();
-		colliderCheck = transform.Find("ColliderCheck").gameObject;
+		darknessCheck = FindObjectOfType<ApproachingDarkness>();
+		colliderCheck = darknessCheck.transform.Find("ColliderCheck").gameObject;
 		SceneManager.activeSceneChanged += OnActiveSceneChanged;
 		SceneManager.sceneLoaded += OnSceneLoaded;
+		FindObjectOfType<DarknessRescue>().TimeElapsedStuck += SetUp;
+		FindObjectOfType<HoldObject>().Hold += NotifyRecentLight;
     }
 
 	void Update() {
@@ -57,7 +57,7 @@ public class DarknessNavigate : MonoBehaviour {
 	void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
 		if (IsInEffect) {
 			Debug.Log("Continuing path");
-			foreach (Transform child in parent.transform) {
+			foreach (Transform child in transform) {
 				GameObject.Destroy(child.gameObject);
 			}
 			pathLights = new List<GameObject>();
@@ -79,6 +79,7 @@ public class DarknessNavigate : MonoBehaviour {
 	}
 
 	public void NotifyRecentLight(GameObject light) {
+		if (light.GetComponent<StandardOrb>() == null) return; // since this gets called on anything held
 		if (recentLights.Count > 0 && light == recentLights.Last.Value) {
 			return;
 		}
@@ -94,7 +95,7 @@ public class DarknessNavigate : MonoBehaviour {
         InvokeRepeating("CheckDarkness", successUpdateFrequency, successUpdateFrequency);
 
 		colliderCheck.SetActive(true);
-		colliderCheck.GetComponent<StayWithinCollider>().stayWithin = parent;
+		colliderCheck.GetComponent<StayWithinCollider>().stayWithin = gameObject;
 
 		ProducePath();
 	}
@@ -144,17 +145,17 @@ public class DarknessNavigate : MonoBehaviour {
 		Vector3 endPosition = FindRecentLight();
 
 		NavMeshPath path = new NavMeshPath();
-        NavMesh.CalculatePath(this.transform.position, endPosition, NavMesh.AllAreas, path);
+        NavMesh.CalculatePath(darknessCheck.transform.position, endPosition, NavMesh.AllAreas, path);
 		Debug.Log("Path corners:" + path.corners.Length);
 		if (path.corners.Length == 0) {
 			Debug.LogError("No path!? Is navigation mesh baked?");
 		}
 
-		Vector3 currentPosition = this.transform.position;
+		Vector3 currentPosition = darknessCheck.transform.position;
 		int nextCorner = 1;
 		int safeCrash = 100;
 		while(safeCrash > 0) {
-            GameObject pathStep = GameObject.Instantiate(exitPathStep, parent.transform);
+            GameObject pathStep = GameObject.Instantiate(exitPathStep, darknessCheck.transform);
 			pathStep.transform.position = currentPosition;
 
 			pathLights.Add(pathStep.transform.GetChild(0).gameObject);
@@ -196,7 +197,7 @@ public class DarknessNavigate : MonoBehaviour {
 	}
 
 	private void CheckDarkness() {
-		if (!characterScript.IsApproachingDarkness) {
+		if (!darknessCheck.IsActive) {
 			TearDown();
 		}
 	}
@@ -208,7 +209,7 @@ public class DarknessNavigate : MonoBehaviour {
 
 		colliderCheck.SetActive(false);
 
-		foreach (Transform child in parent.transform) {
+		foreach (Transform child in transform) {
 			GameObject.Destroy(child.gameObject);
 		}
 		pathLights = new List<GameObject>();

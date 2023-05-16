@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StayWithinCollider : BooleanScript
-{
+public class StayWithinCollider : BooleanScript {
     public GameObject stayWithin;
 
     /// if outside collider

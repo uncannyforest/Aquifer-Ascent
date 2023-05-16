@@ -33,7 +33,6 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
     private Light myLight;
     private Light halo;
     private FloatWanderAI wanderAI;
-    private DarknessNavigate playerLightTracking;
     private ParticleSystem childParticleSystem;
     
     private bool isDead = false;
@@ -83,7 +82,6 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
         }
         Debug.Log(gameObject.name + " is " + (isHoldable ? "" : "not ") + "holdable");
         IsActive = state.isActive;
-        playerLightTracking = GameObject.FindGameObjectWithTag("Player").GetComponent<DarknessNavigate>();
         childParticleSystem = gameObject.transform.GetComponentInChildren<ParticleSystem>();
         childParticleSystem.enableEmission = false;
     }
@@ -96,9 +94,6 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
     // Responds to message sent by PickMeUp
     void UpdateHeldState(float heldState) {
         SetOrbIntensity(1 - (1 - heldIntensity) * heldState);
-        if (heldState > 0) {
-            playerLightTracking.NotifyRecentLight(gameObject);
-        }
         if (heldState == 1) {
             childParticleSystem.enableEmission = true;
         } else if (childParticleSystem.isPlaying && childParticleSystem.enableEmission) {

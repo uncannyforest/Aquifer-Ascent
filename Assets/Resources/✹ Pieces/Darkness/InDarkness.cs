@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(TriggerExit))]
-public class InDarkness : BooleanScript
-{
+public class InDarkness : BooleanScript {
     public LayerMask lightLayerMask;
     public LayerMask wallLayerMask;
     public float checkInterval = 0.2f;
@@ -21,8 +20,7 @@ public class InDarkness : BooleanScript
     private bool inDarkness = true;
 
     // Start is called before the first frame update
-    void Start()
-    {
+    void Start() {
         if (checkInterval != 0) {
             InvokeRepeating("CheckDarkness", 0.0f, checkInterval);
         }
