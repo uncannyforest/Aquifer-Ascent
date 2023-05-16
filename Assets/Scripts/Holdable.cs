@@ -28,9 +28,9 @@ public class Holdable : MonoBehaviour
         get => this.transform.parent == playerHoldTransform;
         private set {
             if (value) {
-                this.transform.SetParent(playerHoldTransform);
+                this.transform.parent = playerHoldTransform;
             } else {
-                this.transform.SetParent(parentWhenFree.transform);
+                this.transform.parent = parentWhenFree;
             }
         }
     }
@@ -38,7 +38,7 @@ public class Holdable : MonoBehaviour
     public bool IsFree {
         get {
             if (parentWhenFree == null) {
-                Debug.Log(gameObject.name + " missing parentWhenFree for now");
+                // Debug.Log(gameObject.name + " missing parentWhenFree for now");
             }
 
             return this.transform.parent == parentWhenFree;

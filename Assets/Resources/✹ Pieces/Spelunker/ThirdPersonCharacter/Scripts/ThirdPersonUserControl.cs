@@ -14,13 +14,10 @@ namespace UnityStandardAssets.Characters.ThirdPerson
         private Vector3 m_Move;
         private bool m_Jump;                      // the world-relative desired move direction, calculated from the camForward and user input.
 
-        
+        public Func<ThirdPersonUserControl, Vector3, bool, Vector3> moveOverride;
+
         public Camera Camera {
             set {m_Cam = value.transform;}
-        }
-
-        static public void WhoaHey() {
-
         }
 
         private void Start()
@@ -74,6 +71,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			// walk speed multiplier
 	        if (Input.GetKey(KeyCode.LeftShift)) m_Move *= 0.5f;
 #endif
+
+            if (moveOverride != null) m_Move = moveOverride(this, m_Move, m_Jump);
 
             // pass all parameters to the character control script
             m_Character.Move(m_Move, m_Jump);

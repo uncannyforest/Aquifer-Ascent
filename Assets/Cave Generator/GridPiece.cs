@@ -80,7 +80,7 @@ public class GridPiece : MonoBehaviour {
     public Transform Create(GameObject prefab, int yRot, bool xFlip, bool yFlip) {
         Transform newPiece = GameObject.Instantiate(prefab, transform).transform;
         newPiece.localRotation = Quaternion.Euler(0, yRot, 0);
-        newPiece.localScale = new Vector3(xFlip ? -1 : 1, yFlip ? -1 : 1, 1);
+        newPiece.localScale = Vector3.Scale(new Vector3(xFlip ? -1 : 1, yFlip ? -1 : 1, 1), CaveGrid.I.scale);
         newPiece.GetComponent<MeshRenderer>().material = CaveGrid.I.defaultMaterial;
         return newPiece;
     }

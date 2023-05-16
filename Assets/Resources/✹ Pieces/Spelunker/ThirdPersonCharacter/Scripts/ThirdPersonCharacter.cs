@@ -17,7 +17,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] float m_StationaryTurnSpeed = 180;
 		[SerializeField] float m_JumpPower = 12f;
 		[SerializeField] float m_ForwardJumpPower = 2.5f;
-		[Range(1f, 4f)][SerializeField] float m_GravityMultiplier = 2f;
+		[Range(0f, 4f)][SerializeField] public float m_GroundGravity = 1f;
+		[Range(0f, 4f)][SerializeField] public float m_GravityMultiplier = 2f;
 		[SerializeField] float m_RunCycleLegOffset = 0.2f; //specific to the character in sample assets, will need to be modified to work with others
 		[SerializeField] float m_MoveSpeedMultiplier = 1f;
 		[SerializeField] float m_AnimSpeedMultiplier = 1f;
@@ -86,6 +87,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			// control and velocity handling is different when grounded and airborne:
 			if (m_IsGrounded) {
 				HandleGroundedMovement(forwardPush, jump);
+				m_Rigidbody.AddForce(Physics.gravity * m_GroundGravity);
 			} else {
 				HandleAirborneMovement();
 			}
@@ -131,7 +133,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		void HandleAirborneMovement()
 		{
 			// apply extra gravity from multiplier:
-			Vector3 extraGravityForce = (Physics.gravity * m_GravityMultiplier) - Physics.gravity;
+			Vector3 extraGravityForce = (Physics.gravity * m_GravityMultiplier);
 			m_Rigidbody.AddForce(extraGravityForce);
 
 			if (IsApproachingDarkness) {

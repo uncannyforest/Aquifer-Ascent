@@ -32,7 +32,7 @@ public class RandomWalk : MonoBehaviour {
             GridPos random = GridPos.Random;
             position += random;
             modRate += slowDown;
-            Debug.Log("Random step: " + random + "; new position: " + position + " at " + position.World);
+            // Debug.Log("Random step: " + random + "; new position: " + position + " at " + position.World);
         }
     }
 

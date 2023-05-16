@@ -193,17 +193,17 @@ PrefabInstance:
     - target: {fileID: 317994074565316839, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 317994074565316839, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 317994074565316839, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 317994074565316839, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
@@ -237,6 +237,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1486949851}
   - component: {fileID: 1486949849}
+  - component: {fileID: 1486949850}
   m_Layer: 0
   m_Name: Cave Rooms
   m_TagString: Untagged
@@ -257,6 +258,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: -4586612404793037062, guid: 423052d69178d4cd9a96667d215afb7b, type: 3}
+  scale: {x: 2, y: 0.6666667, z: 2}
   floor: {fileID: 919132149155446097, guid: 9b7632a22c7284731bdf5a4d79b5d30d, type: 3}
   revcorner: {fileID: 919132149155446097, guid: d040a95805e254440b5ccdcc295e2f4e,
     type: 3}
@@ -282,6 +284,21 @@ MonoBehaviour:
   cornerTightstair: {fileID: 919132149155446097, guid: 8280f8c214dda4bbf8547f15336c214e,
     type: 3}
   defaultMaterial: {fileID: 2100000, guid: b7a1855b9cd564af997c04100953e04d, type: 2}
+--- !u!114 &1486949850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486949848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76829bf0dfc194f738a565f112e3335a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deadTree: {fileID: 4152080433919208487, guid: 7d900be1d89ca43a1978b3b9d7f4bd2f,
+    type: 3}
+  deadTreeRate: 1
 --- !u!4 &1486949851
 Transform:
   m_ObjectHideFlags: 0

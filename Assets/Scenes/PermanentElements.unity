@@ -256,6 +256,11 @@ PrefabInstance:
       propertyPath: stayWithin
       value: 
       objectReference: {fileID: 865100769}
+    - target: {fileID: 6857189608229291353, guid: 9384a6060a5004d039eaf7234afbe18a,
+        type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8659314016061392267, guid: 9384a6060a5004d039eaf7234afbe18a,
         type: 3}
       propertyPath: m_Name
