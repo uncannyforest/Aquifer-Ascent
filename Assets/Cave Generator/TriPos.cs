@@ -29,7 +29,22 @@ public struct TriPos {
         };
     }
 
+    public static Vector3[][] AllCornersRelative = new Vector3[][] {
+        new Vector3[] {
+            new Vector3(-1f, 0, -SQRT3),
+            new Vector3(2f, 0, 0),
+            new Vector3(-1f, 0, SQRT3),
+        },
+        new Vector3[] {
+            new Vector3(1f, 0, SQRT3),
+            new Vector3(-2f, 0, 0),
+            new Vector3(1f, 0, -SQRT3),
+        },
+    };
+
+    public Vector3[] CornersRelative { get => AllCornersRelative[right ? 0 : 1]; }
+
     public Vector3 World {
-        get => hexPos.World + new Vector3(right ? 1f : -1f, 0, SQRT3/2);
+        get => hexPos.World - CornersRelative[right ? 0 : 2];
     }
 }
