@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,6 +23,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] float m_AnimSpeedMultiplier = 1f;
 		[SerializeField] float m_GroundCheckDistance = 0.125f; // This distance and radius make 
 		[SerializeField] float m_GroundCheckRadius = 0.05f;    // slopes walkable up to approx. 45 deg
+		[SerializeField] float m_JumpMinNotGroundedTime = 0.1f;
 		[SerializeField] List<BooleanScript> m_ProhibitMotionWhen;
 
 		[NonSerialized] public Vector3 groundNormal;
@@ -30,6 +32,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		Rigidbody m_Rigidbody;
 		Animator m_Animator;
 		bool m_IsGrounded;
+		float m_NextGroundCheckAfterJump = 0;
 		float m_ActualGroundCheckDistance;
 		const float k_Half = 0.5f;
 		float m_TurnAmount;
@@ -56,7 +59,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			// direction.
 			if (move.magnitude > 1f) move.Normalize();
 			move = transform.InverseTransformDirection(move);
-			CheckGroundStatus();
+			if (Time.time > m_NextGroundCheckAfterJump) CheckGroundStatus();
 			move = Vector3.ProjectOnPlane(move, groundNormal);
 			m_TurnAmount = Mathf.Atan2(move.x, move.z);
 			m_ForwardAmount = move.z;
@@ -143,12 +146,13 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 					oldVelocity.magnitude : oldVelocity.magnitude / 2 + jumpPush.magnitude;
 				Vector3 newDirection = oldVelocity + jumpPush;
 				newVelocity = newDirection.normalized * newSpeed;
-				Debug.Log("Original velocity:" + oldVelocity.magnitude);
-				Debug.Log("Forward push:" + jumpPush.magnitude);
-				Debug.Log("New velocity:" + newVelocity.magnitude);
+				Debug.Log("Original velocity: " + oldVelocity);
+				Debug.Log("Forward push: " + jumpPush);
+				Debug.Log("New velocity: " + newVelocity);
 				
 				m_Rigidbody.velocity = new Vector3(newVelocity.x, m_JumpPower, newVelocity.z);
 				m_IsGrounded = false;
+				m_NextGroundCheckAfterJump = Time.time + m_JumpMinNotGroundedTime;
 				m_Animator.applyRootMotion = false;
 				m_ActualGroundCheckDistance = 0.1f;
 			}

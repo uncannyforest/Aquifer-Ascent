@@ -57,6 +57,7 @@ public class Bridge : MonoBehaviour {
         while (myRigidbody.velocity.magnitude > maxStationarySpeed) {
             yield return new WaitForFixedUpdate();
         }
+        Debug.Log("PLACEMENT: " + myRigidbody.rotation.eulerAngles);
         myRigidbody.isKinematic = true;
         placed = true;
     }

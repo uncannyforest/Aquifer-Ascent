@@ -5,22 +5,25 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/MoreLights.unity
     guid: e6ed6d7fa7e8c48c685f96549eebb6f8
   - enabled: 1
     path: Assets/Scenes/PermanentElements.unity
     guid: a388ff524a82b433b8b498bfa3834b50
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Initial.unity
     guid: 2378e287dc6dd449b89bd4008039702b
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/OrbTreeLevel.unity
     guid: 1eae399af5fdf4f7fae9a51965455669
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/CavePieceDemo.unity
     guid: 46930b471111942529adf34e793edc4e
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Fork.unity
     guid: f59efcb80370a4076a946525254b4bac
+  - enabled: 1
+    path: Assets/Cave Generator/Generated Cave.unity
+    guid: 30eb3128650c44a4d9dd9ba677af6484
   m_configObjects: {}

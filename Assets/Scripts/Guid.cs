@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 
 [ExecuteInEditMode]
 public class Guid : MonoBehaviour {
@@ -21,7 +20,7 @@ public class Guid : MonoBehaviour {
             }
             Debug.LogWarning("New ID for " + gameObject.name + " replacing " + id);
             // The following lines tell Unity to let the developer save the change.
-            Undo.RecordObject(this, "New ID for " + gameObject.name);
+            // Undo.RecordObject(this, "New ID for " + gameObject.name);
             id = System.Guid.NewGuid().ToString();
         }
 

@@ -20,7 +20,7 @@ public class FlexibleInputDisplay {
         }
 
         if (nearObjects.Count > 0) {
-            SetInteractionMessages("beckon", null);
+            SetInteractionMessages("grab", null);
         } else {
             SetInteractionMessages(null, null);
         }
@@ -51,19 +51,21 @@ public class FlexibleInputDisplay {
     }
 
     void SetInteractionMessage(GameObject interactNotice, string message, string desktopKey) {
-        if (!string.IsNullOrEmpty(message)) {
-            interactNotice.SetActive(true);
-            
 #if (UNITY_IOS || UNITY_ANDROID)
+        GameObject interactNoticeParent = interactNotice.transform.parent.gameObject;
+        if (!string.IsNullOrEmpty(message)) {
             message = char.ToUpper(message[0]) + message.Substring(1);
 #else
+        GameObject interactNoticeParent = interactNotice;
+        if (!string.IsNullOrEmpty(message)) {
             message = "press <color=white>" + desktopKey + "</color> to <color=white>"
                 + message + "</color>";
 #endif 
 
+            interactNoticeParent.SetActive(true);
             interactNotice.transform.Find("Text").gameObject.GetComponent<Text>().text = message;
         } else {
-            interactNotice.SetActive(false);
+            interactNoticeParent.SetActive(false);
         }
 
     }
