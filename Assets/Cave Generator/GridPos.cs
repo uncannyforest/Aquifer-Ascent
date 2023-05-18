@@ -39,6 +39,8 @@ public struct GridPos  {
     public override int GetHashCode() => x.GetHashCode() + (y * SQRT3).GetHashCode() + (w * Mathf.Sqrt(2)).GetHashCode();
     public override string ToString() => "(" + w + ", " + x + ", " + y + ")";
 
+    public GridPos Horizontal { get => new GridPos(0, x, y); }
+
     public GridPos Rotate(float angle) {
         int rotations = Mathf.RoundToInt(angle / 60);
         while (rotations < 0) rotations += 600;

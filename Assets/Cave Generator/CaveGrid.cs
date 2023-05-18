@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Biome))]
 [RequireComponent(typeof(Decor))]
 public class CaveGrid : MonoBehaviour {
     private static CaveGrid instance;
@@ -35,6 +36,13 @@ public class CaveGrid : MonoBehaviour {
         get {
             if (I.decor == null) I.decor = I.GetComponent<Decor>();
             return I.decor;
+        }
+    }
+    private Biome biome;
+    public static Biome Biome {
+        get {
+            if (I.biome == null) I.biome = I.GetComponent<Biome>();
+            return I.biome;
         }
     }
 

@@ -166,6 +166,11 @@ PrefabInstance:
       propertyPath: orbParent
       value: 
       objectReference: {fileID: 285286790}
+    - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
+        type: 3}
+      propertyPath: changeBiomeEvery
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 317994074565316839, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
       propertyPath: m_RootOrder
@@ -239,6 +244,7 @@ GameObject:
   - component: {fileID: 1486949851}
   - component: {fileID: 1486949849}
   - component: {fileID: 1486949850}
+  - component: {fileID: 1486949852}
   m_Layer: 0
   m_Name: Cave Rooms
   m_TagString: Untagged
@@ -284,7 +290,7 @@ MonoBehaviour:
     type: 3}
   cornerTightstair: {fileID: 919132149155446097, guid: 8280f8c214dda4bbf8547f15336c214e,
     type: 3}
-  defaultMaterial: {fileID: 2100000, guid: b7a1855b9cd564af997c04100953e04d, type: 2}
+  defaultMaterial: {fileID: 2100000, guid: b03e2ebe6f5dd4a2fb436eb70f8a2147, type: 2}
 --- !u!114 &1486949850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -314,3 +320,35 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1486949852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486949848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92bf58e8c36714b499faed4a4a97470d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floors:
+  - {r: 0, g: 0, b: 0, a: 1}
+  - {r: 0, g: 0.7529412, b: 0.3764706, a: 1}
+  - {r: 1, g: 0.9411765, b: 0.5019608, a: 1}
+  - {r: 0.5019608, g: 0.627451, b: 1, a: 1}
+  - {r: 0.69803923, g: 1, b: 0, a: 1}
+  - {r: 0.2509804, g: 0.3764706, b: 0.1254902, a: 1}
+  - {r: 1, g: 0.2509804, b: 0, a: 1}
+  - {r: 0, g: 0.62352943, b: 0.6156863, a: 1}
+  - {r: 0.54901963, g: 0, b: 0.52156866, a: 1}
+  walls:
+  - {r: 0, g: 0, b: 0, a: 1}
+  - {r: 0.5019608, g: 0.43921572, b: 0.37647063, a: 1}
+  - {r: 1, g: 0.6431373, b: 0, a: 1}
+  - {r: 0.2509804, g: 0.3764706, b: 1, a: 1}
+  - {r: 0.5019608, g: 0.2509804, b: 0, a: 1}
+  - {r: 0.4392157, g: 0.5019608, b: 0.5647059, a: 1}
+  - {r: 0.2509804, g: 0.2509804, b: 0.2509804, a: 1}
+  - {r: 0.5019608, g: 0.5019608, b: 0.2509804, a: 1}
+  - {r: 0.2509804, g: 0.2509804, b: 0.7529412, a: 1}
