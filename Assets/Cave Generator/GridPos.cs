@@ -64,7 +64,7 @@ public struct GridPos  {
         else throw new InvalidOperationException("Not unit hex: " + ToString());
     }
 
-    public Vector3 World { get => new Vector3(x * 3, w * 4/3f, (y * 6 + x * 3) / SQRT3); }
+    public Vector3 World { get => Vector3.Scale(CaveGrid.Scale, new Vector3(x * 3/2f, w * 2f, (y * 3 + x * 3/2f) / SQRT3)); }
 
     public TriPos[] Triangles { get => new TriPos[] {
         new TriPos(this + D, false),

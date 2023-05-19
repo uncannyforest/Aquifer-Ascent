@@ -11,9 +11,10 @@ public class CaveGrid : MonoBehaviour {
     CaveGrid(): base() {
         instance = this;
     }
+    public static Vector3 Scale { get => I.scale; }
 
     public GridPiece prefab;
-    public Vector3 scale = new Vector3(2f, 2/3f, 2f);
+    public Vector3 scale = new Vector3(4/3f, 2/3f, 4/3f);
     public GameObject floor;
     public GameObject revcorner;
     public GameObject corner;

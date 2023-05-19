@@ -14,6 +14,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] PhysicMaterial m_MovingMaterial;
 		[SerializeField] float m_MovingTurnSpeed = 360;
 		[SerializeField] float m_StationaryTurnSpeed = 180;
+		[SerializeField] bool m_TrailMix = false;
 		[SerializeField] float m_JumpPower = 12f;
 		[SerializeField] float m_ForwardJumpPower = 2.5f;
 		[Range(0f, 4f)][SerializeField] public float m_GroundGravity = 1f;
@@ -60,9 +61,12 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			if (move.magnitude > 1f) move.Normalize();
 			move = transform.InverseTransformDirection(move);
 			if (Time.time > m_NextGroundCheckAfterJump) CheckGroundStatus();
+			float moveMag = move.magnitude;
 			move = Vector3.ProjectOnPlane(move, groundNormal);
+			if (m_TrailMix) move = move.normalized * Mathf.Sqrt(moveMag);
 			m_TurnAmount = Mathf.Atan2(move.x, move.z);
 			m_ForwardAmount = move.z;
+			Debug.Log("Forward " + m_ForwardAmount);
 
 			ApplyExtraTurnRotation();
 

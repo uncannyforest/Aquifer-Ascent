@@ -11,11 +11,12 @@ public class Bridge : MonoBehaviour {
     public float dropDisplacement = .5f;
     public float dropTorque = 1f;
     public float maxStationarySpeed = .01f;
+    public float newWidth = .75f;
+    public float newDepth = .125f;
     public float mountYTolerance = .25f;
     public float unmountTopDistance = 0f;
     public float unmountBottomDistance = .1f;
     public bool placed = false;
-    public GameObject walls;
 
     private Rigidbody myRigidbody;
     private BoxCollider myCollider;
@@ -50,67 +51,25 @@ public class Bridge : MonoBehaviour {
         Debug.Log("Placing!");
         myCollider.enabled = true;
         myRigidbody.isKinematic = false;
-        // Vector3 position = player.TransformPoint(new Vector3(0, 0, dropDisplacement));
-        // myRigidbody.MovePosition(position);
         yield return new WaitForFixedUpdate();
         yield return new WaitForFixedUpdate();
         while (myRigidbody.velocity.magnitude > maxStationarySpeed) {
             yield return new WaitForFixedUpdate();
         }
-        Debug.Log("PLACEMENT: " + myRigidbody.rotation.eulerAngles);
         myRigidbody.isKinematic = true;
-        placed = true;
-    }
 
-    void OnCollisionEnter(Collision collision) {
-		if (placed && collision.gameObject.CompareTag("Player")) {
-            GameObject player = collision.gameObject;
-            Vector3 playerInLocalCoords = transform.InverseTransformPoint(player.transform.position);
-            Vector3 contactPoint = transform.TransformPoint(Vector3.up * playerInLocalCoords.y);
-            if (Mathf.Abs(contactPoint.y - player.transform.position.y) < mountYTolerance) {
-                player.GetComponent<Rigidbody>().MovePosition(contactPoint);
-                player.GetComponent<ThirdPersonUserControl>().moveOverride = MoveOverride;
-                //walls.SetActive(true);
-                Vector3 yDir = Vector3.ProjectOnPlane(transform.up, Vector3.up);
-                walls.transform.rotation = Quaternion.LookRotation(yDir, Vector3.up);
-                Debug.Log("Mounting bridge");
-            }
-        }
-    }
-
-    private Vector3 MoveOverride(ThirdPersonUserControl player, Vector3 move, bool jump) {
-        if (jump) {
-            Debug.Log("Unmounting bridge");
-            player.moveOverride = null;
-            walls.SetActive(false);
-            player.GetComponent<ThirdPersonCharacter>().m_GroundGravity = 1;
-            return move;
+        Vector3 eulers = myRigidbody.rotation.eulerAngles;
+        if (eulers.x > 180) eulers.x -= 360;
+        if (eulers.z > 180) eulers.z -= 360;
+        float sizeY = myCollider.size.y;
+        Vector3 newBounds;
+        if (Mathf.Abs(eulers.x) < Mathf.Abs(eulers.z)) {
+            newBounds = new Vector3(newDepth, sizeY, newWidth);
         } else {
-            Vector3 newPlayerInLocalCoords = transform.InverseTransformPoint(player.transform.position + move * Time.deltaTime);
-            Vector3 moveInLocalCoords = transform.InverseTransformVector(move);
-
-            if (newPlayerInLocalCoords.y > height || newPlayerInLocalCoords.y < -unmountBottomDistance) {
-                Debug.Log("Unmounting bridge off the " + (newPlayerInLocalCoords.y > height ? "end" : "beginning"));
-                player.moveOverride = null;
-                walls.SetActive(false);
-                player.GetComponent<ThirdPersonCharacter>().m_GroundGravity = 1;
-                return move;
-            }
-            if (moveInLocalCoords.y > 0) {
-                player.GetComponent<ThirdPersonCharacter>().m_GroundGravity = .1f;
-                Debug.DrawLine(player.transform.position, player.transform.position
-                    + transform.TransformVector(Vector3.up * moveInLocalCoords.magnitude), Color.magenta);
-                Debug.Log("Positive!");
-                return transform.TransformVector(Vector3.up * moveInLocalCoords.magnitude);
-            } else if (moveInLocalCoords.y < 0) {
-                player.GetComponent<ThirdPersonCharacter>().m_GroundGravity = 1;
-                Debug.DrawLine(player.transform.position, player.transform.position
-                    + transform.TransformVector(Vector3.down * moveInLocalCoords.magnitude), Color.magenta);
-                Debug.Log("Negative!");
-                return transform.TransformVector(Vector3.down * moveInLocalCoords.magnitude);
-            } else {
-                return Vector3.zero;
-            }
+            newBounds = new Vector3(newWidth, sizeY, newDepth);
         }
+        myCollider.size = newBounds;
+
+        placed = true;
     }
 }

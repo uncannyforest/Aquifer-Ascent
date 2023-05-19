@@ -35,14 +35,14 @@ public struct TriPos {
 
     public static Vector3[][] AllCornersRelative = new Vector3[][] {
         new Vector3[] {
-            new Vector3(-1f, 0, -SQRT3),
-            new Vector3(2f, 0, 0),
-            new Vector3(-1f, 0, SQRT3),
+            Vector3.Scale(CaveGrid.Scale, new Vector3(-.5f, 0, -SQRT3/2)),
+            Vector3.Scale(CaveGrid.Scale, new Vector3(1f, 0, 0)),
+            Vector3.Scale(CaveGrid.Scale, new Vector3(-.5f, 0, SQRT3/2)),
         },
         new Vector3[] {
-            new Vector3(1f, 0, SQRT3),
-            new Vector3(-2f, 0, 0),
-            new Vector3(1f, 0, -SQRT3),
+            Vector3.Scale(CaveGrid.Scale, new Vector3(.5f, 0, SQRT3/2)),
+            Vector3.Scale(CaveGrid.Scale, new Vector3(-1f, 0, 0)),
+            Vector3.Scale(CaveGrid.Scale, new Vector3(.5f, 0, -SQRT3/2)),
         },
     };
 
