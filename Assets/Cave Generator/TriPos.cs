@@ -10,11 +10,15 @@ public struct TriPos {
     public GridPos hexPos;
     public bool right;
 
+    public int w { get => hexPos.w; }
+
     public TriPos(GridPos hexPos, bool right) {
         this.hexPos = hexPos;
         this.right = right;
     }
 
+    public static TriPos operator +(TriPos a, GridPos b) => new TriPos(a.hexPos + b, a.right);
+    public static TriPos operator -(TriPos a, GridPos b) => new TriPos(a.hexPos - b, a.right);
     override public string ToString() => "(" + hexPos.w + ", " + hexPos.x + ", " + hexPos.y + ")." + (right ? "r" : "l");
 
     public GridPos[] HorizCorners {

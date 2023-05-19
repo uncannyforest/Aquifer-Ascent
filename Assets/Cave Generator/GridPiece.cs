@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GridPiece : MonoBehaviour {
+    public static int ALL_OPEN = 511; // 2 ^ 9 - 1
+
     public TriPos pos;
     public int data;
     

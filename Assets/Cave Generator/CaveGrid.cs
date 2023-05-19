@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(Biome))]
@@ -47,7 +48,7 @@ public class CaveGrid : MonoBehaviour {
     }
 
     private void UpdatePos(GridPos pos) {
-        for (int i = -1; i <= 1; i++) {
+        for (int i = 1; i >= -1; i--) {
             GridPos posToCheck = pos + GridPos.up * i;
             foreach (TriPos tri in posToCheck.Triangles) {
                 GridPos[] horizCorners = tri.HorizCorners;
@@ -62,18 +63,22 @@ public class CaveGrid : MonoBehaviour {
                     grid[horizCorners[1] + GridPos.up],
                     grid[horizCorners[2] + GridPos.up],
                 };
-                Transform childTransform = transform.Find(tri.ToString());
-                GridPiece child;
-                if (childTransform == null) {
+                GridPiece child = this[tri];
+                if (child == null) {
                     child = GameObject.Instantiate(prefab, tri.World,
                         tri.right ? Quaternion.identity : Quaternion.Euler(0, 180, 0), transform);
                     child.pos = tri;
-                } else {
-                    child = childTransform.GetComponent<GridPiece>();
                 }
                 child.Set(data);
                 Decor.UpdatePos(tri, data, child);
             }
+        }
+    }
+
+    public GridPiece this[TriPos tri] {
+        get {
+            Transform childTransform = transform.Find(tri.ToString());
+            return childTransform == null ? null : childTransform.GetComponent<GridPiece>();
         }
     }
 
