@@ -7,9 +7,12 @@ public class GridPiece : MonoBehaviour {
 
     public TriPos pos;
     public int data;
-    
-    void Start() {
-        gameObject.name = pos.ToString();
+
+    public TriPos Pos {
+        set {
+            pos = value;
+            gameObject.name = pos.ToString();
+        }
     }
 
     public void Set(bool[] data) {

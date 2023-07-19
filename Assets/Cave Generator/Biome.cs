@@ -9,13 +9,20 @@ public class Biome : MonoBehaviour {
 
     public Grid<int> grid = new Grid<int>();
 
+    private int lastBiome = 0;
+
     public int Next(GridPos pos, Func<int> biomeSupplier) {
         int value = grid[pos.Horizontal];
         if (value == 0) {
             value = biomeSupplier();
             grid[pos.Horizontal] = value;
         }
+        lastBiome = value;
         return value;
+    }
+
+    public int Next(GridPos pos) {
+        return Next(pos, () => lastBiome);
     }
 
     public int[] Get(TriPos tri) {

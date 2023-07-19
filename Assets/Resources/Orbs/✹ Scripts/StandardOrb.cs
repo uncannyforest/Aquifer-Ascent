@@ -63,7 +63,8 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
                 } else {
                     halo.tag = "Untagged";
                 }
-                TriggerObjectDestroyer.Show(gameObject); // reset so no effect when Halo tag does not matter
+                // Why is this line here?
+                // TriggerObjectDestroyer.Show(gameObject); // reset so no effect when Halo tag does not matter
                 isHoldable = value;
             }
         }

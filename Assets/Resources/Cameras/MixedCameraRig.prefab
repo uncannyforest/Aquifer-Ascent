@@ -88,7 +88,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.02
-  far clip plane: 80
+  far clip plane: 20
   field of view: 50
   orthographic: 0
   orthographic size: 4.5
@@ -351,6 +351,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  m_DistanceCurveConstantFactor: 0.5
   m_DefaultTiltDistanceFrame: 2
   m_ResetVTurnSpeed: 0.15
   m_TiltDistanceFrame: 0

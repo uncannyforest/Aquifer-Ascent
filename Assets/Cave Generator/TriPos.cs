@@ -51,4 +51,22 @@ public struct TriPos {
     public Vector3 World {
         get => hexPos.World - CornersRelative[right ? 0 : 2];
     }
+
+    public TriPos GetAdjacent(GridPos direction) {
+        GridPos h = direction.Horizontal;
+        int v = direction.w;
+        if (this.right) {
+            if (h == GridPos.S || h == GridPos.D)
+                return new TriPos(hexPos + GridPos.D + GridPos.up * v, false);
+            if (h == GridPos.E || h == GridPos.W)
+                return new TriPos(hexPos + GridPos.E + GridPos.up * v, false);
+            return new TriPos(hexPos + GridPos.up * v, false);
+        } else {
+            if (h == GridPos.W || h == GridPos.Q)
+                return new TriPos(hexPos + GridPos.Q + GridPos.up * v, true);
+            if (h == GridPos.A || h == GridPos.S)
+                return new TriPos(hexPos + GridPos.A + GridPos.up * v, true);
+            return new TriPos(hexPos + GridPos.up * v, true);
+        }
+    }
 }

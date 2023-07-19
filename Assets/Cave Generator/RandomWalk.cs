@@ -1,24 +1,35 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class RandomWalk : MonoBehaviour {
-    public GameObject orbPrefab;
+    public StandardOrb orbPrefab;
     public Transform orbParent;
-    public float modRate = 1f;
+    public int interiaOfEtherCurrent = 6;
+    public float modRate = 2/3f;
     public float slowDown = 1/18f;
     public int addOrbEvery = 18;
     public int changeBiomeEvery = 18;
-
+    public float cheatSlowdown = 4;
+    
     private Vector3 prevLoc = Vector3.zero;
     private Vector3 nextLoc = Vector3.zero;
     private float progress = 0;
+    private bool cheat = false;
+    private Image cheatButton = null;
+
+    private InDarkness darkness;
+    private Vector3 etherCurrent;
 
     public void Awake() {
+        darkness = GetComponentInChildren<InDarkness>();
         StartCoroutine(Runner());
+        GameObject cheatButtonGo = GameObject.Find("Cheat");
+        if (cheatButtonGo != null) cheatButton = cheatButtonGo.GetComponent<Image>();
     }
-
+    
     class ModInteger {
         public int value;
         public ModInteger(int value) {
@@ -28,32 +39,60 @@ public class RandomWalk : MonoBehaviour {
     }
 
     public IEnumerator Runner() {
-        GridPos position = GridPos.zero;
-        int count = 0;
+        int count = addOrbEvery;
         int biome = 1;
         ModInteger nextBiomeCount = new ModInteger(changeBiomeEvery);
         
-        while (true) {
-            if (!CaveGrid.I.grid[position]) {
+        foreach (RandomWalkAlgorithm.Output step in RandomWalkAlgorithm.EnumerateSteps(interiaOfEtherCurrent)) {
+            foreach (GridPos position in step.newCave) if (!CaveGrid.I.grid[position]) {
                 biome = CaveGrid.Biome.Next(position, NextBiome(biome, nextBiomeCount));
                 CaveGrid.I.SetPos(position, true);
-                if (count % addOrbEvery == 0) GameObject.Instantiate(orbPrefab, position.World, Quaternion.identity, orbParent);
-                count++;
             }
+            // if (step.newCave.Length > 0 && count++ % addOrbEvery == 0) {
+            if (darkness.IsInDarkness) count++;
+            else count = 0;
+            if (count >= addOrbEvery) {
+                StandardOrb orb = GameObject.Instantiate(orbPrefab, step.location, Quaternion.identity, orbParent);
+                if (cheat) orb.chargeTime *= cheatSlowdown;
+                orb.pleaseNeverHoldMe = false;
+                orb.IsHoldable = true;
+            }
+            foreach (GridPos interesting in step.interesting) {
+                StandardOrb orb = GameObject.Instantiate(orbPrefab, interesting.World, Quaternion.identity, orbParent);
+                if (cheat) {
+                    orb.chargeTime *= cheatSlowdown;
+                    orb.pleaseNeverHoldMe = false;
+                    orb.IsHoldable = true;
+                }
+            }
+            etherCurrent = step.etherCurrent;
             prevLoc = nextLoc;
-            nextLoc = position.World;
+            nextLoc = step.location;
             progress = 0;
             yield return new WaitForSeconds(modRate);
-            GridPos random = GridPos.Random;
-            position += random;
             modRate += slowDown;
-            // Debug.Log("Random step: " + random + "; new position: " + position + " at " + position.World);
         }
     }
 
     void Update() {
         progress += Time.deltaTime / modRate;
         transform.position = Vector3.Lerp(prevLoc, nextLoc, CubicInterpolate(progress));
+        if (etherCurrent.y > .5f) {
+            etherCurrent = new Vector3(etherCurrent.x, 0, etherCurrent.z);
+            Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta, 600);
+        } else
+            Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta);
+
+        if (SimpleInput.GetButtonDown("Cheat")) {
+            cheat = !cheat;
+            if (cheat) {
+                modRate *= cheatSlowdown;
+                if (cheatButton != null) cheatButton.color = Color.white;
+            } else {
+                modRate /= cheatSlowdown;
+                if (cheatButton != null) cheatButton.color = Color.grey;
+            }
+        }
     }
 
     private Func<int> NextBiome(int prevBiome, ModInteger nextBiomeCount) {

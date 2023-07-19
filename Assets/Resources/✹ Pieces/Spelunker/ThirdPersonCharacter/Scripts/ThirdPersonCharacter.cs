@@ -66,7 +66,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			if (m_TrailMix) move = move.normalized * Mathf.Sqrt(moveMag);
 			m_TurnAmount = Mathf.Atan2(move.x, move.z);
 			m_ForwardAmount = move.z;
-			Debug.Log("Forward " + m_ForwardAmount);
+			// Debug.Log("Forward " + m_ForwardAmount);
 
 			ApplyExtraTurnRotation();
 
@@ -150,9 +150,9 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 					oldVelocity.magnitude : oldVelocity.magnitude / 2 + jumpPush.magnitude;
 				Vector3 newDirection = oldVelocity + jumpPush;
 				newVelocity = newDirection.normalized * newSpeed;
-				Debug.Log("Original velocity: " + oldVelocity);
-				Debug.Log("Forward push: " + jumpPush);
-				Debug.Log("New velocity: " + newVelocity);
+				// Debug.Log("Original velocity: " + oldVelocity);
+				// Debug.Log("Forward push: " + jumpPush);
+				// Debug.Log("New velocity: " + newVelocity);
 				
 				m_Rigidbody.velocity = new Vector3(newVelocity.x, m_JumpPower, newVelocity.z);
 				m_IsGrounded = false;

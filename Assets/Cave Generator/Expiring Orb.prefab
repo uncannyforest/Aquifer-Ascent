@@ -1,5 +1,49 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7590606190048511267
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5786273192488655536}
+  - component: {fileID: 8045810235969978605}
+  m_Layer: 0
+  m_Name: Solvent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5786273192488655536
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7590606190048511267}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 3591964175011526349}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8045810235969978605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7590606190048511267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77d64d7d1b1bb44ec9b8da5d58bb36a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  modLocation: {fileID: 3591964175011526349}
 --- !u!1001 &6086110300337088997
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10,6 +54,11 @@ PrefabInstance:
     - target: {fileID: 751861684078058299, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5352514656543323429, guid: 0eb13e365665b4feb907433579ff87a3,
+        type: 3}
+      propertyPath: m_Radius
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5792021157012530770, guid: 0eb13e365665b4feb907433579ff87a3,
@@ -80,7 +129,7 @@ PrefabInstance:
     - target: {fileID: 7327089894684991275, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7327089894684991277, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
@@ -90,7 +139,12 @@ PrefabInstance:
     - target: {fileID: 7456130516122914424, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: chargeTime
-      value: -22.5
+      value: -180
+      objectReference: {fileID: 0}
+    - target: {fileID: 7456130516122914424, guid: 0eb13e365665b4feb907433579ff87a3,
+        type: 3}
+      propertyPath: unchargeTime
+      value: 270
       objectReference: {fileID: 0}
     - target: {fileID: 7456130516122914424, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
@@ -114,3 +168,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0eb13e365665b4feb907433579ff87a3, type: 3}
+--- !u!4 &3591964175011526349 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7327089894684991272, guid: 0eb13e365665b4feb907433579ff87a3,
+    type: 3}
+  m_PrefabInstance: {fileID: 6086110300337088997}
+  m_PrefabAsset: {fileID: 0}

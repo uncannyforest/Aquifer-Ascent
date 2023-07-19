@@ -68,7 +68,7 @@ public class CaveGrid : MonoBehaviour {
                 if (child == null) {
                     child = GameObject.Instantiate(prefab, tri.World,
                         tri.right ? Quaternion.identity : Quaternion.Euler(0, 180, 0), transform);
-                    child.pos = tri;
+                    child.Pos = tri;
                 }
                 child.Set(data);
                 Decor.UpdatePos(tri, data, child);
@@ -84,6 +84,7 @@ public class CaveGrid : MonoBehaviour {
     }
 
     public void SetPos(GridPos pos, bool value) {
+        CaveGrid.Biome.Next(pos);
         grid[pos] = value;
         UpdatePos(pos);
     }
