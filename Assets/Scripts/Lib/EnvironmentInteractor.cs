@@ -11,7 +11,7 @@ public class EnvironmentInteractor {
 
     public HashSet<GameObject> NearObjects {
         get {
-            nearObjects.RemoveWhere(go => go == null);
+            nearObjects.RemoveWhere(go => go == null || go.tag != "CanPickUp");
             return nearObjects;
         }
     }
@@ -22,11 +22,11 @@ public class EnvironmentInteractor {
     }
 
     public void AddInteractableObject(GameObject trigger) {
-        nearObjects.Add(GetInteractableObject(trigger));
+        nearObjects.Add(trigger);
     }
 
     public void RemoveInteractableObject(GameObject trigger) {
-        nearObjects.Remove(GetInteractableObject(trigger));
+        nearObjects.Remove(trigger);
     }
 
     private GameObject GetInteractableObject(GameObject trigger) {
@@ -49,7 +49,7 @@ public class EnvironmentInteractor {
                 o => Vector3.Distance(o.transform.position, script.transform.position)
             ).First();
 
-        closestObject.GetComponent<Holdable>().Hold();
+        GetInteractableObject(closestObject).GetComponent<Holdable>().Hold();
     }
 
     public void DropHeldObject() {

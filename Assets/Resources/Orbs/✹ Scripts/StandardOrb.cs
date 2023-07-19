@@ -57,14 +57,11 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
         set {
             if (isHoldable ^ value) {
                 Debug.Log(gameObject.name + " was " + (isHoldable ? "" : "not ") + "holdable but now is" + (value ? "" : " not"));
-                TriggerObjectDestroyer.Hide(gameObject); // must happen before untagging
                 if (value) {
                     halo.tag = "CanPickUp";
                 } else {
                     halo.tag = "Untagged";
                 }
-                // Why is this line here?
-                // TriggerObjectDestroyer.Show(gameObject); // reset so no effect when Halo tag does not matter
                 isHoldable = value;
             }
         }
@@ -133,7 +130,7 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
                     SetOrbIntensity(spawnState);
                 } else if (isDead) {
                     if (spawnLocation == null) {
-                        TriggerObjectDestroyer.Destroy(this.gameObject);
+                        GameObject.Destroy(this.gameObject);
                     } else {
                         if(gameObject.GetComponent<Holdable>().IsHeld) {
                             gameObject.GetComponent<Holdable>().Drop();

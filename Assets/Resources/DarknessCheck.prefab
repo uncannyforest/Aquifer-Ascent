@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 5956162459010704433}
   - component: {fileID: 5956162459010704439}
   - component: {fileID: 5956162459010704432}
-  - component: {fileID: 6320674718070103622}
   - component: {fileID: 5956162459010704438}
   m_Layer: 0
   m_Name: DarknessCheck
@@ -66,18 +65,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 307
   checkInterval: 0.2
---- !u!114 &6320674718070103622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5956162459010704434}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1efd613f423e04f40827729c069fa812, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  ignoreNephews: 0
 --- !u!54 &5956162459010704438
 Rigidbody:
   m_ObjectHideFlags: 0

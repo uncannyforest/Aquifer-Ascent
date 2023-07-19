@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(TriggerExit))]
 public class InDarkness : BooleanScript {
     public LayerMask lightLayerMask;
     public LayerMask wallLayerMask;
@@ -40,9 +39,11 @@ public class InDarkness : BooleanScript {
 
     public void CheckDarkness() {
         inDarkness = true;
-        foreach (GameObject nearbyLight in nearbyLights) {
+        for (int i = nearbyLights.Count - 1; i >= 0; i--) {
+            GameObject nearbyLight = nearbyLights[i];
             if (nearbyLight == null) {
-                Debug.LogWarning("Failed to remove dead light :(");
+                Debug.Log("Removing dead light");
+                nearbyLights.RemoveAt(i);
                 continue;
             }
             if (nearbyLight.GetComponent<StandardOrb>().spawnState == 0) {

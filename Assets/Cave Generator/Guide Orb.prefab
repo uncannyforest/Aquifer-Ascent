@@ -21,18 +21,6 @@ MonoBehaviour:
   addOrbEvery: 6
   changeBiomeEvery: 30
   cheatSlowdown: 4
---- !u!114 &3576882039998806308
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3226984548907044838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1efd613f423e04f40827729c069fa812, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &3768289526359141521
 PrefabInstance:
   m_ObjectHideFlags: 0
