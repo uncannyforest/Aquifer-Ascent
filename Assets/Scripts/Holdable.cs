@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -8,6 +9,7 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(Collider))]
 public class Holdable : MonoBehaviour
 {
+    public GameObject taggedCanPickUp;
     public string optionalAction = "";
     public string parentWhenFreeName = "Free Orbs";
     public AudioClip pickUpSound;
@@ -24,6 +26,25 @@ public class Holdable : MonoBehaviour
     private Bounds myColliderBounds;
     private bool isUsed;
 
+    public bool isEverHoldable = true;
+    private HashSet<String> cannotHold = new HashSet<String>();
+    private string cannotHoldDebug = "";
+    private bool IsHoldable {
+        set {
+            if (value) taggedCanPickUp.tag = "CanPickUp";
+            else taggedCanPickUp.tag = "Untagged";
+        }
+    }
+    public void CanHold(string key, bool toggle) {
+        int oldCannotHoldCount = cannotHold.Count;
+        if (toggle) cannotHold.Remove(key);
+        else cannotHold.Add(key);
+        cannotHoldDebug = cannotHold.Aggregate("", (acc, str) => acc + " " + str);
+        if (oldCannotHoldCount + cannotHold.Count == 1) {
+            IsHoldable = cannotHold.Count == 0;
+        }
+    }
+
     public bool IsHeld {
         get => this.transform.parent == playerHoldTransform;
         private set {
@@ -38,7 +59,7 @@ public class Holdable : MonoBehaviour
     public bool IsFree {
         get {
             if (parentWhenFree == null) {
-                // Debug.Log(gameObject.name + " missing parentWhenFree for now");
+                Debug.Log(gameObject.name + " missing parentWhenFree for now");
             }
 
             return this.transform.parent == parentWhenFree;
@@ -53,6 +74,7 @@ public class Holdable : MonoBehaviour
         myRigidbody = GetComponent<Rigidbody>();
         objectAudio = GetComponent<AudioSource>();
         parentWhenFree = this.transform.parent;
+        if (!isEverHoldable) CanHold("ever", false);
     }
 
     void OnEnable() {

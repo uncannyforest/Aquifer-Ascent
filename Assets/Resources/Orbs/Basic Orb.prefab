@@ -4963,11 +4963,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a13da2b7b6604e5dbb817bb5cf25feb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  taggedCanPickUp: {fileID: 8660939059094344859}
   optionalAction: 
   parentWhenFreeName: Free Orbs
   pickUpSound: {fileID: 8300000, guid: 04df9b11a4dd24c46b51da18fa8cb302, type: 3}
   setDownSound: {fileID: 8300000, guid: 8315785413ece4064a677c8ae611927b, type: 3}
   pickUpTime: 0.5
+  isEverHoldable: 1
 --- !u!82 &-3384256719804809807
 AudioSource:
   m_ObjectHideFlags: 0
@@ -5079,7 +5081,6 @@ MonoBehaviour:
   state:
     isActive: 1
     currentChargeLevel: 1
-    isHoldable: 1
   mayNeedUpdating: 1
   spawnLocation: {fileID: 0}
   unchargeTime: 30
@@ -5087,7 +5088,6 @@ MonoBehaviour:
   spawnTime: 1
   haloIntensity: 1.5
   spawnState: 0
-  pleaseNeverHoldMe: 0
   heldIntensity: 0.4
   colorTransitions:
   - frame: 1

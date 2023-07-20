@@ -61,11 +61,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a13da2b7b6604e5dbb817bb5cf25feb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  taggedCanPickUp: {fileID: 7484014785454017953}
   optionalAction: 
   parentWhenFreeName: 
   pickUpSound: {fileID: 0}
   setDownSound: {fileID: 0}
   pickUpTime: 0.5
+  isEverHoldable: 1
 --- !u!54 &1362172379879167981
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -98,9 +100,12 @@ MonoBehaviour:
   dropDisplacement: 0.5
   dropTorque: 1
   maxStationarySpeed: 0.01
+  newWidth: 0.75
+  newDepth: 0.125
   mountYTolerance: 0.25
+  unmountTopDistance: 0
+  unmountBottomDistance: 0.1
   placed: 0
-  walls: {fileID: 8857294329679954169}
   depth: 0
 --- !u!1 &5377966694843147441
 GameObject:

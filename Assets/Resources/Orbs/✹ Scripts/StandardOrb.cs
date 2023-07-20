@@ -12,7 +12,6 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
     [Serializable] public class StateFields {
         public bool isActive = true;
         public float currentChargeLevel = 1.0f;
-        public bool isHoldable = true;
     }
     public bool mayNeedUpdating = true;
     public GameObject spawnLocation;
@@ -21,7 +20,6 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
     public float spawnTime = 1f;
     public float haloIntensity = 1.5f;
     public float spawnState = 0.0f;
-    public bool pleaseNeverHoldMe = false;
     public float heldIntensity = 0.4f;
     public ColorTransition[] colorTransitions = {
         new ColorTransition(1.0f, new Color(1.0f, 1.0f, 1.0f)),
@@ -34,12 +32,9 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
     private Light halo;
     private FloatWanderAI wanderAI;
     private ParticleSystem childParticleSystem;
+    private Holdable holdable;
     
     private bool isDead = false;
-    private bool isHoldable {
-        get => state.isHoldable;
-        set => state.isHoldable = value;
-    }
 
     public bool IsActive {
         set {
@@ -47,24 +42,9 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
             if (wanderAI != null) {
                 wanderAI.CanMove = value;
             }
-            if (!pleaseNeverHoldMe)
-                IsHoldable = value; // assumes a previously inactive orb was not meant to stay unholdable
+            holdable.CanHold("active-orb", value);
         }
         get => state.isActive;
-    }
-
-    public bool IsHoldable {
-        set {
-            if (isHoldable ^ value) {
-                Debug.Log(gameObject.name + " was " + (isHoldable ? "" : "not ") + "holdable but now is" + (value ? "" : " not"));
-                if (value) {
-                    halo.tag = "CanPickUp";
-                } else {
-                    halo.tag = "Untagged";
-                }
-                isHoldable = value;
-            }
-        }
     }
 
     // Awake is called before any Start() calls in the game
@@ -72,13 +52,10 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
         myLight = gameObject.transform.Find("Point Light").GetComponent<Light>();
         halo = gameObject.transform.Find("Halo").GetComponent<Light>();
         wanderAI = gameObject.GetComponent<FloatWanderAI>();
+        holdable = gameObject.GetComponent<Holdable>();
         UpdateOrbState();
         SetOrbColor(GetColorFromCharge());
-        if (!state.isActive) {
-            isHoldable = false;
-            halo.tag = "Untagged";
-        }
-        Debug.Log(gameObject.name + " is " + (isHoldable ? "" : "not ") + "holdable");
+        if (!state.isActive) holdable.CanHold("active-orb", false);
         IsActive = state.isActive;
         childParticleSystem = gameObject.transform.GetComponentInChildren<ParticleSystem>();
         childParticleSystem.enableEmission = false;

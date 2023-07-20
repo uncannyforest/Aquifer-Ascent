@@ -54,15 +54,11 @@ public class RandomWalk : MonoBehaviour {
             if (count >= addOrbEvery) {
                 StandardOrb orb = GameObject.Instantiate(orbPrefab, step.location, Quaternion.identity, orbParent);
                 if (cheat) orb.chargeTime *= cheatSlowdown;
-                orb.pleaseNeverHoldMe = false;
-                orb.IsHoldable = true;
             }
             foreach (GridPos interesting in step.interesting) {
                 StandardOrb orb = GameObject.Instantiate(orbPrefab, interesting.World, Quaternion.identity, orbParent);
                 if (cheat) {
                     orb.chargeTime *= cheatSlowdown;
-                    orb.pleaseNeverHoldMe = false;
-                    orb.IsHoldable = true;
                 }
             }
             etherCurrent = step.etherCurrent;

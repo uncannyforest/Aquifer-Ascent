@@ -85,7 +85,7 @@ public class GoalOrb : MonoBehaviour
         successStartingColor = orbScript.GetColorFromCharge();
 
         orbScript.chargeTime = 0; // disables recolor
-        orbScript.IsHoldable = false;
+        holdableScript.CanHold("goal-success", false);
     }
 
     private float CubicInterpolate(float x) {

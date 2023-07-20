@@ -164,7 +164,7 @@ PrefabInstance:
     - target: {fileID: 8660939059094344859, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: m_TagString
-      value: Untagged
+      value: CanPickUp
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0eb13e365665b4feb907433579ff87a3, type: 3}
