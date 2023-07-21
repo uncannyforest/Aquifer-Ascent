@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(StandardOrb))]
 public class FloatWanderAI : MonoBehaviour
 {
     public float turnSpeed = 0.02f;
@@ -10,27 +11,24 @@ public class FloatWanderAI : MonoBehaviour
     public float updateTime = 0.5f;
 
     private bool alreadyMoving = false;
-    private bool canMove = true;
 
     private Rigidbody rigidBody;
     private Holdable holdableScript;
+    private StandardOrb orbScript;
 
     public bool CanMove {
         get {
             if (holdableScript == null) {
-                return canMove;
+                return orbScript.IsActive;
             }
-            return canMove && gameObject.GetComponent<Holdable>().IsFree;
-        }
-        set {
-            canMove = value;
-            Debug.Log(gameObject.name + " WanderAI.CanMove set to " + value);
+            return orbScript.IsActive && holdableScript.IsFree;
         }
     }
 
     void Start() {
         rigidBody = GetComponent<Rigidbody>();
         holdableScript = GetComponent<Holdable>();
+        orbScript = GetComponent<StandardOrb>();
     }
 
     void FixedUpdate() {

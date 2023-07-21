@@ -5081,7 +5081,7 @@ MonoBehaviour:
   state:
     isActive: 1
     currentChargeLevel: 1
-  mayNeedUpdating: 1
+  mayNeedUpdating: 0
   spawnLocation: {fileID: 0}
   unchargeTime: 30
   chargeTime: 450

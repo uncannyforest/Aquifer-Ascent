@@ -13,7 +13,6 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
         public bool isActive = true;
         public float currentChargeLevel = 1.0f;
     }
-    public bool mayNeedUpdating = true;
     public GameObject spawnLocation;
     public float unchargeTime = 30f; // set to 0 programmatically to lock color
     public float chargeTime = 450f;
@@ -30,28 +29,26 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
 
     private Light myLight;
     private Light halo;
-    private FloatWanderAI wanderAI;
     private ParticleSystem childParticleSystem;
     private Holdable holdable;
     
     private bool isDead = false;
 
+    // not active if inside a container
     public bool IsActive {
         set {
             state.isActive = value;
-            if (wanderAI != null) {
-                wanderAI.CanMove = value;
-            }
             holdable.CanHold("active-orb", value);
         }
         get => state.isActive;
     }
+    public bool IsHeld {
+        get => holdable.IsHeld;
+    }
 
-    // Awake is called before any Start() calls in the game
     void Awake() {
         myLight = gameObject.transform.Find("Point Light").GetComponent<Light>();
         halo = gameObject.transform.Find("Halo").GetComponent<Light>();
-        wanderAI = gameObject.GetComponent<FloatWanderAI>();
         holdable = gameObject.GetComponent<Holdable>();
         UpdateOrbState();
         SetOrbColor(GetColorFromCharge());
@@ -61,12 +58,9 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
         childParticleSystem.enableEmission = false;
     }
 
-    // Update is called once per frame
-    void Update() {
-        UpdateOrbState();
-    }
+    void Update() => UpdateOrbState();
 
-    // Responds to message sent by PickMeUp
+    //message sent by Holdable
     void UpdateHeldState(float heldState) {
         SetOrbIntensity(1 - (1 - heldIntensity) * heldState);
         if (heldState == 1) {
@@ -76,66 +70,40 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
         }
     }
 
-    void NotifyActivate() {
-        IsActive = true;
-    }
-
-    void NotifyDeactivate() {
-        IsActive = false;
-    }
+    // messages sent by ContainerTrigger
+    void NotifyActivate() => IsActive = true;
+    void NotifyDeactivate() => IsActive = false;
 
     private void UpdateOrbState() {
-        bool updateSpawnState = mayNeedUpdating ||
-            (!state.isActive && spawnState > 0) || (state.isActive && spawnState < 1);
-        bool updateCharge = unchargeTime != 0 && (mayNeedUpdating ||
-            gameObject.GetComponent<Holdable>().IsHeld || state.currentChargeLevel < 1);
-        mayNeedUpdating = updateSpawnState;
+        bool updateSpawnState = (!state.isActive && spawnState > 0) || (state.isActive && spawnState < 1);
+        bool updateCharge = unchargeTime != 0 && (IsHeld || state.currentChargeLevel < 1);
 
         if (updateSpawnState) {
             if (state.isActive) {
                 spawnState += Time.deltaTime / spawnTime;
-                if (spawnState >= 1) {
-                    spawnState = 1;
-                    mayNeedUpdating = false;
-                }
-                transform.localScale = Vector3.one * spawnState;
-                SetOrbIntensity(spawnState);
+                if (spawnState >= 1) spawnState = 1;
             } else {
                 spawnState -= Time.deltaTime / spawnTime;
-                if (spawnState > 0) {
-                    transform.localScale = Vector3.one * spawnState;
-                    SetOrbIntensity(spawnState);
-                } else if (isDead) {
-                    if (spawnLocation == null) {
-                        GameObject.Destroy(this.gameObject);
-                    } else {
-                        if(gameObject.GetComponent<Holdable>().IsHeld) {
-                            gameObject.GetComponent<Holdable>().Drop();
-                        }
-                        transform.position = spawnLocation.transform.position;
-                        state.currentChargeLevel = 1.0f;
-                        SetOrbColor(GetColorFromCharge());
-                        SetOrbIntensity(0);
-                        childParticleSystem.emissionRate /= explosionFactor;
-                        IsActive = true;
-                    }
-                } else {
+                if (spawnState <= 0) {
                     spawnState = 0;
-                    mayNeedUpdating = false;
+                    if (isDead) {
+                        Die();
+                        return;
+                    }
                 }
             }
+            transform.localScale = Vector3.one * spawnState;
+            SetOrbIntensity(spawnState);
         }
         if (updateCharge) {
-            if (gameObject.GetComponent<Holdable>().IsHeld) {
+            if (IsHeld) {
                 if (state.currentChargeLevel > 0f) {
                     state.currentChargeLevel -= Time.deltaTime / unchargeTime;
                 }
             } else {
                 if (state.currentChargeLevel < 1f || chargeTime < 0) {
                     state.currentChargeLevel += Time.deltaTime / chargeTime;
-                    if (state.currentChargeLevel > 1f) {
-                        state.currentChargeLevel = 1f;
-                    }
+                    if (state.currentChargeLevel > 1f) state.currentChargeLevel = 1f;
                 }
             }
             if (state.currentChargeLevel < 0f) {
@@ -150,6 +118,20 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
         state.isActive = false;
         isDead = true;
         childParticleSystem.emissionRate *= explosionFactor;
+    }
+
+    private void Die() {
+        if (spawnLocation == null) {
+            GameObject.Destroy(gameObject);
+        } else {
+            if (IsHeld) holdable.Drop();
+            transform.position = spawnLocation.transform.position;
+            state.currentChargeLevel = 1.0f;
+            SetOrbColor(GetColorFromCharge());
+            SetOrbIntensity(0);
+            childParticleSystem.emissionRate /= explosionFactor;
+            IsActive = true;
+        }
     }
 
     public void SetOrbIntensity(float intensity) {
