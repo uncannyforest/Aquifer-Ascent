@@ -34,36 +34,30 @@ public class RandomWalkAlgorithm {
 
         int nextBiomeCount = changeBiomeEvery;
         int biome = 1;
-        int biomeTries = 0;
-
-        Vector3 centerOfGravitySum = Vector3.zero;
-        int centerOfGravityDenominator = 1;
 
         CaveGrid.Biome.Next(position, (_) => biome, true);
         yield return new Output(position.World, new GridPos[] {position}, new GridPos[] {}, Vector3.zero);
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
-            if (biomeTries == 108) {
-                justFlipped = false;
-                position = lastEndPos;
-                etherCurrent = lastEndEther;
-                biome = CaveGrid.Biome[position];
-                Debug.Log("Position is now " + position + " biome is now " + biome + ": NOTE TAKEN");
-                currentVScale = 2;
-                currentHScale = 2;
-                biomeTries = 1;
-                nextBiomeCount = 6; // change it quickly
-            }
+            // if (biomeTries == 108) {
+            //     justFlipped = false;
+            //     position = lastEndPos;
+            //     etherCurrent = lastEndEther;
+            //     biome = CaveGrid.Biome[position];
+            //     Debug.Log("Position is now " + position + " biome is now " + biome + ": NOTE TAKEN");
+            //     currentVScale = 2;
+            //     currentHScale = 2;
+            //     biomeTries = 1;
+            //     nextBiomeCount = 6; // change it quickly
+            // }
             GridPos newPosition = position;
             TriPos newTriPosition = triPosition;
             int vScale = currentVScale;
             int hScale = currentHScale;
-            Vector3 relativeToCenterOfGravity = position.HComponents - centerOfGravitySum / centerOfGravityDenominator;
-            for (int i = 0; i <= hScale + vScale; i++) etherCurrent += GridPos.RandomHoriz(relativeToCenterOfGravity.MaxNormalized() * biasToLeaveCenterOfGravity);
+            for (int i = 0; i <= hScale + vScale; i++) etherCurrent += GridPos.RandomHoriz(new Vector3(1, -.5f, -.5f) * biasToLeaveCenterOfGravity);
             if (etherCurrent.HComponents.Max() > inertiaOfEtherCurrent) {
                 etherCurrent /= -3;
                 justFlipped = true;
             }
-            Debug.Log("Center of gravity: " + (centerOfGravitySum / centerOfGravityDenominator));
 
             List<GridPos> interesting = new List<GridPos>();
             int changeAmount = lastMove == GridPos.zero ? 2
@@ -185,18 +179,18 @@ public class RandomWalkAlgorithm {
             if (nextBiomeCount == 0) {
                 biome = Random.Range(1, CaveGrid.Biome.floors.Length);
                 nextBiomeCount = changeBiomeEvery;
-                GridPos move = GridPos.RandomHoriz(etherCurrent.HComponents / etherCurrent.HComponents.Max());
-                while (CaveGrid.Grid[newPosition]) {
-                    newPosition += move;
-                    newTriPosition += move;
-                }
+                // GridPos move = GridPos.RandomHoriz(etherCurrent.HComponents / etherCurrent.HComponents.Max());
+                // while (CaveGrid.Grid[newPosition]) {
+                //     newPosition += move;
+                //     newTriPosition += move;
+                // }
             }
-            int maybeBiome = CaveGrid.Biome.Next(newPosition, (_) => biome, false);
-            if (maybeBiome == 0) {
-                Debug.Log("Position " + newPosition + " failed (ethercurrent " + etherCurrent + "), trying again for same biome (" + biome + "), try " + (biomeTries + 1));
-                biomeTries++;
-                continue;
-            }
+            CaveGrid.Biome.Next(newPosition, (_) => biome, true);
+            // if (maybeBiome == 0) {
+            //     Debug.Log("Position " + newPosition + " failed (ethercurrent " + etherCurrent + "), trying again for same biome (" + biome + "), try " + (biomeTries + 1));
+            //     biomeTries++;
+            //     continue;
+            // }
             foreach (GridPos pos in newCave) CaveGrid.Biome.Next(pos);
 
             yield return new Output(nextLoc, newCave.ToArray(), interesting.ToArray(), etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero));
@@ -205,16 +199,14 @@ public class RandomWalkAlgorithm {
             triPosition = newTriPosition;
             currentHScale = hScale;
             currentVScale = vScale;
-            if (biomeTries == 0) nextBiomeCount--;
+            nextBiomeCount--;
             if (justFlipped) {
                 Debug.Log("Ether current " + etherCurrent + " at " + position + " FLIPPED: TAKE NOTE");
                 lastEndPos = position;
                 lastEndEther = etherCurrent * -1;
             }
             justFlipped = false;
-            biomeTries = 0;
-            centerOfGravitySum += position.HComponents;
-            centerOfGravityDenominator++;
+            // biomeTries = 0;
             Debug.Log("Moved " + lastMove + " to " + position);
         }
     }

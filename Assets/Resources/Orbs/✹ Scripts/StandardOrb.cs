@@ -76,7 +76,7 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
 
     private void UpdateOrbState() {
         bool updateSpawnState = (!state.isActive && spawnState > 0) || (state.isActive && spawnState < 1);
-        bool updateCharge = unchargeTime != 0 && (IsHeld || state.currentChargeLevel < 1);
+        bool updateCharge = unchargeTime != 0 && (IsHeld || state.currentChargeLevel < 1 || chargeTime < 0);
 
         if (updateSpawnState) {
             if (state.isActive) {

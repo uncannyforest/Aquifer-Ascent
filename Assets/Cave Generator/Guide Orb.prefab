@@ -15,12 +15,12 @@ MonoBehaviour:
   orbPrefab: {fileID: 3679240929115695005, guid: e1dd604d2f0104044a25b59c584a297f,
     type: 3}
   orbParent: {fileID: 0}
-  interiaOfEtherCurrent: 36
+  interiaOfEtherCurrent: 48
   modRate: 0.33333334
   slowDown: 0
   addOrbEvery: 6
   changeBiomeEvery: 108
-  biasToLeaveCenterOfGravity: 0.5
+  biasToLeaveCenterOfGravity: 1
   cheatSlowdown: 4
 --- !u!1001 &3768289526359141521
 PrefabInstance:
