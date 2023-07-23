@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class RandomWalkAlgorithm {
 
@@ -18,27 +20,50 @@ public class RandomWalkAlgorithm {
         }
     }
 
-    public static IEnumerable<Output> EnumerateSteps(int inertiaOfEtherCurrent) {
+    public static IEnumerable<Output> EnumerateSteps(int inertiaOfEtherCurrent, int changeBiomeEvery, float biasToLeaveCenterOfGravity) {
         GridPos position = GridPos.zero;
         TriPos triPosition = new TriPos(GridPos.zero, false);
-        int hScale = 0;
-        int vScale = 0;
+        int currentHScale = 0;
+        int currentVScale = 0;
         GridPos lastMove = GridPos.zero;
         GridPos etherCurrent = new GridPos(0, inertiaOfEtherCurrent / 2, 0);
-        bool debugJustFlipped = false;
+        bool justFlipped = false;
 
-        GridPos? revisit = null;
+        GridPos lastEndPos = GridPos.zero;
+        GridPos lastEndEther = new GridPos(0, -inertiaOfEtherCurrent - 1, 0);
+
+        int nextBiomeCount = changeBiomeEvery;
+        int biome = 1;
+        int biomeTries = 0;
+
+        Vector3 centerOfGravitySum = Vector3.zero;
+        int centerOfGravityDenominator = 1;
+
+        CaveGrid.Biome.Next(position, (_) => biome, true);
         yield return new Output(position.World, new GridPos[] {position}, new GridPos[] {}, Vector3.zero);
-        while (true) {
-            debugJustFlipped = false;
-            etherCurrent += GridPos.RandomHoriz();
-            if (Mathf.Abs(etherCurrent.x) > inertiaOfEtherCurrent
-                    || Mathf.Abs(etherCurrent.y) > inertiaOfEtherCurrent
-                    || Mathf.Abs(etherCurrent.z) > inertiaOfEtherCurrent) {
-                etherCurrent /= -2;
-                Debug.Log("Ether current " + etherCurrent + " + FLIPPED");
-                debugJustFlipped = true;
+        for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
+            if (biomeTries == 108) {
+                justFlipped = false;
+                position = lastEndPos;
+                etherCurrent = lastEndEther;
+                biome = CaveGrid.Biome[position];
+                Debug.Log("Position is now " + position + " biome is now " + biome + ": NOTE TAKEN");
+                currentVScale = 2;
+                currentHScale = 2;
+                biomeTries = 1;
+                nextBiomeCount = 6; // change it quickly
             }
+            GridPos newPosition = position;
+            TriPos newTriPosition = triPosition;
+            int vScale = currentVScale;
+            int hScale = currentHScale;
+            Vector3 relativeToCenterOfGravity = position.HComponents - centerOfGravitySum / centerOfGravityDenominator;
+            for (int i = 0; i <= hScale + vScale; i++) etherCurrent += GridPos.RandomHoriz(relativeToCenterOfGravity.MaxNormalized() * biasToLeaveCenterOfGravity);
+            if (etherCurrent.HComponents.Max() > inertiaOfEtherCurrent) {
+                etherCurrent /= -3;
+                justFlipped = true;
+            }
+            Debug.Log("Center of gravity: " + (centerOfGravitySum / centerOfGravityDenominator));
 
             List<GridPos> interesting = new List<GridPos>();
             int changeAmount = lastMove == GridPos.zero ? 2
@@ -47,19 +72,10 @@ public class RandomWalkAlgorithm {
                 : hScale == vScale ? Random.Range(0, 2)
                 : 2 - Mathf.FloorToInt(Mathf.Sqrt(Random.Range(0, 9)));
             GridPos random = changeAmount == 0 ? lastMove.RandomVertDeviation(hScale == 1 && vScale == 1 ? 1/27f : 1/9f)
-                : changeAmount == 1 ? lastMove.RandomHorizDeviation(etherCurrent.HComponents / etherCurrent.HComponents.Max())
-                : GridPos.Random(hScale == 0 ? 1/3f : 1/9f, etherCurrent.HComponents / etherCurrent.HComponents.Max());
+                : changeAmount == 1 ? lastMove.RandomHorizDeviation(etherCurrent.HComponents.MaxNormalized())
+                : GridPos.Random(hScale == 0 ? 1/3f : 1/9f, etherCurrent.HComponents.MaxNormalized());
             bool hScaleChange = false;
-            if (hScale == 1) position = triPosition.HorizCorners[Random.Range(0, 3)];
-            if (false && random == -lastMove) {
-                interesting.Add(position);
-                if (revisit is GridPos doRevisit) {
-                    position = doRevisit;
-                    revisit = null;
-                } else {
-                    revisit = position;
-                }
-            } else if (random == lastMove && Random.value < 1/3f) {
+            if (random == lastMove && Random.value < .5f/(1 + hScale + vScale)) {
                 if (hScale == 0) {
                     if (Random.Range(0, 2) == 0) {
                         hScale = 2;
@@ -67,7 +83,7 @@ public class RandomWalkAlgorithm {
                         Debug.Log("JUMPED BIG!");
                     } else {
                         hScale = 1;
-                        triPosition = ToHScale1(position, random);
+                        newTriPosition = ToHScale1(newPosition, random);
                         hScaleChange = true;
                     }
                 } else if (vScale == 2) {
@@ -77,7 +93,7 @@ public class RandomWalkAlgorithm {
                         Debug.Log("JUMPED SMALL!");
                     } else {
                         vScale = 1;
-                        ToVScale1(ref position);
+                        ToVScale1(ref newPosition);
                     }
                 } else if (hScale == 1) {
                 //     hScale = Random.Range(0, 2) * 2;
@@ -101,7 +117,7 @@ public class RandomWalkAlgorithm {
                         if (vScale == 1) ToVScale1(ref random);
                         else {
                             hScaleChange = true;
-                            position = FromHScale1(triPosition, random);
+                            newPosition = FromHScale1(newTriPosition, random);
                         }
                     } else {
                         if (Random.Range(0, 2) == 0) vScale = 0;
@@ -109,7 +125,7 @@ public class RandomWalkAlgorithm {
                         if (vScale == 0) FromVScale1(ref random);
                         else {
                             hScaleChange = true;
-                            position = FromHScale1(triPosition, random);
+                            newPosition = FromHScale1(newTriPosition, random);
                         }
                     }
                 } else {
@@ -119,7 +135,7 @@ public class RandomWalkAlgorithm {
                         if (vScale == 1) ToVScale1(ref random);
                         else {
                             hScaleChange = true;
-                            triPosition = ToHScale1(position, random);
+                            newTriPosition = ToHScale1(newPosition, random);
                         }
                     } else {
                         int seed = Random.Range(0, 3);
@@ -128,7 +144,7 @@ public class RandomWalkAlgorithm {
                         if (hScale == 2) FromVScale1(ref random);
                         else {
                             hScaleChange = true;
-                            triPosition = ToHScale1(position, random);
+                            newTriPosition = ToHScale1(newPosition, random);
                         }
                     }
                 }
@@ -136,35 +152,70 @@ public class RandomWalkAlgorithm {
             }
             if (!hScaleChange) {
                 if (hScale == 1) {
-                    triPosition = triPosition.GetAdjacent(random);
+                    newTriPosition = newTriPosition.GetAdjacent(random);
                 } else {
-                    position += random;
+                    newPosition += random;
                 }
             }
             Vector3 nextLoc;
-            if (hScale == 1) nextLoc = triPosition.World;
-            else nextLoc = position.World;
+            if (hScale == 1) nextLoc = newTriPosition.World;
+            else nextLoc = newPosition.World;
             if (vScale == 1) nextLoc += GridPos.up.World * .5f;
             List<GridPos> newCave = new List<GridPos>();
             for (int i = vScale == 2 ? -1 : 0; i <= Mathf.Min(vScale, 1); i++) {
-                if (hScale == 0) newCave.Add(position);
+                if (hScale == 0) newCave.Add(newPosition);
                 else if (hScale == 2) {
-                    newCave.Add(position + GridPos.up * i);
+                    newCave.Add(newPosition + GridPos.up * i);
                     foreach (GridPos unit in GridPos.Units) {
                         if (vScale == 2) {
                             if (i == 0 || Random.value < 1/3f)
-                                newCave.Add(position + unit + GridPos.up * i);
+                                newCave.Add(newPosition + unit + GridPos.up * i);
                         } else if (Random.value < 1/2f)
-                            newCave.Add(position + unit + GridPos.up * i);
+                            newCave.Add(newPosition + unit + GridPos.up * i);
                     }
                 } else {
-                    foreach (GridPos corner in triPosition.HorizCorners)
+                    foreach (GridPos corner in newTriPosition.HorizCorners)
                         if (vScale == 0 || Random.value < .5f)
                             newCave.Add(corner + GridPos.up * i);
                 }
             }
-            yield return new Output(nextLoc, newCave.ToArray(), interesting.ToArray(), etherCurrent.World / inertiaOfEtherCurrent + (debugJustFlipped ? Vector3.up : Vector3.zero));
+
+            if (hScale == 1) newPosition = newTriPosition.HorizCorners[Random.Range(0, 3)];
+
+            if (nextBiomeCount == 0) {
+                biome = Random.Range(1, CaveGrid.Biome.floors.Length);
+                nextBiomeCount = changeBiomeEvery;
+                GridPos move = GridPos.RandomHoriz(etherCurrent.HComponents / etherCurrent.HComponents.Max());
+                while (CaveGrid.Grid[newPosition]) {
+                    newPosition += move;
+                    newTriPosition += move;
+                }
+            }
+            int maybeBiome = CaveGrid.Biome.Next(newPosition, (_) => biome, false);
+            if (maybeBiome == 0) {
+                Debug.Log("Position " + newPosition + " failed (ethercurrent " + etherCurrent + "), trying again for same biome (" + biome + "), try " + (biomeTries + 1));
+                biomeTries++;
+                continue;
+            }
+            foreach (GridPos pos in newCave) CaveGrid.Biome.Next(pos);
+
+            yield return new Output(nextLoc, newCave.ToArray(), interesting.ToArray(), etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero));
             lastMove = random;
+            position = newPosition;
+            triPosition = newTriPosition;
+            currentHScale = hScale;
+            currentVScale = vScale;
+            if (biomeTries == 0) nextBiomeCount--;
+            if (justFlipped) {
+                Debug.Log("Ether current " + etherCurrent + " at " + position + " FLIPPED: TAKE NOTE");
+                lastEndPos = position;
+                lastEndEther = etherCurrent * -1;
+            }
+            justFlipped = false;
+            biomeTries = 0;
+            centerOfGravitySum += position.HComponents;
+            centerOfGravityDenominator++;
+            Debug.Log("Moved " + lastMove + " to " + position);
         }
     }
 
@@ -202,5 +253,21 @@ public class RandomWalkAlgorithm {
                 return triPosition.hexPos + GridPos.Q + GridPos.up * v;
             return triPosition.hexPos + GridPos.up * v;
         }
+    }
+
+    
+    class ModInteger {
+        public int value;
+        public ModInteger(int value) {
+            this.value = value;
+        }
+        public static implicit operator int(ModInteger mi) => mi.value;
+    }
+
+    private static Func<int, int> NextBiome(bool change) {
+        return (prevBiome) => {
+            if (change) return Random.Range(1, CaveGrid.Biome.floors.Length);
+            else return prevBiome;
+        };
     }
 }

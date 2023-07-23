@@ -5,6 +5,7 @@ using UnityEngine;
 
 public static class GridPosExtensions {
     public static float Max(this Vector3 v) => Mathf.Max(Mathf.Abs(v.x), Mathf.Abs(v.y), Mathf.Abs(v.z));
+    public static Vector3 MaxNormalized(this Vector3 v) => v / v.Max();
     public static Vector3 ScaleDivide(this Vector3 a, Vector3 b) => new Vector3(a.x / b.x, a.y / b.y, a.z / b.z);
 }
 

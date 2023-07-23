@@ -12,6 +12,7 @@ public class RandomWalk : MonoBehaviour {
     public float slowDown = 1/18f;
     public int addOrbEvery = 18;
     public int changeBiomeEvery = 18;
+    public float biasToLeaveCenterOfGravity = 1;
     public float cheatSlowdown = 4;
     
     private Vector3 prevLoc = Vector3.zero;
@@ -29,23 +30,12 @@ public class RandomWalk : MonoBehaviour {
         GameObject cheatButtonGo = GameObject.Find("Cheat");
         if (cheatButtonGo != null) cheatButton = cheatButtonGo.GetComponent<Image>();
     }
-    
-    class ModInteger {
-        public int value;
-        public ModInteger(int value) {
-            this.value = value;
-        }
-        public static implicit operator int(ModInteger mi) => mi.value;
-    }
 
     public IEnumerator Runner() {
         int count = addOrbEvery;
-        int biome = 1;
-        ModInteger nextBiomeCount = new ModInteger(changeBiomeEvery);
         
-        foreach (RandomWalkAlgorithm.Output step in RandomWalkAlgorithm.EnumerateSteps(interiaOfEtherCurrent)) {
+        foreach (RandomWalkAlgorithm.Output step in RandomWalkAlgorithm.EnumerateSteps(interiaOfEtherCurrent, changeBiomeEvery, biasToLeaveCenterOfGravity)) {
             foreach (GridPos position in step.newCave) if (!CaveGrid.I.grid[position]) {
-                biome = CaveGrid.Biome.Next(position, NextBiome(biome, nextBiomeCount));
                 CaveGrid.I.SetPos(position, true);
             }
             // if (step.newCave.Length > 0 && count++ % addOrbEvery == 0) {
@@ -89,16 +79,6 @@ public class RandomWalk : MonoBehaviour {
                 if (cheatButton != null) cheatButton.color = Color.grey;
             }
         }
-    }
-
-    private Func<int> NextBiome(int prevBiome, ModInteger nextBiomeCount) {
-        return () => {
-            nextBiomeCount.value--;
-            if (nextBiomeCount.value == 0) {
-                nextBiomeCount.value = changeBiomeEvery;
-                return Random.Range(1, CaveGrid.Biome.floors.Length);
-            } else return prevBiome;
-        };
     }
 
     private static float CubicInterpolate(float x) {

@@ -46,6 +46,7 @@ sysinfo.txt
 
 # Crashlytics generated file
 crashlytics-build.properties
+mono_crash*
 
 # Occlusion Culling bake output used for render/build
 OcclusionCullingData.*

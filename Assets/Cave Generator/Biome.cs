@@ -7,23 +7,24 @@ public class Biome : MonoBehaviour {
     public Color[] floors; // 0 is default: ignore
     public Color[] walls; // 0 is default: ignore
 
-    public Grid<int> grid = new Grid<int>();
+    private Grid<int> grid = new Grid<int>();
 
-    private int lastBiome = 0;
+    public int lastBiome = 0;
 
-    public int Next(GridPos pos, Func<int> biomeSupplier) {
+    public int Next(GridPos pos, Func<int, int> biomeSupplier, bool allowOldBiomes) {
         int value = grid[pos.Horizontal];
+        lastBiome = biomeSupplier(lastBiome);
+        if (!allowOldBiomes && value != 0 && value != lastBiome) return 0;
         if (value == 0) {
-            value = biomeSupplier();
+            value = lastBiome;
             grid[pos.Horizontal] = value;
         }
-        lastBiome = value;
         return value;
     }
 
-    public int Next(GridPos pos) {
-        return Next(pos, () => lastBiome);
-    }
+    public int Next(GridPos pos) => Next(pos, (lastBiome) => lastBiome, true);
+
+    public int this[GridPos pos] => grid[pos.Horizontal];
 
     public int[] Get(TriPos tri) {
         return (int[])
