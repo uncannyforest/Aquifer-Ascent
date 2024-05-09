@@ -18,16 +18,20 @@ public class CaveGrid : MonoBehaviour {
     public GameObject floor;
     public GameObject revcorner;
     public GameObject corner;
-    public GameObject revcornerFloor;
+    public GameObject revcornerBaseboard;
     public GameObject revcornerGutter;
-    public GameObject revcornerShelf;
-    public GameObject cornerFloor;
+    public GameObject cornerBaseboard;
     public GameObject cornerGutter;
-    public GameObject cornerShelf;
-    public GameObject cornerShelfwall;
-    public GameObject cornerBroadstair;
-    public GameObject cornerStair;
-    public GameObject cornerTightstair;
+    public GameObject lowerSlope;
+    public GameObject upperSlope;
+    public GameObject lowerCurve;
+    public GameObject upperCurve;
+    public GameObject endBaseboard;
+    public GameObject endGutter;
+    public GameObject tunnelStair;
+    public GameObject tunnelBroadStair;
+    public GameObject tunnelThinLedge;
+    public GameObject tunnelBroadLedge;
     public Material defaultMaterial;
 
     public Grid<bool> grid = new Grid<bool>();
@@ -66,11 +70,11 @@ public class CaveGrid : MonoBehaviour {
                 };
                 GridPiece child = this[tri];
                 if (child == null) {
-                    child = GameObject.Instantiate(prefab, tri.World,
+                    child = GameObject.Instantiate(prefab, tri.World + Vector3.down * scale.y,
                         tri.right ? Quaternion.identity : Quaternion.Euler(0, 180, 0), transform);
                     child.Pos = tri;
                 }
-                child.Set(data);
+                child.Refresh();
                 Decor.UpdatePos(tri, data, child);
             }
         }
@@ -86,7 +90,17 @@ public class CaveGrid : MonoBehaviour {
     public void SetPos(GridPos pos, bool value) {
         CaveGrid.Biome.Next(pos);
         grid[pos] = value;
+        grid[pos + GridPos.up] = value;
+        if (grid[pos + 2 * GridPos.up] != value && grid[pos + 3 * GridPos.up] == value) {
+            grid[pos + 2 * GridPos.up] = value;
+            UpdatePos(pos + 2 * GridPos.up);
+        }
+        if (grid[pos - GridPos.up] != value && grid[pos - 2 * GridPos.up] == value) {
+            grid[pos - GridPos.up] = value;
+            UpdatePos(pos - GridPos.up);
+        }
         UpdatePos(pos);
+        UpdatePos(pos + GridPos.up);
     }
 
 }

@@ -72,12 +72,12 @@ public struct GridPos  {
         else throw new InvalidOperationException("Not unit hex: " + ToString());
     }
 
-    public Vector3 World { get => Vector3.Scale(CaveGrid.Scale, new Vector3(x * 3/2f, w * 2f, (y * 3 + x * 3/2f) / SQRT3)); }
+    public Vector3 World { get => Vector3.Scale(CaveGrid.Scale, new Vector3(x * SQRT3, w, y * 2 + x)); }
     public static GridPos FromWorld(Vector3 worldCoord) {
         Vector3 coord = worldCoord.ScaleDivide(CaveGrid.Scale);
-        float fX = coord.x / 1.5f;
-        float fY = (Quaternion.Euler(0, 120, 0) * coord).x / 1.5f;
-        float fZ = (Quaternion.Euler(0, -120, 0) * coord).x / 1.5f;
+        float fX = coord.x / SQRT3;
+        float fY = (Quaternion.Euler(0, 120, 0) * coord).x / SQRT3;
+        float fZ = (Quaternion.Euler(0, -120, 0) * coord).x / SQRT3;
         int x = Mathf.RoundToInt(fX);
         int y = Mathf.RoundToInt(fY);
         int z = Mathf.RoundToInt(fZ);

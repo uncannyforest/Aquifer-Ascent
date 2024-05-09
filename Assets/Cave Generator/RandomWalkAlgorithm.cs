@@ -70,60 +70,53 @@ public class RandomWalkAlgorithm {
                 : GridPos.Random(hScale == 0 ? 1/3f : 1/9f, etherCurrent.HComponents.MaxNormalized());
             bool hScaleChange = false;
             if (random == lastMove && Random.value < .5f/(1 + hScale + vScale)) {
-                if (hScale == 0) {
-                    if (Random.Range(0, 2) == 0) {
+                if (hScale == 0 && vScale == 0) {
+                    if (Randoms.CoinFlip) {
                         hScale = 2;
                         vScale = 2;
                         Debug.Log("JUMPED BIG!");
+                    } else if (Randoms.CoinFlip) {
+                        vScale = 1;
+                        ToVScale1(ref newPosition);
                     } else {
                         hScale = 1;
                         newTriPosition = ToHScale1(newPosition, random);
                         hScaleChange = true;
                     }
-                } else if (vScale == 2) {
-                    if (Random.Range(0, 2) == 0) {
+                } else if (vScale == 2 && hScale == 2) {
+                    if (Randoms.CoinFlip) {
                         hScale = 0;
                         vScale = 0;
                         Debug.Log("JUMPED SMALL!");
+                    } else if (Randoms.CoinFlip) {
+                        hScale = 1;
+                        newTriPosition = ToHScale1(newPosition, random);
+                        hScaleChange = true;
                     } else {
                         vScale = 1;
                         ToVScale1(ref newPosition);
                     }
                 } else if (hScale == 1) {
-                //     hScale = Random.Range(0, 2) * 2;
-                //     position = FromHScale1(triPosition, random);
-                // } else if (vScale == 0) {
-                //     vScale = Random.Range(0, 2);
-                //     hScale = 1 + vScale;
-                //     if (hScale == 1) triPosition = ToHScale1(position, random);
-                //     else {
-                //         hScaleChange = false;
-                //         ToVScale1(ref random);
-                //     }
-                // } else {
-                //     vScale = 0;
-                //     hScaleChange = false;
-                //     FromVScale1(ref random);
-                    if (vScale == 0) {
+                    if (vScale == 0 || vScale == 2) {
                         int seed = Random.Range(0, 3);
                         hScale = seed;
-                        vScale = seed % 2;
+                        vScale = Mathf.Abs(vScale - seed % 2);
                         if (vScale == 1) ToVScale1(ref random);
                         else {
                             hScaleChange = true;
                             newPosition = FromHScale1(newTriPosition, random);
                         }
                     } else {
-                        if (Random.Range(0, 2) == 0) vScale = 0;
-                        else hScale = 2;
-                        if (vScale == 0) FromVScale1(ref random);
+                        if (Randoms.CoinFlip) vScale = Random.Range(0, 2) * 2;
+                        else hScale = Random.Range(0, 2) * 2;
+                        if (hScale == 1) FromVScale1(ref random);
                         else {
                             hScaleChange = true;
                             newPosition = FromHScale1(newTriPosition, random);
                         }
                     }
-                } else {
-                    if (vScale == 0) {
+                } else { // hScale == 0 or 2 but not same as vScale
+                    if (vScale == 0 || vScale == 2) {
                         if (Random.Range(0, 2) == 0) vScale = 1;
                         else hScale = 1;
                         if (vScale == 1) ToVScale1(ref random);
@@ -134,8 +127,8 @@ public class RandomWalkAlgorithm {
                     } else {
                         int seed = Random.Range(0, 3);
                         vScale = seed;
-                        hScale = 2 - seed % 2;
-                        if (hScale == 2) FromVScale1(ref random);
+                        hScale = Mathf.Abs(hScale - seed % 2);
+                        if (vScale != 1) FromVScale1(ref random);
                         else {
                             hScaleChange = true;
                             newTriPosition = ToHScale1(newPosition, random);
@@ -157,7 +150,7 @@ public class RandomWalkAlgorithm {
             if (vScale == 1) nextLoc += GridPos.up.World * .5f;
             List<GridPos> newCave = new List<GridPos>();
             for (int i = vScale == 2 ? -1 : 0; i <= Mathf.Min(vScale, 1); i++) {
-                if (hScale == 0) newCave.Add(newPosition);
+                if (hScale == 0) newCave.Add(newPosition + GridPos.up * i);
                 else if (hScale == 2) {
                     newCave.Add(newPosition + GridPos.up * i);
                     foreach (GridPos unit in GridPos.Units) {
@@ -168,9 +161,13 @@ public class RandomWalkAlgorithm {
                             newCave.Add(newPosition + unit + GridPos.up * i);
                     }
                 } else {
-                    foreach (GridPos corner in newTriPosition.HorizCorners)
-                        if (vScale == 0 || Random.value < .5f)
-                            newCave.Add(corner + GridPos.up * i);
+                    foreach (GridPos corner in newTriPosition.HorizCorners) {
+                        if (vScale == 2) {
+                            if (i == 0 || Random.value < 1/3f) newCave.Add(corner + GridPos.up * i);
+                        } else {
+                            if (vScale == 0 || Random.value < 2/3f) newCave.Add(corner + GridPos.up * i);
+                        }
+                    }
                 }
             }
 
@@ -207,7 +204,7 @@ public class RandomWalkAlgorithm {
             }
             justFlipped = false;
             // biomeTries = 0;
-            Debug.Log("Moved " + lastMove + " to " + position);
+            // Debug.Log("Moved " + lastMove + " to " + position);
         }
     }
 

@@ -35,7 +35,7 @@ public class RandomWalk : MonoBehaviour {
         int count = addOrbEvery;
         
         foreach (RandomWalkAlgorithm.Output step in RandomWalkAlgorithm.EnumerateSteps(interiaOfEtherCurrent, changeBiomeEvery, biasToLeaveCenterOfGravity)) {
-            foreach (GridPos position in step.newCave) if (!CaveGrid.I.grid[position]) {
+            foreach (GridPos position in step.newCave) {
                 CaveGrid.I.SetPos(position, true);
             }
             // if (step.newCave.Length > 0 && count++ % addOrbEvery == 0) {

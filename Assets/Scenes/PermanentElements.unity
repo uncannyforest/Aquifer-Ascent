@@ -39,7 +39,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.01636155, g: 0.019181503, b: 0.021893535, a: 1}
+  m_IndirectSpecularColor: {r: 0.016021518, g: 0.01882578, b: 0.021876836, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -968,6 +968,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_FOVAxisMode
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7757260547586297443, guid: 05330d818251943688824d690aeb9c68,
+        type: 3}
+      propertyPath: far clip plane
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 7757260547586297443, guid: 05330d818251943688824d690aeb9c68,
         type: 3}

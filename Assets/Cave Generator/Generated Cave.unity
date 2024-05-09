@@ -18,8 +18,8 @@ RenderSettings:
   m_FogColor: {r: 0, g: 0, b: 0, a: 1}
   m_FogMode: 1
   m_FogDensity: 0.01
-  m_LinearFogStart: 10
-  m_LinearFogEnd: 20
+  m_LinearFogStart: 15
+  m_LinearFogEnd: 30
   m_AmbientSkyColor: {r: 0.1882353, g: 0.09411765, b: 0.0627451, a: 1}
   m_AmbientEquatorColor: {r: 0, g: 0, b: 0, a: 1}
   m_AmbientGroundColor: {r: 0.1254902, g: 0.15686275, b: 0.2509804, a: 1}
@@ -164,9 +164,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
+      propertyPath: modRate
+      value: 0.6666667
+      objectReference: {fileID: 0}
+    - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
+        type: 3}
       propertyPath: orbParent
       value: 
       objectReference: {fileID: 285286790}
+    - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
+        type: 3}
+      propertyPath: addOrbEvery
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
       propertyPath: action.m_PersistentCalls.m_Calls.Array.size
@@ -287,30 +297,38 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: -4586612404793037062, guid: 423052d69178d4cd9a96667d215afb7b, type: 3}
-  scale: {x: 1.125, y: 0.5625, z: 1.125}
-  floor: {fileID: 919132149155446097, guid: 9b7632a22c7284731bdf5a4d79b5d30d, type: 3}
-  revcorner: {fileID: 919132149155446097, guid: d040a95805e254440b5ccdcc295e2f4e,
+  scale: {x: 2, y: 1, z: 2}
+  floor: {fileID: 2550463727306718371, guid: 802ff851b699b418ba63ceb21f57cd45, type: 3}
+  revcorner: {fileID: 8124854992641687857, guid: 802ff851b699b418ba63ceb21f57cd45,
     type: 3}
-  corner: {fileID: 919132149155446097, guid: 5abf15d20749e44dcb902b0756162378, type: 3}
-  revcornerFloor: {fileID: 919132149155446097, guid: 527d2bba087bf4ae78b4c0ade5e0ce3b,
+  corner: {fileID: -3807485315920446229, guid: 802ff851b699b418ba63ceb21f57cd45, type: 3}
+  revcornerBaseboard: {fileID: 8842036541108573873, guid: 802ff851b699b418ba63ceb21f57cd45,
     type: 3}
-  revcornerGutter: {fileID: 919132149155446097, guid: 5c3823e248801418989de079b9c58e26,
+  revcornerGutter: {fileID: -4828889266262801256, guid: 802ff851b699b418ba63ceb21f57cd45,
     type: 3}
-  revcornerShelf: {fileID: 919132149155446097, guid: e15aa56c2ff9943738ed8de8fce718f1,
+  cornerBaseboard: {fileID: 4081248524325575128, guid: 802ff851b699b418ba63ceb21f57cd45,
     type: 3}
-  cornerFloor: {fileID: 919132149155446097, guid: 368a0a2bb6232450789b24187505a201,
+  cornerGutter: {fileID: -456511365516288333, guid: 802ff851b699b418ba63ceb21f57cd45,
     type: 3}
-  cornerGutter: {fileID: 919132149155446097, guid: 4b828d29a37f84f5489604b63a57c879,
+  lowerSlope: {fileID: -1765129595556838872, guid: 802ff851b699b418ba63ceb21f57cd45,
     type: 3}
-  cornerShelf: {fileID: 919132149155446097, guid: 1ec6b64f935d3477b9ff72ff1d8a7354,
+  upperSlope: {fileID: -8166795947304997724, guid: 802ff851b699b418ba63ceb21f57cd45,
     type: 3}
-  cornerShelfwall: {fileID: 919132149155446097, guid: f9900d575faf5479992c5460a841671a,
+  lowerCurve: {fileID: -7430774708922009496, guid: 802ff851b699b418ba63ceb21f57cd45,
     type: 3}
-  cornerBroadstair: {fileID: 919132149155446097, guid: 97743d4c120b94948ba1bc992bfa5135,
+  upperCurve: {fileID: 525806475549138430, guid: 802ff851b699b418ba63ceb21f57cd45,
     type: 3}
-  cornerStair: {fileID: 919132149155446097, guid: f4cc7c8a5f6344f90877a66dfacfea08,
+  endBaseboard: {fileID: 6102064962777819904, guid: 802ff851b699b418ba63ceb21f57cd45,
     type: 3}
-  cornerTightstair: {fileID: 919132149155446097, guid: 8280f8c214dda4bbf8547f15336c214e,
+  endGutter: {fileID: -2979216932277808645, guid: 802ff851b699b418ba63ceb21f57cd45,
+    type: 3}
+  tunnelStair: {fileID: -7623979997665507964, guid: 802ff851b699b418ba63ceb21f57cd45,
+    type: 3}
+  tunnelBroadStair: {fileID: -1092774222082606763, guid: 802ff851b699b418ba63ceb21f57cd45,
+    type: 3}
+  tunnelThinLedge: {fileID: 5322805603060635459, guid: 802ff851b699b418ba63ceb21f57cd45,
+    type: 3}
+  tunnelBroadLedge: {fileID: 5335040772344283872, guid: 802ff851b699b418ba63ceb21f57cd45,
     type: 3}
   defaultMaterial: {fileID: 2100000, guid: b03e2ebe6f5dd4a2fb436eb70f8a2147, type: 2}
 --- !u!114 &1486949850
