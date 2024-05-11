@@ -35,8 +35,14 @@ public class RandomWalk : MonoBehaviour {
         int count = addOrbEvery;
         
         foreach (RandomWalkAlgorithm.Output step in RandomWalkAlgorithm.EnumerateSteps(interiaOfEtherCurrent, changeBiomeEvery, biasToLeaveCenterOfGravity)) {
-            foreach (GridPos position in step.newCave) {
-                CaveGrid.I.SetPos(position, true);
+            for (int i = 0; i < step.newCave.Length; i++) {
+                GridPos position = step.newCave[i];
+                if (step.iOddsAreBridge) {
+                    Debug.Log("Bridge at " + position + ", open: " + (i % 2 == 1));
+                    if (i == 1) Debug.DrawLine(position.World, step.newCave[i - 1].World, Color.blue, 600);
+                    if (i == 3) Debug.DrawLine(position.World, step.newCave[i - 1].World, Color.white, 600);
+                }
+                CaveGrid.I.SetPos(position, !step.iOddsAreBridge || (i % 2 == 0));
             }
             // if (step.newCave.Length > 0 && count++ % addOrbEvery == 0) {
             if (darkness.IsInDarkness) count++;

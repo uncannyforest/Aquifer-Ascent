@@ -11,12 +11,14 @@ public class RandomWalkAlgorithm {
         public GridPos[] newCave;
         public GridPos[] interesting;
         public Vector3 etherCurrent;
+        public bool iOddsAreBridge;
 
-        public Output(Vector3 location, GridPos[] newCave, GridPos[] interesting, Vector3 etherCurrent) {
+        public Output(Vector3 location, GridPos[] newCave, GridPos[] interesting, Vector3 etherCurrent, bool iZeroIsBridge) {
             this.location = location;
             this.newCave = newCave;
             this.interesting = interesting;
             this.etherCurrent = etherCurrent;
+            this.iOddsAreBridge = iZeroIsBridge;
         }
     }
 
@@ -25,8 +27,10 @@ public class RandomWalkAlgorithm {
         TriPos triPosition = new TriPos(GridPos.zero, false);
         int currentHScale = 0;
         int currentVScale = 0;
-        GridPos lastMove = GridPos.zero;
+        GridPos lastMove = GridPos.E;
         GridPos etherCurrent = new GridPos(0, inertiaOfEtherCurrent / 2, 0);
+        int levelOut = 0;
+        bool lastMoveBridge = false;
         bool justFlipped = false;
 
         GridPos lastEndPos = GridPos.zero;
@@ -36,7 +40,7 @@ public class RandomWalkAlgorithm {
         int biome = 1;
 
         CaveGrid.Biome.Next(position, (_) => biome, true);
-        yield return new Output(position.World, new GridPos[] {position}, new GridPos[] {}, Vector3.zero);
+        yield return new Output(position.World, new GridPos[] {position}, new GridPos[] {}, Vector3.zero, false);
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
             // if (biomeTries == 108) {
             //     justFlipped = false;
@@ -60,16 +64,17 @@ public class RandomWalkAlgorithm {
             }
 
             List<GridPos> interesting = new List<GridPos>();
-            int changeAmount = lastMove == GridPos.zero ? 2
-                : hScale == 0 ? 2
-                : hScale + vScale == 1 ? Random.Range(0, 3)
-                : hScale == vScale ? Random.Range(0, 2)
-                : 2 - Mathf.FloorToInt(Mathf.Sqrt(Random.Range(0, 9)));
-            GridPos random = changeAmount == 0 ? lastMove.RandomVertDeviation(hScale == 1 && vScale == 1 ? 1/27f : 1/9f)
+            int changeAmount = hScale == 2 || lastMoveBridge ? Random.Range(0, 2)
+                : hScale == 1 ? Random.Range(0, 3)
+                : 2;
+            GridPos random = changeAmount == 0 ? lastMove.RandomVertDeviation(2/3f, 1/3f)
                 : changeAmount == 1 ? lastMove.RandomHorizDeviation(etherCurrent.HComponents.MaxNormalized())
-                : GridPos.Random(hScale == 0 ? 1/3f : 1/9f, etherCurrent.HComponents.MaxNormalized());
+                : GridPos.Random(2/3f, etherCurrent.HComponents);
+            if (levelOut != 0) {
+                random.w = levelOut;
+            }
             bool hScaleChange = false;
-            if (random == lastMove && Random.value < .5f/(1 + hScale + vScale)) {
+            if (Random.value < .1f) {//random == lastMove && Random.value < .5f/(1 + hScale + vScale)) {
                 if (hScale == 0 && vScale == 0) {
                     if (Randoms.CoinFlip) {
                         hScale = 2;
@@ -144,13 +149,38 @@ public class RandomWalkAlgorithm {
                     newPosition += random;
                 }
             }
+
+            GridPos levelOutPos = hScale == 1 ? Randoms.InArray(newTriPosition.HorizCorners) : newPosition;
+            if (vScale == 2) levelOutPos -= GridPos.up;
+            levelOut = LevelOut(levelOutPos, vScale, hScale != 1 && lastMove.Horizontal != -random.Horizontal, out int? bridgeInstead);
+            bool doBridge = false;
+            if (bridgeInstead is int bridge) {
+                doBridge = true;
+                Debug.Log("BRIDGE! " + bridge);
+            }
+
             Vector3 nextLoc;
             if (hScale == 1) nextLoc = newTriPosition.World;
             else nextLoc = newPosition.World;
             if (vScale == 1) nextLoc += GridPos.up.World * .5f;
             List<GridPos> newCave = new List<GridPos>();
-            for (int i = vScale == 2 ? -1 : 0; i <= Mathf.Min(vScale, 1); i++) {
-                if (hScale == 0) newCave.Add(newPosition + GridPos.up * i);
+            if (doBridge) {
+                GridPos bridgePos = newPosition + GridPos.up * (int)bridgeInstead;
+                newCave.Add(bridgePos);
+                newCave.Add(bridgePos - GridPos.up * 2);
+                if (!lastMoveBridge) {
+                    Debug.Log("Last pos before bridge: " + position);
+                    GridPos also = position;
+                    also.w = Mathf.Max(position.w, bridgePos.w - 1); // not needed if bridge must == 0
+                    newCave.Add(also);
+                    newCave.Add(also - GridPos.up * 2);
+                    if (bridgePos.w > also.w)
+                        newCave.Add(also + GridPos.up);
+                } else if (bridgePos.w > position.w + 1) {
+                    newCave.Add(position + GridPos.up);
+                }
+            } else for (int i = vScale == 2 ? -1 : 0; i <= Mathf.Min(vScale, 1); i++) {
+                if (hScale == 0 || (hScale == 2 && lastMoveBridge)) newCave.Add(newPosition + GridPos.up * i);
                 else if (hScale == 2) {
                     newCave.Add(newPosition + GridPos.up * i);
                     foreach (GridPos unit in GridPos.Units) {
@@ -190,8 +220,9 @@ public class RandomWalkAlgorithm {
             // }
             foreach (GridPos pos in newCave) CaveGrid.Biome.Next(pos);
 
-            yield return new Output(nextLoc, newCave.ToArray(), interesting.ToArray(), etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero));
+            yield return new Output(nextLoc, newCave.ToArray(), interesting.ToArray(), etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero), doBridge);
             lastMove = random;
+            lastMoveBridge = doBridge;
             position = newPosition;
             triPosition = newTriPosition;
             currentHScale = hScale;
@@ -205,6 +236,47 @@ public class RandomWalkAlgorithm {
             justFlipped = false;
             // biomeTries = 0;
             // Debug.Log("Moved " + lastMove + " to " + position);
+        }
+    }
+
+    private static int LevelOut(GridPos pos, int vScale, bool considerBridge, out int? bridgeInstead) {
+        int spaceBelow = 1; // skip poss ledge to erase unless beyond it is also ground
+        int spaceAbove = 1;
+        GridPos checkPos = pos - GridPos.up * 2;
+        // Debug.Log("Not checking height " + (pos.w) + " through " + (pos.w + 1 + vScale));
+        while (CaveGrid.I.grid[checkPos]) {
+            spaceBelow++;
+            checkPos -= GridPos.up;
+        }
+        if (spaceBelow == 1 && !CaveGrid.I.grid[pos - GridPos.up * 1]) spaceBelow = 0; // beyond poss ledge is ground
+        checkPos = pos + GridPos.up * (vScale + 3);
+        while (CaveGrid.I.grid[checkPos]) {
+            spaceAbove++;
+            checkPos += GridPos.up;
+        }
+        if (spaceAbove == 1 && !CaveGrid.I.grid[pos + GridPos.up * (vScale + 2)]) spaceAbove = 0;
+        if (spaceAbove + spaceBelow > 0) Debug.Log("Space above: " + spaceAbove + " space below: " + spaceBelow + " total: " + (spaceAbove + spaceBelow + vScale + 2));
+        if (considerBridge && spaceBelow + spaceAbove + vScale >= 4) {
+            bridgeInstead = Mathf.Max(4 - spaceBelow + (vScale == 2 ? -1 : 0), 0);
+            if (bridgeInstead <= 1) {
+                return 0;
+            } else {
+                Debug.Log("Would bridge if we started higher, factor " + bridgeInstead);
+                bridgeInstead = null;
+            }
+            int placeboBridge = Mathf.Max(4 - spaceAbove + (vScale >= 1 ? -1 : 0), 0); // to balance up/down of random walk
+            if (placeboBridge <= 1) {
+                Debug.Log("Not leveling out because all the space above makes an imaginary upside-down bridge");
+                return 0;
+            }
+        } else {
+            bridgeInstead = null;
+        }
+        if (spaceBelow > 0 && spaceAbove > 0) {
+            Debug.Log("Entering open area");
+            return 0;
+        } else {
+            return spaceBelow > 0 ? -1 : spaceAbove > 0 ? 1 : 0;
         }
     }
 

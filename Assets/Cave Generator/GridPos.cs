@@ -137,6 +137,14 @@ public struct GridPos  {
 
     public static GridPos RandomHoriz() => Units[UnityEngine.Random.Range(0, 6)];
 
+    public GridPos RandomDeviation(Vector3 bias) {
+        GridPos tentative = RandomHoriz(bias);
+        if (tentative == this.Horizontal) {
+            tentative = this.RandomVertDeviation(1, 0);
+        }
+        return tentative;
+    }
+
     public GridPos RandomHorizDeviation(Vector3 bias) {
         // because this must be a unit GridPos,
         // componentwise(this * this) components are integer [0, 1], sum to 2, and one must be 0
@@ -157,7 +165,7 @@ public struct GridPos  {
             return new GridPos(w, y, x);
     }
 
-    public GridPos RandomVertDeviation(float elevChangeRate) {
+    public GridPos RandomVertDeviation(float elevChangeRate, float flattenBackRate) {
         if (this.w == 0) {
             if (UnityEngine.Random.value < elevChangeRate) {
                 return this + up * (UnityEngine.Random.Range(0, 2) * 2 - 1);
@@ -165,10 +173,10 @@ public struct GridPos  {
                 return this;
             }
         } else {
-            if (UnityEngine.Random.value < elevChangeRate) {
-                return this;
-            } else {
+            if (UnityEngine.Random.value < flattenBackRate) {
                 return this.Horizontal;
+            } else {
+                return this;
             }
         }
     }
