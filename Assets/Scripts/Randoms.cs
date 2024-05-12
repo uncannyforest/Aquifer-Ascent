@@ -7,6 +7,7 @@ public class Randoms {
     public static int Sign { get => Random.Range(0, 2) * 2 - 1; }
 
     public static T InArray<T>(T[] array) => array[Random.Range(0, array.Length)];
+    public static T InList<T>(IList<T> array) => array[Random.Range(0, array.Count)];
 
     public static Vector2Int Vector2Int(Vector2Int v0, Vector2Int v1) {
         return new Vector2Int(Random.Range(v0.x, v1.x), Random.Range(v0.y, v1.y));

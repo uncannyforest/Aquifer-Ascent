@@ -18,7 +18,7 @@ public class Holdable : MonoBehaviour
 
     [NonSerialized] public Transform parentWhenFree;
     private float heldState = 0.0f; // 0 if not held, 1 if held
-    private Transform playerHoldTransform;
+    [NonSerialized] public Transform playerHoldTransform;
     Collider physicsCollider;
     Rigidbody myRigidbody;
     Vector3 oldPosition;

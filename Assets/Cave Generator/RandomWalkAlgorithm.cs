@@ -255,7 +255,7 @@ public class RandomWalkAlgorithm {
             checkPos += GridPos.up;
         }
         if (spaceAbove == 1 && !CaveGrid.I.grid[pos + GridPos.up * (vScale + 2)]) spaceAbove = 0;
-        if (spaceAbove + spaceBelow > 0) Debug.Log("Space above: " + spaceAbove + " space below: " + spaceBelow + " total: " + (spaceAbove + spaceBelow + vScale + 2));
+        // if (spaceAbove + spaceBelow > 0) Debug.Log("Space above: " + spaceAbove + " space below: " + spaceBelow + " total: " + (spaceAbove + spaceBelow + vScale + 2));
         if (considerBridge && spaceBelow + spaceAbove + vScale >= 4) {
             bridgeInstead = Mathf.Max(4 - spaceBelow + (vScale == 2 ? -1 : 0), 0);
             if (bridgeInstead <= 1) {

@@ -482,8 +482,8 @@ MonoBehaviour:
   deadTree: {fileID: 4152080433919208487, guid: 7d900be1d89ca43a1978b3b9d7f4bd2f,
     type: 3}
   deadTreeRate: 18
-  positionOffsetRelHoriz: 0.75
-  positionOffsetAbsY: -0.125
+  positionOffsetRelHoriz: 0.5
+  positionOffsetAbsY: -0.25
 --- !u!4 &1486949851
 Transform:
   m_ObjectHideFlags: 0

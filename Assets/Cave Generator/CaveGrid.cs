@@ -57,17 +57,6 @@ public class CaveGrid : MonoBehaviour {
             GridPos posToCheck = pos + GridPos.up * i;
             foreach (TriPos tri in posToCheck.Triangles) {
                 GridPos[] horizCorners = tri.HorizCorners;
-                bool[] data = new bool[] {
-                    grid[horizCorners[0] - GridPos.up],
-                    grid[horizCorners[1] - GridPos.up],
-                    grid[horizCorners[2] - GridPos.up],
-                    grid[horizCorners[0]],
-                    grid[horizCorners[1]],
-                    grid[horizCorners[2]],
-                    grid[horizCorners[0] + GridPos.up],
-                    grid[horizCorners[1] + GridPos.up],
-                    grid[horizCorners[2] + GridPos.up],
-                };
                 GridPiece child = this[tri];
                 if (child == null) {
                     child = GameObject.Instantiate(prefab, tri.World + Vector3.down * scale.y,
@@ -75,7 +64,7 @@ public class CaveGrid : MonoBehaviour {
                     child.Pos = tri;
                 }
                 child.Refresh();
-                Decor.UpdatePos(tri, data, child);
+                Decor.UpdatePos(tri, child);
             }
         }
     }
