@@ -211,6 +211,8 @@ public class GridPiece : MonoBehaviour {
     private void SetMaterial(Transform newPiece, int[] src) {
         Color[] floors = CaveGrid.Biome.GetFloors(pos);
         Color[] walls = CaveGrid.Biome.GetWalls(pos);
+        // Better not to make a new material — this is the current bottleneck.
+        // 0.3 ms * 18 TriPoses * 2 Sets * 21 largest diamter = 200ms
         Material material = new Material(CaveGrid.I.defaultMaterial);
         material.SetColor("_Color1", floors[src[0]]);
         material.SetColor("_Color2", floors[src[1]]);

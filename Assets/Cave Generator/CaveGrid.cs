@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-[RequireComponent(typeof(Biome))]
+[RequireComponent(typeof(Biomes))]
 [RequireComponent(typeof(Decor))]
 public class CaveGrid : MonoBehaviour {
     private static CaveGrid instance;
@@ -37,6 +37,8 @@ public class CaveGrid : MonoBehaviour {
     public Grid<bool> grid = new Grid<bool>();
     public static Grid<bool> Grid { get => instance.grid; }
 
+    private Dictionary<TriPos, GridPiece> renderGrid = new Dictionary<TriPos, GridPiece>();
+
     private Decor decor;
     public static Decor Decor {
         get {
@@ -44,10 +46,10 @@ public class CaveGrid : MonoBehaviour {
             return I.decor;
         }
     }
-    private Biome biome;
-    public static Biome Biome {
+    private Biomes biome;
+    public static Biomes Biome {
         get {
-            if (I.biome == null) I.biome = I.GetComponent<Biome>();
+            if (I.biome == null) I.biome = I.GetComponent<Biomes>();
             return I.biome;
         }
     }
@@ -57,22 +59,16 @@ public class CaveGrid : MonoBehaviour {
             GridPos posToCheck = pos + GridPos.up * i;
             foreach (TriPos tri in posToCheck.Triangles) {
                 GridPos[] horizCorners = tri.HorizCorners;
-                GridPiece child = this[tri];
-                if (child == null) {
+                bool childExists = renderGrid.TryGetValue(tri, out GridPiece child);
+                if (!childExists) {
                     child = GameObject.Instantiate(prefab, tri.World + Vector3.down * scale.y,
                         tri.right ? Quaternion.identity : Quaternion.Euler(0, 180, 0), transform);
                     child.Pos = tri;
+                    renderGrid[tri] = child;
                 }
                 child.Refresh();
                 Decor.UpdatePos(tri, child);
             }
-        }
-    }
-
-    public GridPiece this[TriPos tri] {
-        get {
-            Transform childTransform = transform.Find(tri.ToString());
-            return childTransform == null ? null : childTransform.GetComponent<GridPiece>();
         }
     }
 

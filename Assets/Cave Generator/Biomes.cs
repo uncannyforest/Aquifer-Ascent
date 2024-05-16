@@ -3,9 +3,17 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Biome : MonoBehaviour {
+[Serializable]
+public class Biome {
+    public GameObject[] decorFloor;
+    public GameObject[] decorTallFloor;
+    public GameObject[] decorAnywhere;
+}
+
+public class Biomes : MonoBehaviour {
     public Color[] floors; // 0 is default: ignore
     public Color[] walls; // 0 is default: ignore
+    public Biome[] decor;
 
     private Grid<int> grid = new Grid<int>();
 

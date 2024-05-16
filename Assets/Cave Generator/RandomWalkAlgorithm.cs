@@ -37,7 +37,7 @@ public class RandomWalkAlgorithm {
         GridPos lastEndEther = new GridPos(0, -inertiaOfEtherCurrent - 1, 0);
 
         int nextBiomeCount = changeBiomeEvery;
-        int biome = 1;
+        int biome = Random.Range(1, CaveGrid.Biome.floors.Length + 1);
 
         CaveGrid.Biome.Next(position, (_) => biome, true);
         yield return new Output(position.World, new GridPos[] {position}, new GridPos[] {}, Vector3.zero, false);

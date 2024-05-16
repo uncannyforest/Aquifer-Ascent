@@ -300,7 +300,12 @@ PrefabInstance:
     - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
       propertyPath: addOrbEvery
-      value: 2
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
+        type: 3}
+      propertyPath: changeBiomeEvery
+      value: 108
       objectReference: {fileID: 0}
     - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
@@ -481,7 +486,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deadTree: {fileID: 4152080433919208487, guid: 7d900be1d89ca43a1978b3b9d7f4bd2f,
     type: 3}
-  deadTreeRate: 18
+  deadTreeRate: 54
+  nothingRate: 54
+  sameDecorRate: 0.8333333
   positionOffsetRelHoriz: 0.5
   positionOffsetAbsY: -0.25
 --- !u!4 &1486949851
@@ -538,6 +545,98 @@ MonoBehaviour:
   - {r: 0.8784314, g: 1, b: 0.5019608, a: 1}
   - {r: 1, g: 0, b: 0.7529412, a: 1}
   - {r: 1, g: 1, b: 0.8784314, a: 1}
+  decor:
+  - decorFloor: []
+    decorTallFloor: []
+    decorAnywhere: []
+  - decorFloor:
+    - {fileID: 4867889463058203156, guid: f550c80a288252347bddcb7465dc52df, type: 3}
+    - {fileID: 6790492165088344816, guid: a620afd0f970b5d41a1c9398ef276fd4, type: 3}
+    decorTallFloor: []
+    decorAnywhere:
+    - {fileID: 1799145172504711529, guid: 18af26af61ee8234caa44dc89f89d5cf, type: 3}
+  - decorFloor:
+    - {fileID: 100000, guid: 097d934566947854b838f51016a9462b, type: 3}
+    - {fileID: 7471421655829396615, guid: 052dcfee789a145e88f843a41517ca0f, type: 3}
+    - {fileID: 6266233770168992755, guid: 3ecf9e154c95d485f9ba5233ac29b97e, type: 3}
+    - {fileID: 145430, guid: 82f6882977329724ca4b934e09af87fc, type: 3}
+    decorTallFloor: []
+    decorAnywhere: []
+  - decorFloor:
+    - {fileID: 145430, guid: 82f6882977329724ca4b934e09af87fc, type: 3}
+    - {fileID: 5157409133979067158, guid: 4b21e533c871dba4bb5c56ba22947be8, type: 3}
+    decorTallFloor:
+    - {fileID: 108225653778294438, guid: 3e2accafa3a5f1b40ba86cf39bcb49a7, type: 3}
+    decorAnywhere: []
+  - decorFloor:
+    - {fileID: 2594766243793620232, guid: 4d1f930728eb81f499eefd1f6d4db221, type: 3}
+    - {fileID: 2464754855653894261, guid: d7375139d18121f4daae96053a84e4c9, type: 3}
+    - {fileID: 2831074819202018473, guid: 221bd8eee906efe489a9f1c8aad0ec09, type: 3}
+    - {fileID: 5206183479118557810, guid: 96d41c598e0118d4e8684be3e2d7effb, type: 3}
+    - {fileID: 3759753885466561612, guid: 430aea17f65ddba419bf9f426b17128f, type: 3}
+    - {fileID: 7116149066112205175, guid: aca4c69ba2792044da19860502518138, type: 3}
+    - {fileID: 3490930834329824882, guid: 08bdb42a7413db34e867890b29e20ecd, type: 3}
+    decorTallFloor:
+    - {fileID: 5023827496289606453, guid: a79279818571b6848a9ccb8dcb36dd2c, type: 3}
+    - {fileID: 5142532879768883847, guid: 5983c8a04c0e73047a6c860b9cd9aaad, type: 3}
+    decorAnywhere: []
+  - decorFloor:
+    - {fileID: 3585696103644926157, guid: c4e981a1c971f6242b943d74ed0d8a65, type: 3}
+    - {fileID: 4375944474646908325, guid: 0c1dc9162f86dac488068fdcb3cf9715, type: 3}
+    - {fileID: 6976615927814636928, guid: 37f9aeb2fdaf19f4a8efd7ce8a593dcd, type: 3}
+    decorTallFloor: []
+    decorAnywhere: []
+  - decorFloor: []
+    decorTallFloor: []
+    decorAnywhere:
+    - {fileID: 1721112587459618, guid: 2ed80e4af24778742a16837f6b64d172, type: 3}
+    - {fileID: 1866083037941774, guid: 7fe8fb23b001d994f92ccc500f281cf8, type: 3}
+    - {fileID: 1173167114142786, guid: a07a929fcb59ef44aa0b84e31eb0078e, type: 3}
+    - {fileID: 1347342049439634, guid: 2a3d0937e42cd1141abe41a3a1279e62, type: 3}
+    - {fileID: 1012599138547442, guid: 8fcd235d2094ac44094696a898fa6a10, type: 3}
+  - decorFloor:
+    - {fileID: 1806273466138086, guid: 065211b13cf2c0b45a7ad739ba6e8cc2, type: 3}
+    decorTallFloor:
+    - {fileID: 1095773145228200, guid: fac5acd5ad489214781636c608a0c628, type: 3}
+    decorAnywhere:
+    - {fileID: 3117357111836234255, guid: 5ad0841d147e6664f9ee38e733624608, type: 3}
+    - {fileID: 6352184942146035110, guid: 47ded181e73460047bae5118c0254d3e, type: 3}
+  - decorFloor:
+    - {fileID: 1374172049625452, guid: 34c65acd7feb107489a71157e525c9e7, type: 3}
+    - {fileID: 1065655044243356, guid: 20f64b4081161ef43b320aa975519fdc, type: 3}
+    - {fileID: 1891266665448334, guid: 67a0360629c18d741ac237d5197935cd, type: 3}
+    - {fileID: 1016677629058294, guid: 5b80f67818daed24a80bc22e88db2bb8, type: 3}
+    decorTallFloor:
+    - {fileID: 1986308318195784, guid: f6045a15e1065124680c92c504c8d7ea, type: 3}
+    - {fileID: 1175661577396104, guid: 9b2afb2de81f7fa4bb4c6c9533ff3e7f, type: 3}
+    - {fileID: 1187100871979764, guid: b8ca6433e7a78e346904aef72892f856, type: 3}
+    - {fileID: 1864972976023934, guid: c4a173ae0083fee4db746ecdf20ba032, type: 3}
+    decorAnywhere: []
+  - decorFloor:
+    - {fileID: 5073852026214657108, guid: 64ffe5f1b127a43c08f05f52fc5da400, type: 3}
+    - {fileID: 5704823550135258350, guid: 7f669b3f361c44ce3b69cba2a0868e03, type: 3}
+    - {fileID: 5205794978723719751, guid: fb4b171060356478ab6a62dc5a25d8fe, type: 3}
+    decorTallFloor: []
+    decorAnywhere:
+    - {fileID: 1426963905672406899, guid: cef107ad9edb84771b6e65b42ab64f4b, type: 3}
+  - decorFloor: []
+    decorTallFloor:
+    - {fileID: 283491861412978150, guid: d85f77d368a7cb74d88aeccc3c5a5348, type: 3}
+    - {fileID: 5614180682871777939, guid: 2196e66c52d25ac469e55fb8f4d54d4a, type: 3}
+    decorAnywhere: []
+  - decorFloor:
+    - {fileID: 1091993864863493443, guid: b992dd4286d304961b713c6904341983, type: 3}
+    - {fileID: 4353699184651255449, guid: 6ab95afc5b621784ca0606b0b15afde3, type: 3}
+    - {fileID: 232201817641517859, guid: d1f25fa0ad16941af9071e1410db2027, type: 3}
+    decorTallFloor:
+    - {fileID: 6625984507258901549, guid: ccebfc242bed46749a5dcef87dd83423, type: 3}
+    - {fileID: 1311534305500079584, guid: 1850815f38acaab4085c2fb6a7ca2928, type: 3}
+    decorAnywhere:
+    - {fileID: 385491262653265843, guid: 1ac31fb474aead74ab0101d0d6546c52, type: 3}
+    - {fileID: 2807940955490974254, guid: b87c30b9056d0fb4dbb257b188a32501, type: 3}
+  - decorFloor: []
+    decorTallFloor: []
+    decorAnywhere: []
   lastBiome: 0
 --- !u!1001 &2130909689
 PrefabInstance:
