@@ -65,6 +65,21 @@ public class CameraMux : MonoBehaviour {
             activeCamera.transform.localRotation = destRot;
         }
     }
+
+    public void SwitchCameraNow(bool ortho) {
+        Camera newCamera = ortho ? orthoCam : perspectiveCam;
+        GameObject newRig = ortho ? orthoRig : perspectiveRig;
+        if (newCamera == activeCamera) return;
+        if (coroutine != null) {
+            StopCoroutine(coroutine);
+            ((IDisposable)coroutine).Dispose();
+        }
+        activeRig.SetActive(false);
+        newRig.SetActive(true);
+        activeCamera = newCamera;
+        activeRig = newRig;
+        onSwitchCamera.Invoke(newCamera);
+    }
  
     public void SwitchCamera(bool ortho) {
         SwitchCamera(ortho, defaultTransitionDuration);
