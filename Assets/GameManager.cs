@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour {
 
     public string startScene;
 
+    public List<GameObject> activateTheseOnDeath = new List<GameObject>();
     public List<GameObject> deactivateTheseOnDeath = new List<GameObject>();
 
     private int mode = 1;
@@ -40,6 +41,10 @@ public class GameManager : MonoBehaviour {
         foreach (GameObject go in deactivateTheseOnDeath) {
             go.SetActive(false);
         }
+        foreach (GameObject go in activateTheseOnDeath) {
+            go.SetActive(true);
+        }
+        Time.timeScale = 0;
     }
 
     private void Restart() {
@@ -53,6 +58,10 @@ public class GameManager : MonoBehaviour {
         foreach (GameObject go in deactivateTheseOnDeath) {
             go.SetActive(true);
         }
+        foreach (GameObject go in activateTheseOnDeath) {
+            go.SetActive(false);
+        }
+        Time.timeScale = 1;
         GameObject.FindObjectOfType<CameraMux>().SwitchCameraNow(false);
         StartCoroutine(LoadScenes());
     }

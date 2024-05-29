@@ -26,4 +26,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Cave Generator/Generated Cave.unity
     guid: 30eb3128650c44a4d9dd9ba677af6484
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: 56e0dec578c0b4cc795cf14aebc4fec5,
+      type: 2}

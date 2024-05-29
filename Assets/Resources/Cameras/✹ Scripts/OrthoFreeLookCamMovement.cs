@@ -93,12 +93,12 @@ public class OrthoFreeLookCamMovement : MonoBehaviour
 
     private void HandleRotationMovement()
     {
-        if(Time.timeScale < float.Epsilon)
-        return;
+        // if(Time.timeScale < float.Epsilon)
+        // return; // why???
 
         // Read the user input
-        var x = SimpleInput.GetAxis("Mouse X");
-        var y = SimpleInput.GetAxis("Mouse Y");
+        var x = SimpleInput.GetAxisRaw("Mouse X");
+        var y = SimpleInput.GetAxisRaw("Mouse Y");
 
         // get current angle
         Vector3 m_TransformEulers = transform.localRotation.eulerAngles;
@@ -151,7 +151,7 @@ public class OrthoFreeLookCamMovement : MonoBehaviour
 
         if (m_TurnSmoothing > 0)
         {
-            transform.localRotation = Quaternion.Slerp(transform.localRotation, m_TransformTargetRot, m_TurnSmoothing * Time.deltaTime);
+            transform.localRotation = Quaternion.Slerp(transform.localRotation, m_TransformTargetRot, m_TurnSmoothing * Time.unscaledDeltaTime);
         }
         else
         {
