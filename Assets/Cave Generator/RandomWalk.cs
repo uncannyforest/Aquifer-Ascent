@@ -11,9 +11,12 @@ public class RandomWalk : MonoBehaviour {
     public float modRate = 2/3f;
     public float slowDown = 1/18f;
     public int addOrbEvery = 18;
+    public int maxAddOrbSteps = 18;
+    public int orbChargeRampUp = 4;
     public int changeBiomeEvery = 18;
     public float biasToLeaveCenterOfGravity = 1;
-    public float cheatSlowdown = 4;
+    public float cheatSlowdown = 3;
+    public float upwardRate = .5f;
     
     private Vector3 prevLoc = Vector3.zero;
     private Vector3 nextLoc = Vector3.zero;
@@ -23,6 +26,7 @@ public class RandomWalk : MonoBehaviour {
 
     private InDarkness darkness;
     private Vector3 etherCurrent;
+    private int orbChargeRampUpStep = 1;
 
     public void Awake() {
         darkness = GetComponentInChildren<InDarkness>();
@@ -33,8 +37,9 @@ public class RandomWalk : MonoBehaviour {
 
     public IEnumerator Runner() {
         int count = addOrbEvery;
+        int absoluteCount = 0;
         
-        foreach (RandomWalkAlgorithm.Output step in RandomWalkAlgorithm.EnumerateSteps(interiaOfEtherCurrent, changeBiomeEvery, biasToLeaveCenterOfGravity)) {
+        foreach (RandomWalkAlgorithm.Output step in RandomWalkAlgorithm.EnumerateSteps(interiaOfEtherCurrent, changeBiomeEvery, biasToLeaveCenterOfGravity, upwardRate)) {
             for (int i = 0; i < step.newCave.Length; i++) {
                 GridPos position = step.newCave[i];
                 if (step.iOddsAreBridge) {
@@ -47,9 +52,17 @@ public class RandomWalk : MonoBehaviour {
             // if (step.newCave.Length > 0 && count++ % addOrbEvery == 0) {
             if (darkness.IsInDarkness) count++;
             else count = 0;
-            if (count >= addOrbEvery) {
+            absoluteCount++;
+            if (count >= addOrbEvery || absoluteCount >= maxAddOrbSteps) {
+                if (absoluteCount >= maxAddOrbSteps) Debug.Log("MAX ADD ORB STEPS TRIGGERED");
                 StandardOrb orb = GameObject.Instantiate(orbPrefab, step.location, Quaternion.identity, orbParent);
+                if (orbChargeRampUpStep < orbChargeRampUp) {
+                    orb.chargeTime *= ((float)orbChargeRampUpStep / orbChargeRampUp);
+                    orbChargeRampUpStep++;
+                }
+                GameObject.FindObjectOfType<RisingWater>().AddOrb(orb);
                 if (cheat) orb.chargeTime *= cheatSlowdown;
+                absoluteCount = 0;
             }
             foreach (GridPos interesting in step.interesting) {
                 StandardOrb orb = GameObject.Instantiate(orbPrefab, interesting.World, Quaternion.identity, orbParent);

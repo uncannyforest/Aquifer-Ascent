@@ -22,7 +22,7 @@ public class RandomWalkAlgorithm {
         }
     }
 
-    public static IEnumerable<Output> EnumerateSteps(int inertiaOfEtherCurrent, int changeBiomeEvery, float biasToLeaveCenterOfGravity) {
+    public static IEnumerable<Output> EnumerateSteps(int inertiaOfEtherCurrent, int changeBiomeEvery, float biasToLeaveCenterOfGravity, float upwardRate) {
         GridPos position = GridPos.zero;
         TriPos triPosition = new TriPos(GridPos.zero, false);
         int currentHScale = 0;
@@ -37,7 +37,7 @@ public class RandomWalkAlgorithm {
         GridPos lastEndEther = new GridPos(0, -inertiaOfEtherCurrent - 1, 0);
 
         int nextBiomeCount = changeBiomeEvery;
-        int biome = Random.Range(1, CaveGrid.Biome.floors.Length + 1);
+        int biome = 1;//Random.Range(1, CaveGrid.Biome.floors.Length);
 
         CaveGrid.Biome.Next(position, (_) => biome, true);
         yield return new Output(position.World, new GridPos[] {position}, new GridPos[] {}, Vector3.zero, false);
@@ -67,11 +67,14 @@ public class RandomWalkAlgorithm {
             int changeAmount = hScale == 2 || lastMoveBridge ? Random.Range(0, 2)
                 : hScale == 1 ? Random.Range(0, 3)
                 : 2;
-            GridPos random = changeAmount == 0 ? lastMove.RandomVertDeviation(2/3f, 1/3f)
+            GridPos random = changeAmount == 0 ? lastMove.RandomVertDeviation(2/3f, 2/3f, upwardRate)
                 : changeAmount == 1 ? lastMove.RandomHorizDeviation(etherCurrent.HComponents.MaxNormalized())
-                : GridPos.Random(2/3f, etherCurrent.HComponents);
+                : GridPos.Random(2/3f, etherCurrent.HComponents, upwardRate);
             if (levelOut != 0) {
                 random.w = levelOut;
+                Debug.Log("LEVELING OUT! " + levelOut);
+            } else {
+                // Debug.Log("Was " + position.w + " / Up? " + random.w);
             }
             bool hScaleChange = false;
             if (Random.value < .1f) {//random == lastMove && Random.value < .5f/(1 + hScale + vScale)) {
@@ -192,11 +195,7 @@ public class RandomWalkAlgorithm {
                     }
                 } else {
                     foreach (GridPos corner in newTriPosition.HorizCorners) {
-                        if (vScale == 2) {
-                            if (i == 0 || Random.value < 1/3f) newCave.Add(corner + GridPos.up * i);
-                        } else {
-                            if (vScale == 0 || Random.value < 2/3f) newCave.Add(corner + GridPos.up * i);
-                        }
+                        if (vScale < 2 || i == 0 || Random.value < 1/3f) newCave.Add(corner + GridPos.up * i);
                     }
                 }
             }
@@ -272,6 +271,8 @@ public class RandomWalkAlgorithm {
         } else {
             bridgeInstead = null;
         }
+        // Debug.Log("Current pos " + pos + " NCH " + pos.w + " through " + (pos.w + 1 + vScale) +
+        //     " and space B/A " + spaceBelow + "/" + spaceAbove);
         if (spaceBelow > 0 && spaceAbove > 0) {
             Debug.Log("Entering open area");
             return 0;

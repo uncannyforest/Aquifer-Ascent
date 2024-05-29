@@ -102,10 +102,10 @@ public struct GridPos  {
         new TriPos(this + S, true),
     };}
 
-    public static GridPos Random(float elevChangeRate, Vector3 bias) {
+    public static GridPos Random(float elevChangeRate, Vector3 bias, float upwardRate = .5f) {
         GridPos horiz = RandomHoriz(bias);
         if (UnityEngine.Random.value < elevChangeRate) {
-            int vert = UnityEngine.Random.value < .5f ? -1 : 1;
+            int vert = UnityEngine.Random.value < upwardRate ? 1 : -1;
             return horiz + GridPos.up * vert;
         } else {
             return horiz;
@@ -165,10 +165,10 @@ public struct GridPos  {
             return new GridPos(w, y, x);
     }
 
-    public GridPos RandomVertDeviation(float elevChangeRate, float flattenBackRate) {
+    public GridPos RandomVertDeviation(float elevChangeRate, float flattenBackRate, float upwardRate = .5f) {
         if (this.w == 0) {
             if (UnityEngine.Random.value < elevChangeRate) {
-                return this + up * (UnityEngine.Random.Range(0, 2) * 2 - 1);
+                return this + up * (UnityEngine.Random.value < upwardRate ? 1 : -1);
             } else {
                 return this;
             }

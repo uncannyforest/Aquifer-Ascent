@@ -36,7 +36,6 @@ public class Decor : MonoBehaviour {
                     scale.x *= 1.5f;
                     scale.z *= 1.5f;
                     newDeadTree.transform.localScale = scale;
-                    Debug.Log("First??");
                 }
             } else {
                 int chosenPosition = Randoms.InList(validPositions);

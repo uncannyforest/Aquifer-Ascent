@@ -34,6 +34,8 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
     
     private bool isDead = false;
 
+    public Action died;
+
     // not active if inside a container
     public bool IsActive {
         set {
@@ -118,6 +120,7 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
         state.isActive = false;
         isDead = true;
         childParticleSystem.emissionRate *= explosionFactor;
+        if (died != null) died();
     }
 
     private void Die() {
