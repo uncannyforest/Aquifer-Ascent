@@ -79,77 +79,30 @@ public class RandomWalkAlgorithm {
             bool hScaleChange = false;
             if (nextBiomeCount == 0) {
             // if (Random.value < .1f) {//random == lastMove && Random.value < .5f/(1 + hScale + vScale)) {
-                if (hScale == 0 && vScale == 0) {
-                    if (Randoms.CoinFlip) { // JUMP BIG
-                        hScale = 2;
-                        vScale = 2;
-                    } else if (Randoms.CoinFlip) {
-                        vScale = 1;
-                        ToVScale1(ref newPosition);
-                    } else {
-                        hScale = 1;
-                        newTriPosition = ToHScale1(newPosition, random);
-                        hScaleChange = true;
+                int maxHScale = 2;
+                int maxVScale = 2;
+                int oldHScale = hScale;
+                int oldVScale = vScale;
+                if (Randoms.CoinFlip) hScale += Randoms.Sign;
+                else vScale += Randoms.Sign;
+                if (hScale < 0 || vScale < 0 || hScale > maxHScale || vScale > maxVScale) {
+                    hScale = Mathf.Clamp(hScale, 0, maxHScale);
+                    vScale = Mathf.Clamp(vScale, 0, maxVScale);
+                    if ((hScale == 0 || hScale == maxHScale) && (vScale == 0 || vScale == maxVScale)) {
+                        // jump scale
+                        hScale = maxHScale - hScale;
+                        vScale = maxVScale - vScale;
                     }
-                } else if (vScale == 2 && hScale == 2) {
-                    if (Randoms.CoinFlip) { // JUMP SMALL
-                        hScale = 0;
-                        vScale = 0;
-                    } else if (Randoms.CoinFlip) {
-                        hScale = 1;
-                        newTriPosition = ToHScale1(newPosition, random);
-                        hScaleChange = true;
-                    } else {
-                        vScale = 1;
-                        ToVScale1(ref newPosition);
-                    }
-                } else if (hScale == 1) {
-                    if (vScale == 0 || vScale == 2) {
-                        int seed = Random.Range(0, 4);
-                        if (seed != 3) { // otherwise DON'T change!
-                            hScale = seed;
-                            vScale = Mathf.Abs(vScale - seed % 2);
-                            if (vScale == 1) ToVScale1(ref random);
-                            else {
-                                hScaleChange = true;
-                                newPosition = FromHScale1(newTriPosition, random);
-                            }
-                        }
-                    } else {
-                        if (Randoms.CoinFlip) vScale = Random.Range(0, 2) * 2;
-                        else hScale = Random.Range(0, 2) * 2;
-                        if (hScale == 1) FromVScale1(ref random);
-                        else {
-                            hScaleChange = true;
-                            newPosition = FromHScale1(newTriPosition, random);
-                        }
-                    }
-                } else { // hScale == 0 or 2 but not same as vScale
-                    if (vScale == 0 || vScale == 2) {
-                        if (Randoms.CoinFlip) { // JUMP
-                            vScale = 2 - vScale;
-                            hScale = 2 - hScale;
-                        } else {
-                            if (Randoms.CoinFlip) vScale = 1;
-                            else hScale = 1;
-                            if (vScale == 1) ToVScale1(ref random);
-                            else {
-                                hScaleChange = true;
-                                newTriPosition = ToHScale1(newPosition, random);
-                            }
-                        }
-                    } else {
-                        int seed = Random.Range(0, 4);
-                        if (seed != 3) { // otherwise DON'T change!
-                            vScale = seed;
-                            hScale = Mathf.Abs(hScale - seed % 2);
-                            if (vScale != 1) FromVScale1(ref random);
-                            else {
-                                hScaleChange = true;
-                                newTriPosition = ToHScale1(newPosition, random);
-                            }
-                        }
-                    }
+                }
+
+                if (oldVScale != 1 && vScale == 1) ToVScale1(ref random);
+                if (oldVScale == 1 && vScale != 1) FromVScale1(ref random);
+                if (oldHScale != 1 && hScale == 1) {
+                    hScaleChange = true;
+                    newTriPosition = ToHScale1(newPosition, random);
+                } else if (oldHScale == 1 && hScale != 1) {
+                    hScaleChange = true;
+                    newPosition = FromHScale1(newTriPosition, random);
                 }
                 Debug.Log("New hScale " + hScale + " / new vScale" + vScale);
                 biome = 1 + vScale + hScale * 3;
