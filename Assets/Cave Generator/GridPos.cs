@@ -33,6 +33,8 @@ public struct GridPos  {
     public static GridPos S => new GridPos(0, 0, -1);
     public static GridPos D => new GridPos(0, 1, -1);
     public static GridPos[] Units => new GridPos[] {E, W, Q, A, S, D};
+    public static GridPos[] Units2 => new GridPos[] {E + E, E + W, W + W, W + Q, Q + Q, Q + A,
+        A + A, A + S, S + S, S + D, D + D, D + E};
 
     public static GridPos operator -(GridPos a) => new GridPos(-a.w, -a.x, -a.y);
     public static GridPos operator +(GridPos a, GridPos b) => new GridPos(a.w + b.w, a.x + b.x, a.y + b.y);
