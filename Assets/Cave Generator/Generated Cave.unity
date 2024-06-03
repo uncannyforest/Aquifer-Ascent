@@ -18,8 +18,8 @@ RenderSettings:
   m_FogColor: {r: 0, g: 0, b: 0, a: 1}
   m_FogMode: 1
   m_FogDensity: 0.01
-  m_LinearFogStart: 15
-  m_LinearFogEnd: 30
+  m_LinearFogStart: 20
+  m_LinearFogEnd: 40
   m_AmbientSkyColor: {r: 0.1882353, g: 0.09411765, b: 0.0627451, a: 1}
   m_AmbientEquatorColor: {r: 0, g: 0, b: 0, a: 1}
   m_AmbientGroundColor: {r: 0.1254902, g: 0.15686275, b: 0.2509804, a: 1}
@@ -359,7 +359,7 @@ PrefabInstance:
     - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
       propertyPath: addOrbEvery
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
@@ -379,7 +379,7 @@ PrefabInstance:
     - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
       propertyPath: interiaOfEtherCurrent
-      value: 36
+      value: 48
       objectReference: {fileID: 0}
     - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
