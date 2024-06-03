@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
-[RequireComponent(typeof(Collider))]
 public class Holdable : MonoBehaviour
 {
     public GameObject taggedCanPickUp;
@@ -19,7 +18,7 @@ public class Holdable : MonoBehaviour
     [NonSerialized] public Transform parentWhenFree;
     private float heldState = 0.0f; // 0 if not held, 1 if held
     [NonSerialized] public Transform playerHoldTransform;
-    Collider physicsCollider;
+    public Collider physicsCollider;
     Rigidbody myRigidbody;
     Vector3 oldPosition;
     private AudioSource objectAudio; 
@@ -69,7 +68,7 @@ public class Holdable : MonoBehaviour
     void Start(){
         OnChangeActiveScene(SceneManager.GetActiveScene(), SceneManager.GetActiveScene());
         playerHoldTransform = GameObject.FindWithTag("Player").transform.Find("HoldLocation");
-        physicsCollider = GetComponent<Collider>();
+        if (physicsCollider == null) physicsCollider = this.GetComponentStrict<Collider>();
         myColliderBounds = physicsCollider.bounds;
         myRigidbody = GetComponent<Rigidbody>();
         objectAudio = GetComponent<AudioSource>();

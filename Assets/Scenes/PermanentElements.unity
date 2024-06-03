@@ -1276,7 +1276,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83d66b58ed1bd48b19ad690a7a759d98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0.125
+  speed: 0.25
   cameraTransform: {fileID: 158581688}
 --- !u!1001 &2051596837
 PrefabInstance:
