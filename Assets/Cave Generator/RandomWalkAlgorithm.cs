@@ -30,6 +30,7 @@ public class RandomWalkAlgorithm {
         GridPos lastMove = GridPos.E;
         GridPos etherCurrent = new GridPos(0, inertiaOfEtherCurrent / 2, 0);
         int levelOut = 0;
+        int levelOutGapAllowed = 0;
         int lastMoveBridge = 0;
         bool justFlipped = false;
 
@@ -67,9 +68,9 @@ public class RandomWalkAlgorithm {
             int changeAmount = hScale >= 2 || lastMoveBridge > 0 ? Random.Range(0, 2)
                 : hScale == 1 ? Random.Range(0, 3)
                 : 2;
-            GridPos random = changeAmount == 0 ? lastMove.RandomVertDeviation(2/3f, 2/3f, upwardRate)
+            GridPos random = changeAmount == 0 ? lastMove.RandomVertDeviation(2/3f, 2/3f, upwardRate > .5f ? 1 : upwardRate)
                 : changeAmount == 1 ? lastMove.RandomHorizDeviation(etherCurrent.HComponents.MaxNormalized())
-                : GridPos.Random(2/3f, etherCurrent.HComponents, upwardRate);
+                : GridPos.Random(2/3f, etherCurrent.HComponents, hScale == 1 && upwardRate > .5f ? 1 : upwardRate);
             if (levelOut != 0) {
                 random.w = levelOut;
                 Debug.Log("LEVELING OUT! " + levelOut);
@@ -137,7 +138,8 @@ public class RandomWalkAlgorithm {
             GridPos levelOutPos = hScale == 1 ? Randoms.InArray(newTriPosition.HorizCorners) : newPosition;
             if (vScale == 2) levelOutPos -= GridPos.up;
             if (vScale == 3) levelOutPos -= 2 * GridPos.up;
-            levelOut = LevelOut(levelOutPos, vScale == 3 ? 4 : vScale, hScale == 0 ? 0 : 1, hScale != 1 && lastMove.Horizontal != -random.Horizontal, out int? bridgeInstead);
+            levelOutGapAllowed = hScale == 0 ? 0 : (levelOutGapAllowed + 1) % 3; // to balance going wrong direction vs jumps too big
+            levelOut = LevelOut(levelOutPos, vScale == 3 ? 4 : vScale, levelOutGapAllowed % 2, hScale != 1 && lastMove.Horizontal != -random.Horizontal, out int? bridgeInstead);
             bool doBridge = false;
             if (bridgeInstead is int bridge) {
                 doBridge = true;

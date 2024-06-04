@@ -60,7 +60,7 @@ public class RandomWalk : MonoBehaviour {
                     orb.chargeTime *= ((float)orbChargeRampUpStep / orbChargeRampUp);
                     orbChargeRampUpStep++;
                 }
-                GameObject.FindObjectOfType<RisingWater>().AddOrb(orb);
+                if (GameObject.FindObjectOfType<RisingWater>() != null) GameObject.FindObjectOfType<RisingWater>().AddOrb(orb);
                 if (cheat) orb.chargeTime *= cheatSlowdown;
                 absoluteCount = 0;
             }
