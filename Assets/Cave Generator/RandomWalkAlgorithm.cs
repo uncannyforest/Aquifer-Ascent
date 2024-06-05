@@ -8,26 +8,36 @@ public class RandomWalkAlgorithm {
 
     public struct Output {
         public Vector3 location;
+        public GridPos position;
+        public GridPos lastMove;
         public GridPos[] newCave;
         public GridPos[] interesting;
         public Vector3 etherCurrent;
-        public bool iOddsAreBridge;
+        public BridgeMode bridgeMode;
 
-        public Output(Vector3 location, GridPos[] newCave, GridPos[] interesting, Vector3 etherCurrent, bool iZeroIsBridge) {
+        public enum BridgeMode {
+            NONE,
+            ODDS,
+            LAST
+        }
+
+        public Output(Vector3 location, GridPos position, GridPos lastMove, GridPos[] newCave, GridPos[] interesting, Vector3 etherCurrent, BridgeMode bridgeMode) {
             this.location = location;
+            this.position = position;
+            this.lastMove = lastMove;
             this.newCave = newCave;
             this.interesting = interesting;
             this.etherCurrent = etherCurrent;
-            this.iOddsAreBridge = iZeroIsBridge;
+            this.bridgeMode = bridgeMode;
         }
     }
 
-    public static IEnumerable<Output> EnumerateSteps(int inertiaOfEtherCurrent, int changeBiomeEvery, float biasToLeaveCenterOfGravity, float upwardRate) {
-        GridPos position = GridPos.zero;
-        TriPos triPosition = new TriPos(GridPos.zero, false);
-        int currentHScale = 0;
-        int currentVScale = 0;
-        GridPos lastMove = GridPos.E;
+    public static IEnumerable<Output> EnumerateSteps(GridPos initPos, GridPos initDirection, int modeSwitchRate, int inertiaOfEtherCurrent, int changeBiomeEvery, Vector3 biasToLeaveStartLocation, float upwardRate, bool firstTime) {
+        GridPos position = initPos;
+        TriPos triPosition = new TriPos(initPos, false);
+        int currentHScale = firstTime ? 0 : Random.Range(0, 4);
+        int currentVScale = firstTime ? 0 : Random.Range(0, 3);
+        GridPos lastMove = initDirection;
         GridPos etherCurrent = new GridPos(0, inertiaOfEtherCurrent / 2, 0);
         int levelOut = 0;
         int levelOutGapAllowed = 0;
@@ -41,7 +51,7 @@ public class RandomWalkAlgorithm {
         int biome = 1;//Random.Range(1, CaveGrid.Biome.floors.Length);
 
         CaveGrid.Biome.Next(position, (_) => biome, true);
-        yield return new Output(position.World, new GridPos[] {position}, new GridPos[] {}, Vector3.zero, false);
+        yield return new Output(position.World, position, lastMove, new GridPos[] {position}, new GridPos[] {}, Vector3.zero, Output.BridgeMode.NONE);
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
             // if (biomeTries == 108) {
             //     justFlipped = false;
@@ -58,7 +68,7 @@ public class RandomWalkAlgorithm {
             TriPos newTriPosition = triPosition;
             int vScale = currentVScale;
             int hScale = currentHScale;
-            for (int i = 0; i <= hScale + vScale; i++) etherCurrent += GridPos.RandomHoriz(new Vector3(1, -.5f, -.5f) * biasToLeaveCenterOfGravity);
+            for (int i = 0; i <= hScale + vScale; i++) etherCurrent += GridPos.RandomHoriz(biasToLeaveStartLocation);
             if (etherCurrent.HComponents.Max() > inertiaOfEtherCurrent) {
                 etherCurrent /= -3;
                 justFlipped = true;
@@ -125,7 +135,7 @@ public class RandomWalkAlgorithm {
                 }
                 Debug.Log("New hScale " + hScale + " / new vScale" + vScale);
                 biome = 1 + (vScale % 3) + hScale * 3;
-                nextBiomeCount = hScale == 1 ? 30 : hScale >= 2 ? 10 : 20;
+                nextBiomeCount = hScale == 1 ? modeSwitchRate * 3/2 : hScale >= 2 ? modeSwitchRate/2 : modeSwitchRate;
             }
             if (!hScaleChange) {
                 if (hScale == 1) {
@@ -221,7 +231,7 @@ public class RandomWalkAlgorithm {
             // }
             foreach (GridPos pos in newCave) CaveGrid.Biome.Next(pos);
 
-            yield return new Output(nextLoc, newCave.ToArray(), interesting.ToArray(), etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero), doBridge || lastMoveBridge >= 2);
+            yield return new Output(nextLoc, newPosition, random, newCave.ToArray(), interesting.ToArray(), etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero), doBridge || lastMoveBridge >= 2 ? Output.BridgeMode.ODDS : Output.BridgeMode.NONE);
             lastMove = random;
             lastMoveBridge = doBridge && hScale >= 2 ? hScale - 1 : 0;
             position = newPosition;

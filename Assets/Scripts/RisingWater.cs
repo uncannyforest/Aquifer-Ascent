@@ -15,6 +15,8 @@ public class RisingWater : MonoBehaviour {
     public StandardOrb secondLowestOrb;
     public float currentLevelBelow;
 
+    bool firstOrb = true;
+
     void Start() {
         startLocation = transform.position;
     }
@@ -26,6 +28,7 @@ public class RisingWater : MonoBehaviour {
     }
 
     public void OrbDied(StandardOrb go) {
+        firstOrb = false;
         orbs.Remove(go);
         if (orbs.Count != 0) SetLowestOrb();
         else lowestOrb = null;
@@ -33,13 +36,16 @@ public class RisingWater : MonoBehaviour {
 
     private void SetLowestOrb() {
         startLocation = transform.position;
-        if (orbs.Count == 1) {
+        if (firstOrb) {
             lowestOrb = orbs[0];
             startChargeLevel = lowestOrb.state.currentChargeLevel;
             currentLevelBelow = 0;
             return;
         }
-        if (orbs[0].transform.position.y < orbs[1].transform.position.y) {
+        if (orbs.Count == 1) {
+            lowestOrb = orbs[0];
+            secondLowestOrb = orbs[0];
+        } else if (orbs[0].transform.position.y < orbs[1].transform.position.y) {
             lowestOrb = orbs[0];
             secondLowestOrb = orbs[1];
         } else {
@@ -59,7 +65,7 @@ public class RisingWater : MonoBehaviour {
         }
         StandardOrb lastOrb = orbs[orbs.Count - 1];
         currentLevelBelow = belowFactor * belowFactor / (belowFactor + (secondLowestOrb.transform.position.y - lowestOrb.transform.position.y))
-            + belowGuideFactor * belowGuideFactor / (belowGuideFactor + (lastOrb.transform.position.y - lowestOrb.transform.position.y));
+            + orbs.Count == 1 ? 0 : belowGuideFactor * belowGuideFactor / (belowGuideFactor + (lastOrb.transform.position.y - lowestOrb.transform.position.y));
         startChargeLevel = lowestOrb.state.currentChargeLevel;
     }
 

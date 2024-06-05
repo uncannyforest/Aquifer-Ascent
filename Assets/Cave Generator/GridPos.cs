@@ -50,7 +50,10 @@ public struct GridPos  {
     public override string ToString() => "(" + w + " | " + x + ", " + y + ", " + z + ")";
 
     public GridPos Horizontal { get => new GridPos(0, x, y); }
+    public int Magnitude { get => Mathf.Abs(w) + Mathf.Max(Mathf.Abs(x), Mathf.Abs(y), Mathf.Abs(z)); }
 
+    public GridPos RotateRight() => Rotate(60);
+    public GridPos RotateLeft() => Rotate(-60);
     public GridPos Rotate(float angle) {
         int rotations = Mathf.RoundToInt(angle / 60);
         while (rotations < 0) rotations += 600;
@@ -77,20 +80,24 @@ public struct GridPos  {
     public Vector3 World { get => Vector3.Scale(CaveGrid.Scale, new Vector3(x * SQRT3, w, y * 2 + x)); }
     public static GridPos FromWorld(Vector3 worldCoord) {
         Vector3 coord = worldCoord.ScaleDivide(CaveGrid.Scale);
+        int w = Mathf.RoundToInt(coord.y / 2f);
         float fX = coord.x / SQRT3;
         float fY = (Quaternion.Euler(0, 120, 0) * coord).x / SQRT3;
         float fZ = (Quaternion.Euler(0, -120, 0) * coord).x / SQRT3;
-        int x = Mathf.RoundToInt(fX);
-        int y = Mathf.RoundToInt(fY);
-        int z = Mathf.RoundToInt(fZ);
+        return GridPos.RoundFromVector3(new Vector3(fX, fY, fZ)) + up * w;
+    }
+    public static GridPos RoundFromVector3(Vector3 hComponents) {
+        int x = Mathf.RoundToInt(hComponents.x);
+        int y = Mathf.RoundToInt(hComponents.y);
+        int z = Mathf.RoundToInt(hComponents.z);
         if (x + y + z != 0) {
-            if (Mathf.Abs(fX - x) > Mathf.Abs(fY - y) && Mathf.Abs(fX - x) > Mathf.Abs(fZ - z))
+            if (Mathf.Abs(hComponents.x - x) > Mathf.Abs(hComponents.y - y) && Mathf.Abs(hComponents.x - x) > Mathf.Abs(hComponents.z - z))
                 x = -y - z;
-            else if (Mathf.Abs(fY - y) > Mathf.Abs(fZ - z))
+            else if (Mathf.Abs(hComponents.y - y) > Mathf.Abs(hComponents.z - z))
                 y = -x - z;
             // else set z = -x - y; but that will be automatic
         }
-        return new GridPos(Mathf.RoundToInt(coord.y / 2f), x, y);
+        return new GridPos(0, x, y);
     }
     public Vector3 HComponents { get => new Vector3(x, y, z); }
     public Vector3 HScale(Vector3 vector) => Vector3.Scale(HComponents, vector);

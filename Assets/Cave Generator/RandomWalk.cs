@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -17,6 +18,7 @@ public class RandomWalk : MonoBehaviour {
     public float biasToLeaveCenterOfGravity = 1;
     public float cheatSlowdown = 3;
     public float upwardRate = .5f;
+    public int modeSwitchRate = 20;
     
     private Vector3 prevLoc = Vector3.zero;
     private Vector3 nextLoc = Vector3.zero;
@@ -35,19 +37,55 @@ public class RandomWalk : MonoBehaviour {
         if (cheatButtonGo != null) cheatButton = cheatButtonGo.GetComponent<Image>();
     }
 
+    public IEnumerable<RandomWalkAlgorithm.Output> MasterEnumerateSteps() {
+        Vector3 biasToFleeStartLocation = new Vector3(1, -.5f, -.5f) * biasToLeaveCenterOfGravity;
+
+        int numModes = 3;
+        int currentMode = 0;
+        int stepsUntilNextMode = modeSwitchRate * 4;
+        IEnumerator<RandomWalkAlgorithm.Output> enumerator = RandomWalkAlgorithm.EnumerateSteps(GridPos.zero, GridPos.E, modeSwitchRate, interiaOfEtherCurrent, changeBiomeEvery, biasToFleeStartLocation, upwardRate, true).GetEnumerator();
+        while(enumerator.MoveNext()) {
+            RandomWalkAlgorithm.Output output = enumerator.Current;
+            yield return output;
+
+            if (stepsUntilNextMode-- == 0) {
+                int newMode = Random.Range(0, numModes - 1);
+                if (newMode >= currentMode) newMode++; // don't allow current mode
+                currentMode = newMode;
+                stepsUntilNextMode = currentMode == 0 ? modeSwitchRate * 4 : modeSwitchRate;
+                Debug.Log("Starting mode " + currentMode + " at position " + output.position);
+                switch (currentMode) {
+                    case 0:
+                        enumerator = RandomWalkAlgorithm.EnumerateSteps(output.position, output.lastMove, modeSwitchRate, interiaOfEtherCurrent, changeBiomeEvery, biasToFleeStartLocation, upwardRate, false).GetEnumerator();
+                        break;
+                    case 1:
+                        enumerator = RandomWalkAlgorithmStairs.MoveVertically(output.position, output.lastMove, upwardRate > .5f ? true : Randoms.CoinFlip).GetEnumerator();
+                        break;
+                    case 2:
+                        enumerator = RandomWalkAlgorithmStairs.MoveHorizontally(output.position, output.lastMove, biasToFleeStartLocation, upwardRate).GetEnumerator();
+                        break;
+                }
+            }
+        }
+    }
+
     public IEnumerator Runner() {
         int count = addOrbEvery;
         int absoluteCount = 0;
         
-        foreach (RandomWalkAlgorithm.Output step in RandomWalkAlgorithm.EnumerateSteps(interiaOfEtherCurrent, changeBiomeEvery, biasToLeaveCenterOfGravity, upwardRate)) {
+        CaveGrid.Biome.Next(GridPos.zero, (_) => 1, true);
+        foreach (RandomWalkAlgorithm.Output step in MasterEnumerateSteps()) {
             for (int i = 0; i < step.newCave.Length; i++) {
                 GridPos position = step.newCave[i];
-                if (step.iOddsAreBridge) {
+                if (step.bridgeMode == RandomWalkAlgorithm.Output.BridgeMode.ODDS) {
                     Debug.Log("Bridge at " + position + ", open: " + (i % 2 == 1));
                     if (i == 1) Debug.DrawLine(position.World, step.newCave[i - 1].World, Color.blue, 600);
                     if (i == 3) Debug.DrawLine(position.World, step.newCave[i - 1].World, Color.white, 600);
                 }
-                CaveGrid.I.SetPos(position, !step.iOddsAreBridge || (i % 2 == 0));
+                bool clearSpace = step.bridgeMode == RandomWalkAlgorithm.Output.BridgeMode.NONE ||
+                    (step.bridgeMode == RandomWalkAlgorithm.Output.BridgeMode.ODDS && (i % 2 == 0)) ||
+                    (step.bridgeMode == RandomWalkAlgorithm.Output.BridgeMode.LAST && i < step.newCave.Length - 1);
+                CaveGrid.I.SetPos(position, clearSpace);
             }
             // if (step.newCave.Length > 0 && count++ % addOrbEvery == 0) {
             if (darkness.IsInDarkness) count++;
