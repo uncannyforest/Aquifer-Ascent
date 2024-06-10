@@ -52,8 +52,8 @@ public struct GridPos  {
     public GridPos Horizontal { get => new GridPos(0, x, y); }
     public int Magnitude { get => Mathf.Abs(w) + Mathf.Max(Mathf.Abs(x), Mathf.Abs(y), Mathf.Abs(z)); }
 
-    public GridPos RotateRight() => Rotate(60);
-    public GridPos RotateLeft() => Rotate(-60);
+    public GridPos RotateLeft() => Rotate(60);
+    public GridPos RotateRight() => Rotate(-60);
     public GridPos Rotate(float angle) {
         int rotations = Mathf.RoundToInt(angle / 60);
         while (rotations < 0) rotations += 600;

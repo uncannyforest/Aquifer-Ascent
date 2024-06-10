@@ -4,20 +4,29 @@ using UnityEngine;
 
 public class RandomWalkAlgorithmStairs {
 
-    public static void FollowWall(ref GridPos smallPos, ref GridPos smallMove, ref bool huggingRight) {
+    public static void FollowWall(ref GridPos smallPos, ref GridPos smallMove, ref bool huggingLeft, bool? up) {
         bool wallAhead = !CaveGrid.Grid[smallPos + smallMove];
-        GridPos besideMove = wallAhead ^ huggingRight ? smallMove.RotateRight() : smallMove.RotateLeft();
+        GridPos besideMove = wallAhead ^ huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight();
         bool wallBeside = !CaveGrid.Grid[smallPos + besideMove];
         if (wallAhead && wallBeside) {
-            // Debug.Log("Return to cave to the " + (huggingRight ? "right" : "left"));
+            Debug.Log("Return to cave to the " + (huggingLeft ? "left" : "right"));
             smallMove = besideMove; // return to cave
+            if (up == true) smallMove.w = 1;
+            else if (up == false) smallMove.w = -1;
         } else if (wallAhead || wallBeside) {
-            // Debug.Log("Hugging wall to the " + (huggingRight ? "right" : "left"));
-            if (Random.value < (wallAhead ? 2/3f : 1/3f)) smallMove = besideMove;
+            Debug.Log("Hugging wall to the " + (huggingLeft ? "left" : "right"));
+            if (Random.value < 1/2f) smallMove = besideMove;
         } else { // open area
-            // Debug.Log("Open area");
-            if (Randoms.CoinFlip) smallMove = besideMove;
-            huggingRight = Randoms.CoinFlip;
+            GridPos besideMoveDouble = huggingLeft ? besideMove.RotateLeft() : besideMove.RotateRight();
+            bool wallBesideDouble = !CaveGrid.Grid[smallPos + besideMoveDouble];
+            if (wallBesideDouble) {
+                Debug.Log("Hugging wall as it curves out");
+                smallMove = besideMove;
+            } else {
+                Debug.Log("Open area");
+                if (Randoms.CoinFlip) smallMove = besideMove;
+                huggingLeft = Randoms.CoinFlip;
+            }
         }
         smallPos += smallMove;
     }
@@ -28,36 +37,48 @@ public class RandomWalkAlgorithmStairs {
         GridPos smallPos = initPos;
         GridPos smallMove = initDirection.Horizontal;
 
-        GridPos largePos = smallPos + smallMove + GridPos.up * (up ? 2 : -3);
+            // 3, 6, 12, 2,
+            // 5, 1, 7, 4,
+            // 11, 10, 9, 8
+        int scale = new int[] {0, 2, -1, 2, -1, 0, 1, 2, 1, 0, -1, 1}[CaveGrid.Biome.lastBiome - 1];
+        Debug.Log("Stairwell scale " + scale);
+        float units2Chance = scale == 0 ? 1/24f : scale == 1 ? 1/3f : 5/12f;
+        float flatChance = scale == -1 ? 1/6f : scale == 0 ? 1/3f : scale == 1 ? 1/2f : 2/3f;
+
+        GridPos initMove = smallMove * (scale >= 1 ? 2 : 1);
+        GridPos largePos = smallPos + initMove + GridPos.up * (up ? 2 : -3);
         GridPos largeMove = GridPos.zero;
 
-        bool huggingRight = Randoms.CoinFlip;
+        bool huggingLeft = Randoms.CoinFlip;
 
         List<GridPos> initCave = new List<GridPos>();
         initCave.Add(smallPos);
-        initCave.Add(smallPos + smallMove);
-        foreach (GridPos unit in GridPos.Units) {
-            initCave.Add(smallPos + smallMove + unit);
-        }
+        initCave.Add(smallPos + initMove);
+        foreach (GridPos unit in GridPos.Units) initCave.Add(smallPos + initMove + unit);
+
         initCave.Add(smallPos - 2 * GridPos.up);
         yield return new RandomWalkAlgorithm.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), new GridPos[] {}, Vector3.zero, RandomWalkAlgorithm.Output.BridgeMode.LAST);
 
         smallMove.w = verticalDirection;
-        smallMove = huggingRight ? smallMove.RotateRight() : smallMove.RotateLeft();
+        // smallMove = huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight();
 
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
             List<GridPos> newCave = new List<GridPos>();
             newCave.Add(smallPos);
             if (smallMove.w != 0) { 
                 newCave.Add(largePos);
-                foreach (GridPos unit in GridPos.Units) newCave.Add(largePos + unit);
+                foreach (GridPos unit in GridPos.Units) if (scale >= 0 || Random.value < 1/3f) newCave.Add(largePos + unit);
+                if (scale >= 0) foreach (GridPos unit in GridPos.Units2) if (Random.value < units2Chance) newCave.Add(largePos + unit);
             }
             newCave.Add(smallPos - GridPos.up * 2);
 
             foreach (GridPos pos in newCave) CaveGrid.Biome.Next(pos);
-            yield return new RandomWalkAlgorithm.Output(smallPos.World, smallPos, smallMove, newCave.ToArray(), new GridPos[] {}, Vector3.zero, RandomWalkAlgorithm.Output.BridgeMode.LAST);
+            yield return new RandomWalkAlgorithm.Output(smallPos.World, smallPos, huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight(), newCave.ToArray(), new GridPos[] {}, Vector3.zero, RandomWalkAlgorithm.Output.BridgeMode.LAST);
             
-            smallMove.w = Random.value < 1/6f ? 0 : verticalDirection;
+            smallMove.w = Random.value < flatChance ? 0 : verticalDirection;
+
+            FollowWall(ref smallPos, ref smallMove, ref huggingLeft, up);
+
             if (smallMove.w != 0) {
                 // Debug.Log("Moving up, adding layer");
                 largeMove = Random.value < 1/6f ? GridPos.RandomHoriz() : GridPos.zero;
@@ -65,12 +86,10 @@ public class RandomWalkAlgorithmStairs {
             } else {
                 // Debug.Log("Not moving up this time");
             }
-
-            FollowWall(ref smallPos, ref smallMove, ref huggingRight);
         }
     }
 
-    public static IEnumerable<RandomWalkAlgorithm.Output> MoveHorizontally(GridPos initPos, GridPos initDirection, Vector3 biasToFleeStartLocation, float upwardRate) {
+    public static IEnumerable<RandomWalkAlgorithm.Output> MoveHorizontally(GridPos initPos, GridPos initDirection, int modeSwitchRate, Vector3 biasToFleeStartLocation, float upwardRate) {
         float smallUpwardRate = .5f;
 
         GridPos smallPos = initPos;
@@ -79,51 +98,75 @@ public class RandomWalkAlgorithmStairs {
         GridPos largePos = smallPos + smallMove * 1;
         GridPos largeMove = initDirection;
 
-        bool huggingRight = Randoms.CoinFlip;
+        int biome = CaveGrid.Biome.lastBiome;
+            // 3, 1, 6, 12, 2, 4,
+            // 5, 11, 10, 8, 9, 7
+        int hScale = new int[] {0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1}[biome - 1];
+        int vScale = new int[] {0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0}[biome - 1];
+        Debug.Log("Walkway hScale " + hScale + " / vScale " + vScale);
+        int nextScaleCount = modeSwitchRate / 2;
+
+        bool huggingLeft = Randoms.CoinFlip;
+        bool justCaughtUp = false;
 
         bool catchingUpHorizontally = false;
-        smallMove = huggingRight ? smallMove.RotateRight() : smallMove.RotateLeft();
+        // smallMove = huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight();
 
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
             List<GridPos> newCave = new List<GridPos>();
             newCave.Add(smallPos);
-            if (!catchingUpHorizontally) for (int i = -3; i <= 1; i += 1) {
+            if (!catchingUpHorizontally) for (int i = -3 - vScale; i <= 1 + vScale; i += 1) {
                 newCave.Add(largePos + GridPos.up * i);
-                foreach (GridPos unit in GridPos.Units) if (i == -1 || Random.value < 1/3f) newCave.Add(largePos + unit + GridPos.up * i);
+                foreach (GridPos unit in GridPos.Units) if (i == -1 || hScale == 1 || Random.value < 1/3f) newCave.Add(largePos + unit + GridPos.up * i);
+                if (hScale == 1) foreach (GridPos unit in GridPos.Units2) if (i == -1 || Random.value < 1/3f) newCave.Add(largePos + unit + GridPos.up * i);
             }
             newCave.Add(smallPos - GridPos.up * 2);
 
             foreach (GridPos pos in newCave) CaveGrid.Biome.Next(pos);
-            yield return new RandomWalkAlgorithm.Output(smallPos.World, smallPos, smallMove, newCave.ToArray(), new GridPos[] {}, Vector3.zero, RandomWalkAlgorithm.Output.BridgeMode.LAST);
+            yield return new RandomWalkAlgorithm.Output(smallPos.World, smallPos, huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight(), newCave.ToArray(), new GridPos[] {}, Vector3.zero, RandomWalkAlgorithm.Output.BridgeMode.LAST);
             
-            GridPos catchUp = largePos - smallPos;
-            catchingUpHorizontally = catchUp.Horizontal.Magnitude > 3;
+            if (nextScaleCount-- == 0) {
+                if (Randoms.CoinFlip) hScale = 1 - hScale;
+                else vScale = 1 - vScale;
+                Debug.Log("Walkway hScale " + hScale + " / vScale " + vScale);
+                nextScaleCount = modeSwitchRate / 2;
+                biome = new int[] {
+                    3, 1, 6, 12, 2, 4,
+                    5, 11, 10, 8, 9, 7
+                }[vScale * 6 + hScale * 3 + Random.Range(0, 3)];
+                CaveGrid.Biome.Next(smallPos, (_) => biome, true);
+            }
 
-            if (catchUp.w > 0) {
-                // Debug.Log("Moving up to catch up");
+            GridPos catchUp = largePos - smallPos;
+            catchingUpHorizontally = catchUp.Horizontal.Magnitude > 3 + hScale * 2;
+
+            if (catchUp.w > 0 + vScale) {
+                Debug.Log("Moving up to catch up");
                 smallMove.w = 1;
-            } else if (catchUp.w < -1) {
-                // Debug.Log("Moving down to catch up");
+            } else if (catchUp.w < -1 - vScale) {
+                Debug.Log("Moving down to catch up");
                 smallMove.w = -1;
             } else {
                 smallMove.w = Random.value > 1/3f ? 0 : ((Random.value < smallUpwardRate) ? 1 : -1);
             }
 
 
-            if (!catchingUpHorizontally) {
-                if (Random.value < 1/6f) largeMove = largeMove.RandomHorizDeviation((biasToFleeStartLocation - catchUp.HComponents).MaxNormalized());
+            if (!catchingUpHorizontally && !justCaughtUp) {
+                if (Random.value < 1/6f) largeMove = largeMove.RandomHorizDeviation((biasToFleeStartLocation * 3 - catchUp.HComponents).MaxNormalized());
                 largeMove.w = Random.value > 1/6f ? 0 : Random.value < upwardRate ? 1 : -1;
                 largePos += largeMove;
 
-                bool tooClose = (largePos - smallPos).Horizontal.Magnitude < 2;
-                if (!tooClose) FollowWall(ref smallPos, ref smallMove, ref huggingRight);
+                bool tooClose = (largePos - smallPos).Horizontal.Magnitude < 2 + hScale * 2;
+                if (!tooClose) FollowWall(ref smallPos, ref smallMove, ref huggingLeft, null);
+                else Debug.Log("Waiting for large to move ahead");
             } else {
-                // Debug.Log("Not moving large this time, catching up " + catchUp.HComponents.MaxNormalized());
+                justCaughtUp = catchingUpHorizontally;
+                Debug.Log("Not moving large this time, catching up " + catchUp.HComponents.MaxNormalized());
                 int vert = smallMove.w;
                 smallMove = GridPos.RoundFromVector3(catchUp.HComponents.MaxNormalized());
                 smallMove.w = vert;
                 smallPos += smallMove;
-                huggingRight = Randoms.CoinFlip;
+                huggingLeft = Randoms.CoinFlip;
             }
 
             // Debug.Log("Small move " + smallMove);

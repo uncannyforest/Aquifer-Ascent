@@ -9,7 +9,7 @@ public class RandomWalkAlgorithm {
     public struct Output {
         public Vector3 location;
         public GridPos position;
-        public GridPos lastMove;
+        public GridPos exitDirection;
         public GridPos[] newCave;
         public GridPos[] interesting;
         public Vector3 etherCurrent;
@@ -21,10 +21,10 @@ public class RandomWalkAlgorithm {
             LAST
         }
 
-        public Output(Vector3 location, GridPos position, GridPos lastMove, GridPos[] newCave, GridPos[] interesting, Vector3 etherCurrent, BridgeMode bridgeMode) {
+        public Output(Vector3 location, GridPos position, GridPos exitDirection, GridPos[] newCave, GridPos[] interesting, Vector3 etherCurrent, BridgeMode bridgeMode) {
             this.location = location;
             this.position = position;
-            this.lastMove = lastMove;
+            this.exitDirection = exitDirection;
             this.newCave = newCave;
             this.interesting = interesting;
             this.etherCurrent = etherCurrent;
@@ -32,13 +32,11 @@ public class RandomWalkAlgorithm {
         }
     }
 
-    public static IEnumerable<Output> EnumerateSteps(GridPos initPos, GridPos initDirection, int modeSwitchRate, int inertiaOfEtherCurrent, int changeBiomeEvery, Vector3 biasToLeaveStartLocation, float upwardRate, bool firstTime) {
+    public static IEnumerable<Output> EnumerateSteps(GridPos initPos, GridPos initDirection, int modeSwitchRate, int inertiaOfEtherCurrent, Vector3 biasToLeaveStartLocation, float upwardRate) {
         GridPos position = initPos;
         TriPos triPosition = new TriPos(initPos, false);
-        int currentHScale = firstTime ? 0 : Random.Range(0, 4);
-        int currentVScale = firstTime ? 0 : Random.Range(0, 3);
         GridPos lastMove = initDirection;
-        GridPos etherCurrent = new GridPos(0, inertiaOfEtherCurrent / 2, 0);
+        GridPos etherCurrent = initDirection * (inertiaOfEtherCurrent / 2);
         int levelOut = 0;
         int levelOutGapAllowed = 0;
         int lastMoveBridge = 0;
@@ -47,8 +45,14 @@ public class RandomWalkAlgorithm {
         GridPos lastEndPos = GridPos.zero;
         GridPos lastEndEther = new GridPos(0, -inertiaOfEtherCurrent - 1, 0);
 
-        int nextBiomeCount = 10; // changeBiomeEvery;
-        int biome = 1;//Random.Range(1, CaveGrid.Biome.floors.Length);
+        int nextBiomeCount = modeSwitchRate/2; // formerly changeBiomeEvery;
+        int biome = CaveGrid.Biome.lastBiome;
+            // 1, 6, 12, 2,
+            // 5, 3, 7, 4,
+            // 11, 10, 8, 9
+        int currentHScale = new int[] {0, 3, 1, 3, 0, 1, 2, 2, 3, 1, 0, 3}[biome - 1];
+        int currentVScale = new int[] {0, 0, 1, 1, 1, 0, 1, 2, 2, 2, 2, 0}[biome - 1];
+        Debug.Log("RW hScale " + currentHScale + " / vScale" + currentVScale);
 
         CaveGrid.Biome.Next(position, (_) => biome, true);
         yield return new Output(position.World, position, lastMove, new GridPos[] {position}, new GridPos[] {}, Vector3.zero, Output.BridgeMode.NONE);
@@ -133,8 +137,12 @@ public class RandomWalkAlgorithm {
                     hScaleChange = true;
                     newPosition = FromHScale1(newTriPosition, random);
                 }
-                Debug.Log("New hScale " + hScale + " / new vScale" + vScale);
-                biome = 1 + (vScale % 3) + hScale * 3;
+                Debug.Log("RW hScale " + hScale + " / vScale" + vScale);
+                biome = new int[] {
+                    1, 6, 12, 2,
+                    5, 3, 7, 4,
+                    11, 10, 8, 9
+                }[(vScale % 3) * 4 + hScale];
                 nextBiomeCount = hScale == 1 ? modeSwitchRate * 3/2 : hScale >= 2 ? modeSwitchRate/2 : modeSwitchRate;
             }
             if (!hScaleChange) {

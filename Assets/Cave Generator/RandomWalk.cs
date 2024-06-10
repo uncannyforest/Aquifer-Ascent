@@ -28,6 +28,8 @@ public class RandomWalk : MonoBehaviour {
 
     private InDarkness darkness;
     private Vector3 etherCurrent;
+    private GridPos exitDirection;
+    private bool justChangedMode = true;
     private int orbChargeRampUpStep = 1;
 
     public void Awake() {
@@ -38,12 +40,11 @@ public class RandomWalk : MonoBehaviour {
     }
 
     public IEnumerable<RandomWalkAlgorithm.Output> MasterEnumerateSteps() {
-        Vector3 biasToFleeStartLocation = new Vector3(1, -.5f, -.5f) * biasToLeaveCenterOfGravity;
 
         int numModes = 3;
-        int currentMode = 0;
-        int stepsUntilNextMode = modeSwitchRate * 4;
-        IEnumerator<RandomWalkAlgorithm.Output> enumerator = RandomWalkAlgorithm.EnumerateSteps(GridPos.zero, GridPos.E, modeSwitchRate, interiaOfEtherCurrent, changeBiomeEvery, biasToFleeStartLocation, upwardRate, true).GetEnumerator();
+        int currentMode = Random.Range(0, 2);
+        int stepsUntilNextMode = 0;
+        IEnumerator<RandomWalkAlgorithm.Output> enumerator = MuxEnumerator(currentMode, GridPos.zero, GridPos.E, ref stepsUntilNextMode);
         while(enumerator.MoveNext()) {
             RandomWalkAlgorithm.Output output = enumerator.Current;
             yield return output;
@@ -52,26 +53,32 @@ public class RandomWalk : MonoBehaviour {
                 int newMode = Random.Range(0, numModes - 1);
                 if (newMode >= currentMode) newMode++; // don't allow current mode
                 currentMode = newMode;
-                stepsUntilNextMode = currentMode == 0 ? modeSwitchRate * 4 : modeSwitchRate;
                 Debug.Log("Starting mode " + currentMode + " at position " + output.position);
-                switch (currentMode) {
-                    case 0:
-                        enumerator = RandomWalkAlgorithm.EnumerateSteps(output.position, output.lastMove, modeSwitchRate, interiaOfEtherCurrent, changeBiomeEvery, biasToFleeStartLocation, upwardRate, false).GetEnumerator();
-                        break;
-                    case 1:
-                        enumerator = RandomWalkAlgorithmStairs.MoveVertically(output.position, output.lastMove, upwardRate > .5f ? true : Randoms.CoinFlip).GetEnumerator();
-                        break;
-                    case 2:
-                        enumerator = RandomWalkAlgorithmStairs.MoveHorizontally(output.position, output.lastMove, biasToFleeStartLocation, upwardRate).GetEnumerator();
-                        break;
-                }
-            }
+                enumerator = MuxEnumerator(currentMode, output.position, output.exitDirection, ref stepsUntilNextMode);
+                justChangedMode = true;
+            } else justChangedMode = false;
+        }
+    }
+
+    public IEnumerator<RandomWalkAlgorithm.Output> MuxEnumerator(int currentMode, GridPos position, GridPos exitDirection, ref int stepsUntilNextMode) {
+        Vector3 biasToFleeStartLocation = new Vector3(1, -.5f, -.5f) * biasToLeaveCenterOfGravity;
+
+        stepsUntilNextMode = currentMode == 0 ? Random.Range(modeSwitchRate * 2, modeSwitchRate * 6) : Random.Range(modeSwitchRate, modeSwitchRate * 2);
+
+        switch (currentMode) {
+            case 0:
+                return RandomWalkAlgorithm.EnumerateSteps(position, exitDirection, modeSwitchRate, interiaOfEtherCurrent, biasToFleeStartLocation, upwardRate).GetEnumerator();
+            case 1:
+                return RandomWalkAlgorithmStairs.MoveVertically(position, exitDirection, upwardRate > .5f ? true : Randoms.CoinFlip).GetEnumerator();
+            case 2:
+                return RandomWalkAlgorithmStairs.MoveHorizontally(position, exitDirection, modeSwitchRate, biasToFleeStartLocation, upwardRate).GetEnumerator();
+            default: throw new IndexOutOfRangeException();
         }
     }
 
     public IEnumerator Runner() {
         int count = addOrbEvery;
-        int absoluteCount = 0;
+        int absoluteCountDown = maxAddOrbSteps * orbChargeRampUpStep / orbChargeRampUp;
         
         CaveGrid.Biome.Next(GridPos.zero, (_) => 1, true);
         foreach (RandomWalkAlgorithm.Output step in MasterEnumerateSteps()) {
@@ -90,9 +97,9 @@ public class RandomWalk : MonoBehaviour {
             // if (step.newCave.Length > 0 && count++ % addOrbEvery == 0) {
             if (darkness.IsInDarkness) count++;
             else count = 0;
-            absoluteCount++;
-            if (count >= addOrbEvery || absoluteCount >= maxAddOrbSteps) {
-                if (absoluteCount >= maxAddOrbSteps) Debug.Log("MAX ADD ORB STEPS TRIGGERED");
+            absoluteCountDown--;
+            if (count >= addOrbEvery || absoluteCountDown <= 0) {
+                if (absoluteCountDown >= maxAddOrbSteps) Debug.Log("MAX ADD ORB STEPS TRIGGERED");
                 StandardOrb orb = GameObject.Instantiate(orbPrefab, step.location, Quaternion.identity, orbParent);
                 if (orbChargeRampUpStep < orbChargeRampUp) {
                     orb.chargeTime *= ((float)orbChargeRampUpStep / orbChargeRampUp);
@@ -100,7 +107,7 @@ public class RandomWalk : MonoBehaviour {
                 }
                 if (GameObject.FindObjectOfType<RisingWater>() != null) GameObject.FindObjectOfType<RisingWater>().AddOrb(orb);
                 if (cheat) orb.chargeTime *= cheatSlowdown;
-                absoluteCount = 0;
+                absoluteCountDown = maxAddOrbSteps * orbChargeRampUpStep / orbChargeRampUp;
             }
             foreach (GridPos interesting in step.interesting) {
                 StandardOrb orb = GameObject.Instantiate(orbPrefab, interesting.World, Quaternion.identity, orbParent);
@@ -109,6 +116,7 @@ public class RandomWalk : MonoBehaviour {
                 }
             }
             etherCurrent = step.etherCurrent;
+            exitDirection = step.exitDirection;
             prevLoc = nextLoc;
             nextLoc = step.location;
             progress = 0;
@@ -125,6 +133,8 @@ public class RandomWalk : MonoBehaviour {
             Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta, 600);
         } else
             Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta);
+
+        Debug.DrawLine(transform.position, transform.position + exitDirection.World, Color.red);
 
         if (SimpleInput.GetButtonDown("Cheat")) {
             cheat = !cheat;
