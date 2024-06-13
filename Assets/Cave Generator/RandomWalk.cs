@@ -63,7 +63,7 @@ public class RandomWalk : MonoBehaviour {
     public IEnumerator<RandomWalkAlgorithm.Output> MuxEnumerator(int currentMode, GridPos position, GridPos exitDirection, ref int stepsUntilNextMode) {
         Vector3 biasToFleeStartLocation = new Vector3(1, -.5f, -.5f) * biasToLeaveCenterOfGravity;
 
-        stepsUntilNextMode = currentMode == 0 ? Random.Range(modeSwitchRate * 2, modeSwitchRate * 6) : Random.Range(modeSwitchRate, modeSwitchRate * 2);
+        stepsUntilNextMode = currentMode == 0 ? Random.Range(modeSwitchRate / 2, modeSwitchRate * 6) : Random.Range(2, modeSwitchRate * 2);
 
         switch (currentMode) {
             case 0:

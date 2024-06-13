@@ -13,54 +13,78 @@ public class GameManager : MonoBehaviour {
 
     public string startScene;
 
+    public GameObject pauseMenu;
+    public GameObject diedMenu;
+
     public List<GameObject> activateTheseOnDeath = new List<GameObject>();
     public List<GameObject> deactivateTheseOnDeath = new List<GameObject>();
 
-    private int mode = 1;
+    private Mode mode = Mode.PLAYING;
+
+    private enum Mode {
+        PLAYING,
+        PAUSED,
+        DEAD_MENU,
+        VIEWING_MAP
+    }
+
+    private ThirdPersonUserControl playerControl;
 
     void Start() {
+        playerControl = GameObject.FindObjectOfType<ThirdPersonUserControl>();
         StartCoroutine(LoadScenes());
+        Time.timeScale = 1;
     }
 
     void Update() {
         if (Input.GetKeyDown(KeyCode.Escape)) {
             switch (mode) {
-                case 1: Die(); break;
-                case 2: Restart(); break;
+                case Mode.PLAYING: Pause(); break;
+                case Mode.PAUSED: Unpause(); break;
+                case Mode.DEAD_MENU: Restart(); break;
+                case Mode.VIEWING_MAP: Die(); break;
             }
         }
     }
 
-    public void Die() {
-        if (mode != 1) return;
-        mode = 2;
-        ThirdPersonUserControl playerControl = GameObject.FindObjectOfType<ThirdPersonUserControl>();
-        GameObject.FindObjectOfType<CameraMux>().SwitchCameraNow(true);
-        GameObject.FindObjectOfType<PanController>().transform.position = playerControl.transform.position;
+    public void Pause() {
+        mode = Mode.PAUSED;
         playerControl.enabled = false;
-        foreach (GameObject go in deactivateTheseOnDeath) {
-            go.SetActive(false);
-        }
-        foreach (GameObject go in activateTheseOnDeath) {
-            go.SetActive(true);
-        }
         Time.timeScale = 0;
+        pauseMenu.SetActive(true);
     }
 
-    private void Restart() {
+    public void Unpause() {
+        mode = Mode.PLAYING;
+        playerControl.enabled = true;
+        Time.timeScale = 1;
+        pauseMenu.SetActive(false);
+    }
+
+    public void Die() {
+        mode = Mode.DEAD_MENU;
+        playerControl.enabled = false;
+        Time.timeScale = 0;
+        diedMenu.SetActive(true);
+    }
+
+    public void SeeMap() {
+        mode = Mode.VIEWING_MAP;
+        GameObject.FindObjectOfType<CameraMux>().SwitchCameraNow(true);
+        GameObject.FindObjectOfType<PanController>().transform.position = playerControl.transform.position;
+        foreach (GameObject go in deactivateTheseOnDeath) go.SetActive(false);
+        foreach (GameObject go in activateTheseOnDeath) go.SetActive(true);
+    }
+
+    public void Restart() {
         SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(startScene));
-        if (mode != 2) return;
-        mode = 1;
-        Transform player = GameObject.FindWithTag("Player").transform;
+        mode = Mode.PLAYING;
+        Transform player = playerControl.transform;
         player.position = Vector3.zero;
         player.rotation = Quaternion.identity;
         player.GetComponent<ThirdPersonUserControl>().enabled = true;
-        foreach (GameObject go in deactivateTheseOnDeath) {
-            go.SetActive(true);
-        }
-        foreach (GameObject go in activateTheseOnDeath) {
-            go.SetActive(false);
-        }
+        foreach (GameObject go in deactivateTheseOnDeath) go.SetActive(true);
+        foreach (GameObject go in activateTheseOnDeath) go.SetActive(false);
         Time.timeScale = 1;
         GameObject.FindObjectOfType<CameraMux>().SwitchCameraNow(false);
         StartCoroutine(LoadScenes());
