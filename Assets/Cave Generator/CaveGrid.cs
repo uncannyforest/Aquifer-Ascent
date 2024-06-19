@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(Biomes))]
 [RequireComponent(typeof(Decor))]
@@ -54,8 +56,8 @@ public class CaveGrid : MonoBehaviour {
         }
     }
 
-    private void UpdatePos(GridPos pos) {
-        for (int i = 1; i >= -1; i--) {
+    private void UpdatePos(GridPos pos, int relMinNeedsUpdate, int relMaxNeedsUpdate) {
+        for (int i = relMaxNeedsUpdate; i >= relMinNeedsUpdate; i--) {
             GridPos posToCheck = pos + GridPos.up * i;
             foreach (TriPos tri in posToCheck.Triangles) {
                 GridPos[] horizCorners = tri.HorizCorners;
@@ -72,20 +74,63 @@ public class CaveGrid : MonoBehaviour {
         }
     }
 
-    public void SetPos(GridPos pos, bool value) {
+    [Obsolete("Deprecated, use CaveMod parameter")]
+    public void SetPos(GridPos pos, bool value) => SetPos(new Mod(pos, 1, value));
+
+    public void SetPos(Mod mod) {
+        GridPos pos = mod.pos;
+        int roof = mod.roof;
+        bool value = mod.open;
+
+        int relMinNeedsUpdate = -1;
+        int relMaxNeedsUpdate = roof + 1;
+
         CaveGrid.Biome.Next(pos);
         grid[pos] = value;
-        grid[pos + GridPos.up] = value;
-        if (grid[pos + 2 * GridPos.up] != value && grid[pos + 3 * GridPos.up] == value) {
-            grid[pos + 2 * GridPos.up] = value;
-            UpdatePos(pos + 2 * GridPos.up);
+        for (int i = 1; i <= roof; i++) {
+            grid[pos + GridPos.up * i] = value;
+        }
+        if (grid[pos + (roof + 1) * GridPos.up] != value && grid[pos + (roof + 2) * GridPos.up] == value) {
+            grid[pos + (roof + 1) * GridPos.up] = value;
+            relMaxNeedsUpdate++;
         }
         if (grid[pos - GridPos.up] != value && grid[pos - 2 * GridPos.up] == value) {
             grid[pos - GridPos.up] = value;
-            UpdatePos(pos - GridPos.up);
+            relMinNeedsUpdate--;
         }
-        UpdatePos(pos);
-        UpdatePos(pos + GridPos.up);
+        UpdatePos(pos, relMinNeedsUpdate, relMaxNeedsUpdate);
     }
 
+    public struct Mod {
+        public GridPos pos;
+        public int roof;
+        public bool open;
+
+        public Mod(GridPos pos, int roof, bool open) {
+            this.pos = pos;
+            this.roof = roof;
+            this.open = open;
+        }
+
+        public static Mod Cave(GridPos pos, int roof = 1) => new Mod(pos, roof, true);
+        public static Mod Wall(GridPos pos, int roof = 1) => new Mod(pos, roof, false);
+
+        public static Mod RandomVerticalExtension(GridPos pos, int minExtraFloor, int maxExtraFloor, int minExtraRoof, int maxExtraRoof) {
+            int floor = Random.Range(-maxExtraFloor, -minExtraFloor + 1);
+            int roof = Random.Range(minExtraRoof, maxExtraRoof + 1) + 1 - floor;
+            return new Mod(pos + GridPos.up * floor, roof, true);
+        }
+
+        // Picks random floor and roof
+        // if equal, returns null
+        // otherwise returns column [floor, roof]
+        public static Mod? RandomVerticalMaybe(GridPos pos, int maxExtraFloor, int maxExtraRoof) {
+            int r1 = Random.Range(-maxExtraFloor, maxExtraRoof + 2);
+            int r2 = Random.Range(-maxExtraFloor, maxExtraRoof + 2);
+            if (r1 == r2) return null;
+            int floor = Mathf.Min(r1, r2);
+            int roof = Mathf.Max(r1, r2) - floor;
+            return new Mod(pos + GridPos.up * floor, roof, true);
+        }
+    }
 }

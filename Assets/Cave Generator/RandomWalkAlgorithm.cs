@@ -1,38 +1,13 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class RandomWalkAlgorithm {
 
-    public struct Output {
-        public Vector3 location;
-        public GridPos position;
-        public GridPos exitDirection;
-        public GridPos[] newCave;
-        public GridPos[] interesting;
-        public Vector3 etherCurrent;
-        public BridgeMode bridgeMode;
+    public static CaveGrid.Mod[] SimpleHole(GridPos pos) => new CaveGrid.Mod[] {CaveGrid.Mod.Cave(pos)};
 
-        public enum BridgeMode {
-            NONE,
-            ODDS,
-            LAST
-        }
-
-        public Output(Vector3 location, GridPos position, GridPos exitDirection, GridPos[] newCave, GridPos[] interesting, Vector3 etherCurrent, BridgeMode bridgeMode) {
-            this.location = location;
-            this.position = position;
-            this.exitDirection = exitDirection;
-            this.newCave = newCave;
-            this.interesting = interesting;
-            this.etherCurrent = etherCurrent;
-            this.bridgeMode = bridgeMode;
-        }
-    }
-
-    public static IEnumerable<Output> EnumerateSteps(GridPos initPos, GridPos initDirection, int modeSwitchRate, int inertiaOfEtherCurrent, Vector3 biasToLeaveStartLocation, float upwardRate) {
+    public static IEnumerable<RandomWalk.Output> EnumerateSteps(GridPos initPos, GridPos initDirection, int modeSwitchRate, int inertiaOfEtherCurrent, Vector3 biasToLeaveStartLocation, float upwardRate) {
         GridPos position = initPos;
         TriPos triPosition = new TriPos(initPos, false);
         GridPos lastMove = initDirection;
@@ -55,7 +30,7 @@ public class RandomWalkAlgorithm {
         Debug.Log("RW hScale " + currentHScale + " / vScale" + currentVScale);
 
         CaveGrid.Biome.Next(position, (_) => biome, true);
-        yield return new Output(position.World, position, lastMove, new GridPos[] {position}, new GridPos[] {}, Vector3.zero, Output.BridgeMode.NONE);
+        yield return new RandomWalk.Output(position.World, position, lastMove, SimpleHole(position), new GridPos[] {}, Vector3.zero);
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
             // if (biomeTries == 108) {
             //     justFlipped = false;
@@ -168,54 +143,50 @@ public class RandomWalkAlgorithm {
             if (hScale == 1) nextLoc = newTriPosition.World;
             else nextLoc = newPosition.World;
             if (vScale == 1) nextLoc += GridPos.up.World * .5f;
-            List<GridPos> newCave = new List<GridPos>();
+            List<CaveGrid.Mod> newCave = new List<CaveGrid.Mod>();
             if (doBridge) {
                 GridPos bridgePos = newPosition + GridPos.up * (int)bridgeInstead;
-                newCave.Add(bridgePos);
-                newCave.Add(bridgePos - GridPos.up * 2);
+                newCave.Add(CaveGrid.Mod.Cave(bridgePos));
+                newCave.Add(CaveGrid.Mod.Wall(bridgePos - GridPos.up * 2));
                 if (lastMoveBridge == 0) {
                     Debug.Log("Last pos before bridge: " + position);
                     GridPos also = position;
                     int stepSize = hScale > 2 ? 2 : 1;
                     also.w = Mathf.Max(position.w, bridgePos.w - stepSize); // not needed if bridge must == 0
-                    newCave.Add(also);
-                    newCave.Add(also - GridPos.up * 2);
-                    if (bridgePos.w > also.w)
-                        newCave.Add(also + GridPos.up);
+                    newCave.Add(CaveGrid.Mod.Cave(also, bridgePos.w > also.w ? 2 : 1));
+                    newCave.Add(CaveGrid.Mod.Wall(also - GridPos.up * 2));
                 } else if (bridgePos.w > position.w + 1) {
-                    newCave.Add(position + GridPos.up);
+                    newCave.Add(CaveGrid.Mod.Cave(position + GridPos.up));
                 }
-            } else for (int i = vScale == 3 ? -2 : vScale == 2 ? -1 : 0; i <= (vScale >= 2 ? vScale - 1 : vScale); i++) {
-                if (hScale >= 2 && lastMoveBridge > 0) {
-                    if (i == 0) {
-                        newCave.Add(newPosition);
-                        if (lastMoveBridge > 1) newCave.Add(newPosition - GridPos.up * 2);
-                        lastMoveBridge--;
-                    }
-                } else if (hScale == 0) {
-                    newCave.Add(newPosition + GridPos.up * i);
-                }
-                else if (hScale == 2) {
-                    newCave.Add(newPosition + GridPos.up * i);
-                    foreach (GridPos unit in GridPos.Units) {
-                        if (vScale >= 2) {
-                            if (Random.value < 1/3f) // i == 0 || 
-                                newCave.Add(newPosition + unit + GridPos.up * i);
-                        } else if (Random.value < 1/2f)
-                            newCave.Add(newPosition + unit + GridPos.up * i);
-                    }
+            } else if (hScale >= 2 && lastMoveBridge > 0) {
+                newCave.Add(CaveGrid.Mod.Cave(newPosition));
+                if (lastMoveBridge > 1) newCave.Add(CaveGrid.Mod.Wall(newPosition - GridPos.up * 2));
+                lastMoveBridge--;
+            } else { // for (int i = vScale == 3 ? -2 : vScale == 2 ? -1 : 0; i <= (vScale >= 2 ? vScale - 1 : vScale); i++) {
+                int lowestFloor = vScale == 3 ? -2 : vScale == 2 ? -1 : 0;
+                int roof = vScale == 3 ? 5 : vScale + 1;
+                int maxExtraFloor = -lowestFloor;
+                int maxExtraRoof = roof - maxExtraFloor - 1;
+                if (hScale == 0) {
+                    newCave.Add(CaveGrid.Mod.Cave(newPosition + GridPos.up * lowestFloor, roof));
+                } else if (hScale == 2) {
+                    newCave.Add(CaveGrid.Mod.Cave(newPosition + GridPos.up * lowestFloor, roof));
+                    foreach (GridPos unit in GridPos.Units)
+                        if (CaveGrid.Mod.RandomVerticalMaybe(newPosition + unit, maxExtraFloor, maxExtraRoof)
+                            is CaveGrid.Mod mod) newCave.Add(mod);
                 } else if (hScale == 3) {
-                    newCave.Add(newPosition + GridPos.up * i);
+                    newCave.Add(CaveGrid.Mod.Cave(newPosition + GridPos.up * lowestFloor, roof));
                     foreach (GridPos unit in GridPos.Units) {
-                        newCave.Add(newPosition + unit + GridPos.up * i);
+                        newCave.Add(CaveGrid.Mod.Cave(newPosition + unit + GridPos.up * lowestFloor, roof));
                     }
                     foreach (GridPos unit in GridPos.Units2) {
-                        if (Random.value < 1/2f)
-                            newCave.Add(newPosition + unit + GridPos.up * i);
+                        if (CaveGrid.Mod.RandomVerticalMaybe(newPosition + unit, maxExtraFloor, maxExtraRoof)
+                            is CaveGrid.Mod mod) newCave.Add(mod);
                     }
                 } else {
                     foreach (GridPos corner in newTriPosition.HorizCorners) {
-                        if (vScale < 2 || i == 0 || Random.value < 1/3f) newCave.Add(corner + GridPos.up * i);
+                        if (vScale < 2) newCave.Add(CaveGrid.Mod.Cave(corner, roof));
+                        else newCave.Add(CaveGrid.Mod.RandomVerticalExtension(corner, 0, maxExtraFloor, 0, maxExtraRoof));
                     }
                 }
             }
@@ -237,9 +208,9 @@ public class RandomWalkAlgorithm {
             //     biomeTries++;
             //     continue;
             // }
-            foreach (GridPos pos in newCave) CaveGrid.Biome.Next(pos);
+            foreach (CaveGrid.Mod mod in newCave) CaveGrid.Biome.Next(mod.pos);
 
-            yield return new Output(nextLoc, newPosition, random, newCave.ToArray(), interesting.ToArray(), etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero), doBridge || lastMoveBridge >= 2 ? Output.BridgeMode.ODDS : Output.BridgeMode.NONE);
+            yield return new RandomWalk.Output(nextLoc, newPosition, random, newCave.ToArray(), interesting.ToArray(), etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero), doBridge || lastMoveBridge >= 2 ? RandomWalk.Output.BridgeMode.ODDS : RandomWalk.Output.BridgeMode.NONE);
             lastMove = random;
             lastMoveBridge = doBridge && hScale >= 2 ? hScale - 1 : 0;
             position = newPosition;

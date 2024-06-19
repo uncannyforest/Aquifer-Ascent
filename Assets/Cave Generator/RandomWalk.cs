@@ -39,14 +39,14 @@ public class RandomWalk : MonoBehaviour {
         if (cheatButtonGo != null) cheatButton = cheatButtonGo.GetComponent<Image>();
     }
 
-    public IEnumerable<RandomWalkAlgorithm.Output> MasterEnumerateSteps() {
+    public IEnumerable<Output> MasterEnumerateSteps() {
 
         int numModes = 3;
         int currentMode = Random.Range(0, 2);
         int stepsUntilNextMode = 0;
-        IEnumerator<RandomWalkAlgorithm.Output> enumerator = MuxEnumerator(currentMode, GridPos.zero, GridPos.E, ref stepsUntilNextMode);
+        IEnumerator<Output> enumerator = MuxEnumerator(currentMode, GridPos.zero, GridPos.E, ref stepsUntilNextMode);
         while(enumerator.MoveNext()) {
-            RandomWalkAlgorithm.Output output = enumerator.Current;
+            Output output = enumerator.Current;
             yield return output;
 
             if (stepsUntilNextMode-- == 0) {
@@ -60,7 +60,7 @@ public class RandomWalk : MonoBehaviour {
         }
     }
 
-    public IEnumerator<RandomWalkAlgorithm.Output> MuxEnumerator(int currentMode, GridPos position, GridPos exitDirection, ref int stepsUntilNextMode) {
+    public IEnumerator<Output> MuxEnumerator(int currentMode, GridPos position, GridPos exitDirection, ref int stepsUntilNextMode) {
         Vector3 biasToFleeStartLocation = new Vector3(1, -.5f, -.5f) * biasToLeaveCenterOfGravity;
 
         stepsUntilNextMode = currentMode == 0 ? Random.Range(modeSwitchRate / 2, modeSwitchRate * 6) : Random.Range(2, modeSwitchRate * 2);
@@ -81,18 +81,15 @@ public class RandomWalk : MonoBehaviour {
         int absoluteCountDown = maxAddOrbSteps * orbChargeRampUpStep / orbChargeRampUp;
         
         CaveGrid.Biome.Next(GridPos.zero, (_) => 1, true);
-        foreach (RandomWalkAlgorithm.Output step in MasterEnumerateSteps()) {
+        foreach (Output step in MasterEnumerateSteps()) {
             for (int i = 0; i < step.newCave.Length; i++) {
-                GridPos position = step.newCave[i];
-                if (step.bridgeMode == RandomWalkAlgorithm.Output.BridgeMode.ODDS) {
-                    Debug.Log("Bridge at " + position + ", open: " + (i % 2 == 1));
-                    if (i == 1) Debug.DrawLine(position.World, step.newCave[i - 1].World, Color.blue, 600);
-                    if (i == 3) Debug.DrawLine(position.World, step.newCave[i - 1].World, Color.white, 600);
+                CaveGrid.Mod mod = step.newCave[i];
+                if (step.bridgeMode == Output.BridgeMode.ODDS) {
+                    Debug.Log("Bridge at " + mod.pos + ", open: " + (i % 2 == 1));
+                    if (i == 1) Debug.DrawLine(mod.pos.World, step.newCave[i - 1].pos.World, Color.blue, 600);
+                    if (i == 3) Debug.DrawLine(mod.pos.World, step.newCave[i - 1].pos.World, Color.white, 600);
                 }
-                bool clearSpace = step.bridgeMode == RandomWalkAlgorithm.Output.BridgeMode.NONE ||
-                    (step.bridgeMode == RandomWalkAlgorithm.Output.BridgeMode.ODDS && (i % 2 == 0)) ||
-                    (step.bridgeMode == RandomWalkAlgorithm.Output.BridgeMode.LAST && i < step.newCave.Length - 1);
-                CaveGrid.I.SetPos(position, clearSpace);
+                CaveGrid.I.SetPos(mod);
             }
             // if (step.newCave.Length > 0 && count++ % addOrbEvery == 0) {
             if (darkness.IsInDarkness) count++;
@@ -150,5 +147,31 @@ public class RandomWalk : MonoBehaviour {
 
     private static float CubicInterpolate(float x) {
         return 3 * Mathf.Pow(x, 2) - 2 * Mathf.Pow(x, 3);
+    }
+
+    public struct Output {
+        public Vector3 location;
+        public GridPos position;
+        public GridPos exitDirection;
+        public CaveGrid.Mod[] newCave;
+        public GridPos[] interesting;
+        public Vector3 etherCurrent;
+        public BridgeMode bridgeMode; // for debug lines only
+
+        public enum BridgeMode {
+            NONE,
+            ODDS,
+            LAST
+        }
+
+        public Output(Vector3 location, GridPos position, GridPos exitDirection, CaveGrid.Mod[] newCave, GridPos[] interesting, Vector3 etherCurrent, BridgeMode bridgeMode = BridgeMode.NONE) {
+            this.location = location;
+            this.position = position;
+            this.exitDirection = exitDirection;
+            this.newCave = newCave;
+            this.interesting = interesting;
+            this.etherCurrent = etherCurrent;
+            this.bridgeMode = bridgeMode;
+        }
     }
 }

@@ -39,7 +39,7 @@ public class RandomWalkAlgorithmStairs {
         smallPos += smallMove;
     }
 
-    public static IEnumerable<RandomWalkAlgorithm.Output> MoveVertically(GridPos initPos, GridPos initDirection, bool up) {
+    public static IEnumerable<RandomWalk.Output> MoveVertically(GridPos initPos, GridPos initDirection, bool up) {
         int verticalDirection = (up ? 1 : -1);
 
         GridPos smallPos = initPos;
@@ -59,29 +59,29 @@ public class RandomWalkAlgorithmStairs {
 
         bool huggingLeft = Randoms.CoinFlip;
 
-        List<GridPos> initCave = new List<GridPos>();
-        initCave.Add(smallPos);
-        initCave.Add(smallPos + initMove);
-        foreach (GridPos unit in GridPos.Units) initCave.Add(smallPos + initMove + unit);
+        List<CaveGrid.Mod> initCave = new List<CaveGrid.Mod>();
+        initCave.Add(CaveGrid.Mod.Cave(smallPos));
+        initCave.Add(CaveGrid.Mod.Cave(smallPos + initMove));
+        foreach (GridPos unit in GridPos.Units) initCave.Add(CaveGrid.Mod.Cave(smallPos + initMove + unit));
 
-        initCave.Add(smallPos - 2 * GridPos.up);
-        yield return new RandomWalkAlgorithm.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), new GridPos[] {}, Vector3.zero, RandomWalkAlgorithm.Output.BridgeMode.LAST);
+        initCave.Add(CaveGrid.Mod.Wall(smallPos - 2 * GridPos.up));
+        yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), new GridPos[] {}, Vector3.zero, RandomWalk.Output.BridgeMode.LAST);
 
         smallMove.w = verticalDirection;
         // smallMove = huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight();
 
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
-            List<GridPos> newCave = new List<GridPos>();
-            newCave.Add(smallPos);
+            List<CaveGrid.Mod> newCave = new List<CaveGrid.Mod>();
+            newCave.Add(CaveGrid.Mod.Cave(smallPos));
             if (smallMove.w != 0) { 
-                newCave.Add(largePos);
-                foreach (GridPos unit in GridPos.Units) if (scale >= 0 || Random.value < 1/3f) newCave.Add(largePos + unit);
-                if (scale >= 0) foreach (GridPos unit in GridPos.Units2) if (Random.value < units2Chance) newCave.Add(largePos + unit);
+                newCave.Add(CaveGrid.Mod.Cave(largePos));
+                foreach (GridPos unit in GridPos.Units) if (scale >= 0 || Random.value < 1/3f) newCave.Add(CaveGrid.Mod.Cave(largePos + unit));
+                if (scale >= 0) foreach (GridPos unit in GridPos.Units2) if (Random.value < units2Chance) newCave.Add(CaveGrid.Mod.Cave(largePos + unit));
             }
-            newCave.Add(smallPos - GridPos.up * 2);
+            newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
 
-            foreach (GridPos pos in newCave) CaveGrid.Biome.Next(pos);
-            yield return new RandomWalkAlgorithm.Output(smallPos.World, smallPos, huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight(), newCave.ToArray(), new GridPos[] {}, Vector3.zero, RandomWalkAlgorithm.Output.BridgeMode.LAST);
+            foreach (CaveGrid.Mod mod in newCave) CaveGrid.Biome.Next(mod.pos);
+            yield return new RandomWalk.Output(smallPos.World, smallPos, huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight(), newCave.ToArray(), new GridPos[] {}, Vector3.zero, RandomWalk.Output.BridgeMode.LAST);
             
             smallMove.w = Random.value < flatChance ? 0 : verticalDirection;
 
@@ -97,7 +97,7 @@ public class RandomWalkAlgorithmStairs {
         }
     }
 
-    public static IEnumerable<RandomWalkAlgorithm.Output> MoveHorizontally(GridPos initPos, GridPos initDirection, int modeSwitchRate, Vector3 biasToFleeStartLocation, float upwardRate) {
+    public static IEnumerable<RandomWalk.Output> MoveHorizontally(GridPos initPos, GridPos initDirection, int modeSwitchRate, Vector3 biasToFleeStartLocation, float upwardRate) {
         float smallUpwardRate = .5f;
 
         GridPos smallPos = initPos;
@@ -121,17 +121,23 @@ public class RandomWalkAlgorithmStairs {
         // smallMove = huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight();
 
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
-            List<GridPos> newCave = new List<GridPos>();
-            newCave.Add(smallPos);
-            if (!catchingUpHorizontally) for (int i = -3 - vScale; i <= 1 + vScale; i += 1) {
-                newCave.Add(largePos + GridPos.up * i);
-                foreach (GridPos unit in GridPos.Units) if (i == -1 || hScale == 1 || Random.value < 1/3f) newCave.Add(largePos + unit + GridPos.up * i);
-                if (hScale == 1) foreach (GridPos unit in GridPos.Units2) if (i == -1 || Random.value < 1/3f) newCave.Add(largePos + unit + GridPos.up * i);
+            List<CaveGrid.Mod> newCave = new List<CaveGrid.Mod>();
+            newCave.Add(CaveGrid.Mod.Cave(smallPos));
+            if (!catchingUpHorizontally) {//for (int i = -3 - vScale; i <= 1 + vScale; i += 1) {
+                int maxExtraFloor = 2 + vScale;
+                int maxExtraRoof = 2 + vScale;
+                GridPos largeCenter = largePos - GridPos.up;
+                newCave.Add(CaveGrid.Mod.Cave(largeCenter - maxExtraFloor * GridPos.up, maxExtraRoof + maxExtraFloor + 1));
+                foreach (GridPos unit in GridPos.Units) {
+                    if (hScale == 1) newCave.Add(CaveGrid.Mod.Cave(largeCenter + unit - maxExtraFloor * GridPos.up, maxExtraRoof + maxExtraFloor + 1));
+                    else newCave.Add(CaveGrid.Mod.RandomVerticalExtension(largeCenter + unit, 0, maxExtraFloor, 0, maxExtraRoof));
+                }
+                if (hScale == 1) foreach (GridPos unit in GridPos.Units2) newCave.Add(CaveGrid.Mod.RandomVerticalExtension(largeCenter + unit, 0, maxExtraFloor, 0, maxExtraRoof));
             }
-            newCave.Add(smallPos - GridPos.up * 2);
+            newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
 
-            foreach (GridPos pos in newCave) CaveGrid.Biome.Next(pos);
-            yield return new RandomWalkAlgorithm.Output(smallPos.World, smallPos, huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight(), newCave.ToArray(), new GridPos[] {}, Vector3.zero, RandomWalkAlgorithm.Output.BridgeMode.LAST);
+            foreach (CaveGrid.Mod mod in newCave) CaveGrid.Biome.Next(mod.pos);
+            yield return new RandomWalk.Output(smallPos.World, smallPos, huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight(), newCave.ToArray(), new GridPos[] {}, Vector3.zero, RandomWalk.Output.BridgeMode.LAST);
             
             if (nextScaleCount-- == 0) {
                 if (Randoms.CoinFlip) hScale = 1 - hScale;
