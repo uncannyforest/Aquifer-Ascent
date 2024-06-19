@@ -1,5 +1,48 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &269063537
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 269063538}
+  m_Layer: 0
+  m_Name: WaterTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &269063538
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 269063537}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -12, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 317994074565316839}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &8540087807976248505
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3226984548907044838}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &-3564749235442120631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16,12 +59,29 @@ MonoBehaviour:
     type: 3}
   orbParent: {fileID: 0}
   interiaOfEtherCurrent: 48
-  modRate: 0.33333334
+  modRate: 0.8333335
   slowDown: 0
-  addOrbEvery: 6
+  addOrbEvery: 1
+  maxAddOrbSteps: 18
+  orbChargeRampUp: 12
   changeBiomeEvery: 108
   biasToLeaveCenterOfGravity: 1
   cheatSlowdown: 4
+  upwardRate: 0.9166667
+  modeSwitchRate: 20
+--- !u!114 &929735342216708032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3226984548907044838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cebe6f1922f24a37a6956fa5617aab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  burstSize: 6
 --- !u!1001 &3768289526359141521
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -168,6 +228,11 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3089173622030738250, guid: 4ae26ce6421574e3e81927f064590c1a,
+        type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6699643106902759722, guid: 4ae26ce6421574e3e81927f064590c1a,
         type: 3}
       propertyPath: m_Name
@@ -206,17 +271,17 @@ PrefabInstance:
     - target: {fileID: 8383689696831014443, guid: 4ae26ce6421574e3e81927f064590c1a,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 8383689696831014443, guid: 4ae26ce6421574e3e81927f064590c1a,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 8383689696831014443, guid: 4ae26ce6421574e3e81927f064590c1a,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 8383689696831014443, guid: 4ae26ce6421574e3e81927f064590c1a,
         type: 3}

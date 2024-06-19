@@ -127,7 +127,7 @@ public class RandomWalk : MonoBehaviour {
 
     void Update() {
         progress += Time.deltaTime / modRate;
-        transform.position = Vector3.Lerp(prevLoc, nextLoc, CubicInterpolate(progress));
+        transform.position = Vector3.Lerp(prevLoc, nextLoc, CubicInterpolate(Mathf.Clamp01(progress)));
         if (etherCurrent.y > .5f) {
             etherCurrent = new Vector3(etherCurrent.x, 0, etherCurrent.z);
             Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta, 600);
