@@ -220,6 +220,6 @@ public class GridPiece : MonoBehaviour {
         material.SetColor("_Walls1", walls[src[0]]);
         material.SetColor("_Walls2", walls[src[1]]);
         material.SetColor("_Walls3", walls[src[2]]);
-        newPiece.GetComponent<MeshRenderer>().material = material;
+        foreach (MeshRenderer renderer in newPiece.GetComponentsInChildren<MeshRenderer>()) renderer.material = material;
     }
 }

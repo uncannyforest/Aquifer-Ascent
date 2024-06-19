@@ -412,36 +412,36 @@ MonoBehaviour:
   prefab: {fileID: -4586612404793037062, guid: 423052d69178d4cd9a96667d215afb7b, type: 3}
   scale: {x: 2, y: 1, z: 2}
   floor: {fileID: 2550463727306718371, guid: 802ff851b699b418ba63ceb21f57cd45, type: 3}
-  revcorner: {fileID: 8124854992641687857, guid: 802ff851b699b418ba63ceb21f57cd45,
+  revcorner: {fileID: 8936595777936785047, guid: 9033506d679514bf4800b37d7d84ae0e,
     type: 3}
-  corner: {fileID: -3807485315920446229, guid: 802ff851b699b418ba63ceb21f57cd45, type: 3}
-  revcornerBaseboard: {fileID: 8842036541108573873, guid: 802ff851b699b418ba63ceb21f57cd45,
+  corner: {fileID: 8936595777936785047, guid: 016f3b39d5b2e4987a52818f8e9373b1, type: 3}
+  revcornerBaseboard: {fileID: 8936595777936785047, guid: 73f052a7a3ea241d5903b0d8f128dbc2,
     type: 3}
-  revcornerGutter: {fileID: -4828889266262801256, guid: 802ff851b699b418ba63ceb21f57cd45,
+  revcornerGutter: {fileID: 8936595777936785047, guid: 0d05b9fe9d75146c388ab96e56cf5d72,
     type: 3}
-  cornerBaseboard: {fileID: 4081248524325575128, guid: 802ff851b699b418ba63ceb21f57cd45,
+  cornerBaseboard: {fileID: 8936595777936785047, guid: 6ff42d40f165743919ea08c4a52d8aa1,
     type: 3}
-  cornerGutter: {fileID: -456511365516288333, guid: 802ff851b699b418ba63ceb21f57cd45,
+  cornerGutter: {fileID: 8936595777936785047, guid: a788be165076845f3a75c00c7ceb0bb0,
     type: 3}
-  lowerSlope: {fileID: -1765129595556838872, guid: 802ff851b699b418ba63ceb21f57cd45,
+  lowerSlope: {fileID: 8936595777936785047, guid: 5a268b0a525e14233b5e10e4ffc281dd,
     type: 3}
-  upperSlope: {fileID: -8166795947304997724, guid: 802ff851b699b418ba63ceb21f57cd45,
+  upperSlope: {fileID: 8936595777936785047, guid: 0623bf7b5c1074de49d5a6ce732035b7,
     type: 3}
-  lowerCurve: {fileID: -7430774708922009496, guid: 802ff851b699b418ba63ceb21f57cd45,
+  lowerCurve: {fileID: 8936595777936785047, guid: faf1f1276b864412a9e5aa9c4a1d09df,
     type: 3}
-  upperCurve: {fileID: 525806475549138430, guid: 802ff851b699b418ba63ceb21f57cd45,
+  upperCurve: {fileID: 8936595777936785047, guid: 5ff344626b49547a38336470c8ea3b64,
     type: 3}
-  endBaseboard: {fileID: 6102064962777819904, guid: 802ff851b699b418ba63ceb21f57cd45,
+  endBaseboard: {fileID: 8936595777936785047, guid: 071633a137f934cc3ac4faa932c8fb16,
     type: 3}
-  endGutter: {fileID: -2979216932277808645, guid: 802ff851b699b418ba63ceb21f57cd45,
+  endGutter: {fileID: 8936595777936785047, guid: a829fa33a3f6c45aa8c69df3b4c48743,
     type: 3}
-  tunnelStair: {fileID: -7623979997665507964, guid: 802ff851b699b418ba63ceb21f57cd45,
+  tunnelStair: {fileID: 8936595777936785047, guid: fc7fb24980f17484c9e9557449cca68f,
     type: 3}
-  tunnelBroadStair: {fileID: -1092774222082606763, guid: 802ff851b699b418ba63ceb21f57cd45,
+  tunnelBroadStair: {fileID: 8936595777936785047, guid: 97d7074e205a44043998306e5a9a2c08,
     type: 3}
-  tunnelThinLedge: {fileID: 5322805603060635459, guid: 802ff851b699b418ba63ceb21f57cd45,
+  tunnelThinLedge: {fileID: 8936595777936785047, guid: 861fdda036672481290883b6bdd4e4c5,
     type: 3}
-  tunnelBroadLedge: {fileID: 5335040772344283872, guid: 802ff851b699b418ba63ceb21f57cd45,
+  tunnelBroadLedge: {fileID: 8936595777936785047, guid: 42e15e36f28044e9fb04e18d2f2e01e1,
     type: 3}
   defaultMaterial: {fileID: 2100000, guid: b03e2ebe6f5dd4a2fb436eb70f8a2147, type: 2}
 --- !u!114 &1486949850
@@ -458,8 +458,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deadTree: {fileID: 4152080433919208487, guid: 7d900be1d89ca43a1978b3b9d7f4bd2f,
     type: 3}
-  deadTreeRate: 27
-  nothingRate: 54
+  deadTreeRate: 54
+  nothingRate: 108
   sameDecorRate: 0.8333333
   positionOffsetRelHoriz: 0.5
   positionOffsetAbsY: -0.25

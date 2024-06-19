@@ -4870,8 +4870,8 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 0.02
-    m_NormalBias: 0.1
+    m_Bias: 0.25
+    m_NormalBias: 0.5
     m_NearPlane: 0.1
     m_CullingMatrixOverride:
       e00: 1
@@ -4969,6 +4969,7 @@ MonoBehaviour:
   pickUpSound: {fileID: 8300000, guid: 04df9b11a4dd24c46b51da18fa8cb302, type: 3}
   setDownSound: {fileID: 8300000, guid: 8315785413ece4064a677c8ae611927b, type: 3}
   pickUpTime: 0.5
+  physicsCollider: {fileID: 0}
   isEverHoldable: 1
 --- !u!82 &-3384256719804809807
 AudioSource:
@@ -5081,7 +5082,6 @@ MonoBehaviour:
   state:
     isActive: 1
     currentChargeLevel: 1
-  mayNeedUpdating: 0
   spawnLocation: {fileID: 0}
   unchargeTime: 30
   chargeTime: 450
