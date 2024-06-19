@@ -9,10 +9,18 @@ public class RandomWalkAlgorithmStairs {
         GridPos besideMove = wallAhead ^ huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight();
         bool wallBeside = !CaveGrid.Grid[smallPos + besideMove];
         if (wallAhead && wallBeside) {
-            Debug.Log("Return to cave to the " + (huggingLeft ? "left" : "right"));
-            smallMove = besideMove; // return to cave
-            if (up == true) smallMove.w = 1;
-            else if (up == false) smallMove.w = -1;
+            GridPos besideMoveOtherWay = huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight();
+            bool wallBesideOtherWay = !CaveGrid.Grid[smallPos + besideMoveOtherWay];
+            if (wallBesideOtherWay) {
+                Debug.Log("Return to cave to the " + (huggingLeft ? "left" : "right"));
+                smallMove = besideMove; // return to cave
+                if (up == true) smallMove.w = 1;
+                else if (up == false) smallMove.w = -1;
+            } else {
+                Debug.Log("Found opening in surprise direction");
+                smallMove = besideMoveOtherWay;
+                huggingLeft = !huggingLeft;
+            }
         } else if (wallAhead || wallBeside) {
             Debug.Log("Hugging wall to the " + (huggingLeft ? "left" : "right"));
             if (Random.value < 1/2f) smallMove = besideMove;
