@@ -509,8 +509,7 @@ MonoBehaviour:
   diedMenu: {fileID: 1870836267}
   activateTheseOnDeath:
   - {fileID: 128142966}
-  deactivateTheseOnDeath:
-  - {fileID: 1668741162}
+  deactivateTheseOnDeath: []
 --- !u!1 &917945562
 GameObject:
   m_ObjectHideFlags: 0
@@ -754,12 +753,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.1, y: 0.1, z: 0.1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &1668741162 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1668741162, guid: fc9c859bfb23644f7974f4b04fdea7c2,
-    type: 3}
-  m_PrefabInstance: {fileID: 976805322}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1807984657
 GameObject:
   m_ObjectHideFlags: 0

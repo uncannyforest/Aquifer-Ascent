@@ -115,6 +115,17 @@ public class CaveGrid : MonoBehaviour {
         public static Mod Cave(GridPos pos, int roof = 1) => new Mod(pos, roof, true);
         public static Mod Wall(GridPos pos, int roof = 1) => new Mod(pos, roof, false);
 
+        public Mod Inverted { get => new Mod(pos, roof, !open); }
+        public bool IsUnnecessary {
+            get {
+                bool result = true;
+                for (int i = 0; i <= roof; i++)
+                    if (CaveGrid.I.grid[pos + i * GridPos.up] != open)
+                        result = false;
+                return result;
+            }
+        }
+
         public static Mod RandomVerticalExtension(GridPos pos, int minExtraFloor, int maxExtraFloor, int minExtraRoof, int maxExtraRoof) {
             int floor = Random.Range(-maxExtraFloor, -minExtraFloor + 1);
             int roof = Random.Range(minExtraRoof, maxExtraRoof + 1) + 1 - floor;

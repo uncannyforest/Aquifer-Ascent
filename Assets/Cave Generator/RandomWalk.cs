@@ -16,6 +16,7 @@ public class RandomWalk : MonoBehaviour {
     public int maxAddOrbSteps = 18;
     public int orbChargeRampUp = 4;
     public int changeBiomeEvery = 18;
+    public float rubbleRate = 1/18f;
     public float biasToLeaveCenterOfGravity = 1;
     public float cheatSlowdown = 3;
     public float upwardRate = .5f;
@@ -89,6 +90,14 @@ public class RandomWalk : MonoBehaviour {
         foreach (Output step in MasterEnumerateSteps()) {
             for (int i = 0; i < step.newCave.Length; i++) {
                 CaveGrid.Mod mod = step.newCave[i];
+                if (mod.IsUnnecessary) {
+                    continue;
+                } else if (step.newCave.Length == 1 && step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude > 1f && Random.value < rubbleRate) {
+                    CaveGrid.I.SetPos(step.newCave[0].Inverted);
+                    Debug.Log("Adding rubble for funsies :)");
+                    GameObject.Instantiate(rubblePrefab, mod.pos.World, Quaternion.identity);
+                    continue;
+                }
                 if (step.bridgeMode == Output.BridgeMode.ODDS) {
                     Debug.Log("Bridge at " + mod.pos + ", open: " + (i % 2 == 1));
                     if (i == 1) Debug.DrawLine(mod.pos.World, step.newCave[i - 1].pos.World, Color.blue, 600);
@@ -104,9 +113,11 @@ public class RandomWalk : MonoBehaviour {
                     GameObject.Instantiate(rubblePrefab, mod.pos.World, Quaternion.identity);
                 }
             }
+            Debug.Log("Ether current magnitude:" + step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude);
             if (step.onPath is GridPos onPath) {
                 path[onPath] = true;
-                if (lastPathForDebug is GridPos actualLastPath) Debug.DrawLine(onPath.World, actualLastPath.World, Color.white, 30);
+                if (lastPathForDebug is GridPos actualLastPath) Debug.DrawLine(onPath.World, actualLastPath.World, Color.white, 90);
+
             }
             lastPathForDebug = step.onPath;
             // if (step.newCave.Length > 0 && count++ % addOrbEvery == 0) {
