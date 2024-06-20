@@ -32,6 +32,8 @@ public class RandomWalk : MonoBehaviour {
     private bool justChangedMode = true;
     private int orbChargeRampUpStep = 1;
 
+    public Grid<bool> path = new Grid<bool>();
+
     public void Awake() {
         darkness = GetComponentInChildren<InDarkness>();
         StartCoroutine(Runner());
@@ -80,6 +82,8 @@ public class RandomWalk : MonoBehaviour {
         int count = addOrbEvery;
         int absoluteCountDown = maxAddOrbSteps * orbChargeRampUpStep / orbChargeRampUp;
         
+        GridPos? lastPathForDebug = null;
+
         CaveGrid.Biome.Next(GridPos.zero, (_) => 1, true);
         foreach (Output step in MasterEnumerateSteps()) {
             for (int i = 0; i < step.newCave.Length; i++) {
@@ -89,8 +93,18 @@ public class RandomWalk : MonoBehaviour {
                     if (i == 1) Debug.DrawLine(mod.pos.World, step.newCave[i - 1].pos.World, Color.blue, 600);
                     if (i == 3) Debug.DrawLine(mod.pos.World, step.newCave[i - 1].pos.World, Color.white, 600);
                 }
-                CaveGrid.I.SetPos(mod);
+                bool blocksPath = false;
+                if (!mod.open) for (int j = -1; j <= mod.roof; j++) {
+                    if (path[mod.pos + GridPos.up * j]) blocksPath = true;
+                }
+                if (blocksPath) Debug.Log("BLOCKS PATH! NOT BLOCKING");
+                else CaveGrid.I.SetPos(mod);
             }
+            if (step.onPath is GridPos onPath) {
+                path[onPath] = true;
+                if (lastPathForDebug is GridPos actualLastPath) Debug.DrawLine(onPath.World, actualLastPath.World, Color.white, 30);
+            }
+            lastPathForDebug = step.onPath;
             // if (step.newCave.Length > 0 && count++ % addOrbEvery == 0) {
             if (darkness.IsInDarkness) count++;
             else count = 0;
@@ -154,6 +168,7 @@ public class RandomWalk : MonoBehaviour {
         public GridPos position;
         public GridPos exitDirection;
         public CaveGrid.Mod[] newCave;
+        public GridPos? onPath;
         public GridPos[] interesting;
         public Vector3 etherCurrent;
         public BridgeMode bridgeMode; // for debug lines only
@@ -164,11 +179,12 @@ public class RandomWalk : MonoBehaviour {
             LAST
         }
 
-        public Output(Vector3 location, GridPos position, GridPos exitDirection, CaveGrid.Mod[] newCave, GridPos[] interesting, Vector3 etherCurrent, BridgeMode bridgeMode = BridgeMode.NONE) {
+        public Output(Vector3 location, GridPos position, GridPos exitDirection, CaveGrid.Mod[] newCave, GridPos? onPath, GridPos[] interesting, Vector3 etherCurrent, BridgeMode bridgeMode = BridgeMode.NONE) {
             this.location = location;
             this.position = position;
             this.exitDirection = exitDirection;
             this.newCave = newCave;
+            this.onPath = onPath;
             this.interesting = interesting;
             this.etherCurrent = etherCurrent;
             this.bridgeMode = bridgeMode;

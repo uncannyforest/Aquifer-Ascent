@@ -37,6 +37,7 @@ public class Decor : MonoBehaviour {
                     scale.z = 1.5f;
                     newDeadTree.transform.localScale = scale;
                 }
+                newDeadTree.transform.SetLayer(LayerMask.NameToLayer("Decor"));
             } else {
                 int chosenPosition = Randoms.InList(validPositions);
                 int newBiome = CaveGrid.Biome[corners[chosenPosition]];
@@ -57,12 +58,14 @@ public class Decor : MonoBehaviour {
                     GameObject newThing = GameObject.Instantiate(biome.decorFloor[seed],
                         tri.World + tri.CornersRelative[chosenPosition] * positionOffsetRelHoriz + Vector3.up * positionOffsetAbsY,
                         Quaternion.identity, gridPiece.transform);
+                    newThing.transform.SetLayer(LayerMask.NameToLayer("Decor"));
                 } else if (seed < shortFactor + tallFactor) {
                     if (lastDecor >= 0 && lastDecor < shortFactor + tallFactor && Random.value < sameDecorRate)
                         seed = lastDecor;
                     GameObject newThing = GameObject.Instantiate(biome.decorTallFloor[seed - shortFactor],
                         tri.World + tri.CornersRelative[chosenPosition] * positionOffsetRelHoriz + Vector3.up * positionOffsetAbsY,
                         Quaternion.identity, gridPiece.transform);
+                    newThing.transform.SetLayer(LayerMask.NameToLayer("Decor"));
                 }
             }
         }
