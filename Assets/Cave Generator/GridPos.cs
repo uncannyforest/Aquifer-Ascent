@@ -80,7 +80,7 @@ public struct GridPos  {
     public Vector3 World { get => Vector3.Scale(CaveGrid.Scale, new Vector3(x * SQRT3, w, y * 2 + x)); }
     public static GridPos FromWorld(Vector3 worldCoord) {
         Vector3 coord = worldCoord.ScaleDivide(CaveGrid.Scale);
-        int w = Mathf.RoundToInt(coord.y / 2f);
+        int w = Mathf.RoundToInt(coord.y);
         float fX = coord.x / SQRT3;
         float fY = (Quaternion.Euler(0, 120, 0) * coord).x / SQRT3;
         float fZ = (Quaternion.Euler(0, -120, 0) * coord).x / SQRT3;

@@ -58,6 +58,8 @@ MonoBehaviour:
   orbPrefab: {fileID: 3679240929115695005, guid: e1dd604d2f0104044a25b59c584a297f,
     type: 3}
   orbParent: {fileID: 0}
+  rubblePrefab: {fileID: 2707940571529467398, guid: af733a8849d58473988d5a5921fdf3f3,
+    type: 3}
   interiaOfEtherCurrent: 48
   modRate: 0.8333335
   slowDown: 0

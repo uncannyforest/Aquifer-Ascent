@@ -8,6 +8,7 @@ using Random = UnityEngine.Random;
 public class RandomWalk : MonoBehaviour {
     public StandardOrb orbPrefab;
     public Transform orbParent;
+    public GameObject rubblePrefab;
     public int interiaOfEtherCurrent = 6;
     public float modRate = 2/3f;
     public float slowDown = 1/18f;
@@ -97,8 +98,11 @@ public class RandomWalk : MonoBehaviour {
                 if (!mod.open) for (int j = -1; j <= mod.roof; j++) {
                     if (path[mod.pos + GridPos.up * j]) blocksPath = true;
                 }
-                if (blocksPath) Debug.Log("BLOCKS PATH! NOT BLOCKING");
-                else CaveGrid.I.SetPos(mod);
+                CaveGrid.I.SetPos(mod);
+                if (blocksPath) {
+                    Debug.Log("BLOCKS PATH! ADDING RUBBLE");
+                    GameObject.Instantiate(rubblePrefab, mod.pos.World, Quaternion.identity);
+                }
             }
             if (step.onPath is GridPos onPath) {
                 path[onPath] = true;
