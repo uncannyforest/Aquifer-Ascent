@@ -92,11 +92,8 @@ MonoBehaviour:
   maxStationarySpeed: 0.01
   newWidth: 0.75
   newDepth: 0.125
-  mountYTolerance: 0.25
-  unmountTopDistance: 0
-  unmountBottomDistance: 0.1
   placed: 0
-  height: 0
+  height: 2
   depth: 0
 --- !u!1 &5377966694843147441
 GameObject:

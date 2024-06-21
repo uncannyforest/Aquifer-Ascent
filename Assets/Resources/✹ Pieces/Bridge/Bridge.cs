@@ -14,16 +14,13 @@ public class Bridge : MonoBehaviour {
     public float maxStationarySpeed = .01f;
     public float newWidth = .75f;
     public float newDepth = .125f;
-    public float mountYTolerance = .25f;
-    public float unmountTopDistance = 0f;
-    public float unmountBottomDistance = .1f;
     public bool placed = false;
 
     private int placingMode = 0;
 
     private Rigidbody myRigidbody;
     private Transform childCollider;
-    public float height;
+    public float height = 2;
     public float depth;
     private Transform model;
     private Transform player;
@@ -31,7 +28,6 @@ public class Bridge : MonoBehaviour {
     void Start() {
         myRigidbody = GetComponent<Rigidbody>();
         childCollider = transform.Find("Collider");
-        height = childCollider.localScale.y - unmountTopDistance;
         player = GameObject.FindObjectOfType<ThirdPersonCharacter>().transform;
         depth = childCollider.GetLocalBounds().max.z - player.GetComponent<CapsuleCollider>().bounds.min.y;
         model = transform.GetChild(2);

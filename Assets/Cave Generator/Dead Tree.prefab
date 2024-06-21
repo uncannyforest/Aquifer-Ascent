@@ -134,6 +134,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1160235394814135532, guid: 1c4c888a275cf4746b23a92fb7d973bf,
         type: 3}
+      propertyPath: height
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1160235394814135532, guid: 1c4c888a275cf4746b23a92fb7d973bf,
+        type: 3}
       propertyPath: newWidth
       value: 0.5
       objectReference: {fileID: 0}

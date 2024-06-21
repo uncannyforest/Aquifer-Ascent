@@ -35,6 +35,7 @@ public class Decor : MonoBehaviour {
                     scale.y = 1.875f; // this level of precision may not be necessary
                     scale.x = 1.5f;
                     scale.z = 1.5f;
+                    newDeadTree.GetComponentStrict<Bridge>().holdAngle = 90;
                     newDeadTree.transform.localScale = scale;
                 }
             } else {
