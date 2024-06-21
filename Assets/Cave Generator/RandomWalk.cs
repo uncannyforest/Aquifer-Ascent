@@ -96,9 +96,10 @@ public class RandomWalk : MonoBehaviour {
                     continue;
                 } else if (step.newCave.Length == 1 && step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude > 1f) {
                     if (canRubble && Random.value < rubbleRate) {
+                        CaveGrid.I.soft[mod.pos] = true;
                         CaveGrid.I.SetPos(step.newCave[0].Inverted);
                         Debug.Log("Adding rubble for funsies :)");
-                        GameObject.Instantiate(rubblePrefab, mod.pos.World, Quaternion.identity);
+                        Debug.DrawLine(mod.pos.World - Vector3.up * .5f, mod.pos.World + Vector3.up * .5f, Color.red, 600);
                         continue;
                     }
                     canRubble = true;
@@ -117,10 +118,11 @@ public class RandomWalk : MonoBehaviour {
                 CaveGrid.I.SetPos(mod);
                 if (blocksPath) {
                     Debug.Log("BLOCKS PATH! ADDING RUBBLE");
-                    GameObject.Instantiate(rubblePrefab, mod.pos.World, Quaternion.identity);
+                    CaveGrid.I.soft[mod.pos] = true;
+                    Debug.DrawLine(mod.pos.World - Vector3.up * .5f, mod.pos.World + Vector3.up * .5f, Color.red, 600);
                 }
             }
-            Debug.Log("Ether current magnitude:" + step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude);
+            // Debug.Log("Ether current magnitude:" + step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude);
             if (step.onPath is GridPos onPath) {
                 path[onPath] = true;
                 if (lastPathForDebug is GridPos actualLastPath) Debug.DrawLine(onPath.World, actualLastPath.World, Color.white, 90);

@@ -241,17 +241,17 @@ public class RandomWalkAlgorithm {
         int spaceAbove = 1;
         GridPos checkPos = pos - GridPos.up * 2;
         // Debug.Log("Not checking height " + (pos.w) + " through " + (pos.w + 1 + vScale));
-        while (CaveGrid.I.grid[checkPos]) {
+        while (CaveGrid.CanOpen(checkPos)) {
             spaceBelow++;
             checkPos -= GridPos.up;
         }
-        if (spaceBelow == 1 && !CaveGrid.I.grid[pos - GridPos.up * 1]) spaceBelow = 0; // beyond poss ledge is ground
+        if (spaceBelow == 1 && !CaveGrid.CanOpen(pos - GridPos.up * 1)) spaceBelow = 0; // beyond poss ledge is ground
         checkPos = pos + GridPos.up * (height + 3);
-        while (CaveGrid.I.grid[checkPos]) {
+        while (CaveGrid.CanOpen(checkPos)) {
             spaceAbove++;
             checkPos += GridPos.up;
         }
-        if (spaceAbove == 1 && !CaveGrid.I.grid[pos + GridPos.up * (height + 2)]) spaceAbove = 0;
+        if (spaceAbove == 1 && !CaveGrid.CanOpen(pos + GridPos.up * (height + 2))) spaceAbove = 0;
         // if (spaceAbove + spaceBelow > 0) Debug.Log("Space above: " + spaceAbove + " space below: " + spaceBelow + " total: " + (spaceAbove + spaceBelow + vScale + 2));
         if (considerBridge && spaceBelow + spaceAbove + height >= 4) {
             bridgeInstead = Mathf.Max(4 - spaceBelow - heightDip, 0);

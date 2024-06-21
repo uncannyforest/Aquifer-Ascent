@@ -324,6 +324,11 @@ PrefabInstance:
       propertyPath: orbParent
       value: 
       objectReference: {fileID: 285286790}
+    - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
+        type: 3}
+      propertyPath: rubbleRate
+      value: 0.055555556
+      objectReference: {fileID: 0}
     - target: {fileID: 317994074565316839, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
       propertyPath: m_RootOrder
@@ -452,6 +457,7 @@ MonoBehaviour:
   tunnelBroadLedge: {fileID: 8936595777936785047, guid: 42e15e36f28044e9fb04e18d2f2e01e1,
     type: 3}
   defaultMaterial: {fileID: 2100000, guid: b03e2ebe6f5dd4a2fb436eb70f8a2147, type: 2}
+  softMaterial: {fileID: 2100000, guid: 2ae5970bc7b2c469a90237e3917d8947, type: 2}
 --- !u!114 &1486949850
 MonoBehaviour:
   m_ObjectHideFlags: 0

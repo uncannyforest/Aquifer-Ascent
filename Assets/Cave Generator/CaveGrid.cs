@@ -35,9 +35,11 @@ public class CaveGrid : MonoBehaviour {
     public GameObject tunnelThinLedge;
     public GameObject tunnelBroadLedge;
     public Material defaultMaterial;
+    public Material softMaterial;
 
     public Grid<bool> grid = new Grid<bool>();
     public static Grid<bool> Grid { get => instance.grid; }
+    public Grid<bool> soft = new Grid<bool>();
 
     private Dictionary<TriPos, GridPiece> renderGrid = new Dictionary<TriPos, GridPiece>();
 
@@ -54,6 +56,10 @@ public class CaveGrid : MonoBehaviour {
             if (I.biome == null) I.biome = I.GetComponent<Biomes>();
             return I.biome;
         }
+    }
+
+    public static bool CanOpen(GridPos pos) {
+        return I.grid[pos] || I.soft[pos] || I.soft[pos - GridPos.up];
     }
 
     private void UpdatePos(GridPos pos, int relMinNeedsUpdate, int relMaxNeedsUpdate) {
@@ -82,8 +88,8 @@ public class CaveGrid : MonoBehaviour {
         int roof = mod.roof;
         bool value = mod.open;
 
-        int relMinNeedsUpdate = -1;
-        int relMaxNeedsUpdate = roof + 1;
+        int relMinUpdated = 0;
+        int relMaxUpdated = roof;
 
         CaveGrid.Biome.Next(pos);
         grid[pos] = value;
@@ -92,13 +98,20 @@ public class CaveGrid : MonoBehaviour {
         }
         if (grid[pos + (roof + 1) * GridPos.up] != value && grid[pos + (roof + 2) * GridPos.up] == value) {
             grid[pos + (roof + 1) * GridPos.up] = value;
-            relMaxNeedsUpdate++;
+            relMaxUpdated++;
         }
         if (grid[pos - GridPos.up] != value && grid[pos - 2 * GridPos.up] == value) {
             grid[pos - GridPos.up] = value;
-            relMinNeedsUpdate--;
+            relMinUpdated--;
         }
-        UpdatePos(pos, relMinNeedsUpdate, relMaxNeedsUpdate);
+        if (value)
+            for (int i = relMinUpdated; i <= relMaxUpdated - 1; i++)
+                if (soft[pos + i * GridPos.up]) {
+            Debug.Log("Unneeded soft at " + (pos + i * GridPos.up));
+            
+            soft[pos + i * GridPos.up] = false;
+        }
+        UpdatePos(pos, relMinUpdated - 1, relMaxUpdated + 1);
     }
 
     public struct Mod {

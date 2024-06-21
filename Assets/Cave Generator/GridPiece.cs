@@ -208,7 +208,32 @@ public class GridPiece : MonoBehaviour {
         return result;
     }
 
+    private bool SetSoftMaterial(Transform newPiece) {
+        GridPos? maybeSoftPos = null;
+        foreach (GridPos gridPos in pos.HorizCorners) {
+            if (CaveGrid.I.soft[gridPos]) maybeSoftPos = gridPos;
+            if (CaveGrid.I.soft[gridPos - GridPos.up]) maybeSoftPos = gridPos - GridPos.up;
+        }
+        if (maybeSoftPos is GridPos softPos) {
+            foreach (MeshRenderer renderer in newPiece.GetComponentsInChildren<MeshRenderer>())
+                renderer.material = CaveGrid.I.softMaterial;
+            Debug.Log("Set children to soft in " + gameObject);
+            MeshCollider[] childColliders = GetComponentsInChildren<MeshCollider>();
+            foreach (MeshCollider childCollider in childColliders) {
+                Debug.Log("Collider " + childCollider);
+                if (childCollider.GetComponent<SimpleSoluble>() != null && childCollider.GetComponent<SimpleSoluble>().pos == softPos) {
+                    Debug.Log("Found SimpleSoluble already " + gameObject);
+                    continue;
+                }
+                SimpleSoluble ss = childCollider.gameObject.AddComponent<SimpleSoluble>();
+                ss.pos = softPos;
+            }
+        }
+        return maybeSoftPos != null;
+    }
+
     private void SetMaterial(Transform newPiece, int[] src) {
+        if (SetSoftMaterial(newPiece)) return;
         Color[] floors = CaveGrid.Biome.GetFloors(pos);
         Color[] walls = CaveGrid.Biome.GetWalls(pos);
         // Better not to make a new material — this is the current bottleneck.
