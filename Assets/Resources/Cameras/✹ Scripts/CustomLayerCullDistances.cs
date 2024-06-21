@@ -18,6 +18,7 @@ public class CustomLayerCullDistances : MonoBehaviour {
             if (layers.Contains(i)) cullDistances[i] = cullDistance;
         }
         camera.layerCullDistances = cullDistances;
+        camera.layerCullSpherical = true;
     }
 
 }

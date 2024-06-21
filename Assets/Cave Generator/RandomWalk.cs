@@ -85,18 +85,25 @@ public class RandomWalk : MonoBehaviour {
         int absoluteCountDown = maxAddOrbSteps * orbChargeRampUpStep / orbChargeRampUp;
         
         GridPos? lastPathForDebug = null;
+        bool canRubble = false;
 
         CaveGrid.Biome.Next(GridPos.zero, (_) => 1, true);
         foreach (Output step in MasterEnumerateSteps()) {
             for (int i = 0; i < step.newCave.Length; i++) {
                 CaveGrid.Mod mod = step.newCave[i];
                 if (mod.IsUnnecessary) {
+                    canRubble = false;
                     continue;
-                } else if (step.newCave.Length == 1 && step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude > 1f && Random.value < rubbleRate) {
-                    CaveGrid.I.SetPos(step.newCave[0].Inverted);
-                    Debug.Log("Adding rubble for funsies :)");
-                    GameObject.Instantiate(rubblePrefab, mod.pos.World, Quaternion.identity);
-                    continue;
+                } else if (step.newCave.Length == 1 && step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude > 1f) {
+                    if (canRubble && Random.value < rubbleRate) {
+                        CaveGrid.I.SetPos(step.newCave[0].Inverted);
+                        Debug.Log("Adding rubble for funsies :)");
+                        GameObject.Instantiate(rubblePrefab, mod.pos.World, Quaternion.identity);
+                        continue;
+                    }
+                    canRubble = true;
+                } else {
+                    canRubble = false;
                 }
                 if (step.bridgeMode == Output.BridgeMode.ODDS) {
                     Debug.Log("Bridge at " + mod.pos + ", open: " + (i % 2 == 1));

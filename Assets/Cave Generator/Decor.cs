@@ -37,7 +37,6 @@ public class Decor : MonoBehaviour {
                     scale.z = 1.5f;
                     newDeadTree.transform.localScale = scale;
                 }
-                newDeadTree.transform.SetLayer(LayerMask.NameToLayer("Decor"));
             } else {
                 int chosenPosition = Randoms.InList(validPositions);
                 int newBiome = CaveGrid.Biome[corners[chosenPosition]];

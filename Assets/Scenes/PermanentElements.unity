@@ -706,7 +706,7 @@ GameObject:
   - component: {fileID: 1485719311}
   - component: {fileID: 1485719313}
   - component: {fileID: 1485719312}
-  m_Layer: 9
+  m_Layer: 14
   m_Name: Death
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -999,7 +999,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   layers:
     serializedVersion: 2
-    m_Bits: 8192
+    m_Bits: 24576
   cullDistance: 30
 --- !u!4 &2095897381 stripped
 Transform:
