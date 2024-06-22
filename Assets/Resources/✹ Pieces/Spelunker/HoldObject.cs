@@ -4,14 +4,13 @@ using UnityEngine;
 
 public class HoldObject : MonoBehaviour
 {
+    public Transform playerHoldTransform;
     public float transitionTime = 1f;
     public Transition isTransitioning = Transition.None;
 
     public enum Transition { None, Holding, Dropping };
 
     public Action<GameObject> Hold;
-
-    private Transform playerHoldTransform;
 
     FlexibleInputDisplay inputDisplay;
     EnvironmentInteractor environmentInteractor;
@@ -23,8 +22,6 @@ public class HoldObject : MonoBehaviour
 
     // Start is called before the first frame update
     void Start() {
-        playerHoldTransform = gameObject.transform.Find("HoldLocation");
-
         inputDisplay = new FlexibleInputDisplay(this);
         environmentInteractor = new EnvironmentInteractor(this, playerHoldTransform);
         holdAnimationControl = new HoldAnimationControl(this, playerHoldTransform);
@@ -58,6 +55,7 @@ public class HoldObject : MonoBehaviour
     /// <summary> Called by Holdable script once hold initiated </summary>
     public void OnHoldObject(GameObject heldObject) {
         holdAnimationControl.heldObjectWidth = heldObject.GetComponent<Holdable>().GetColliderWidth();
+        playerHoldTransform.localPosition = heldObject.GetComponent<Holdable>().relativePosition;
         inputDisplay.UpdateForHeldObject(heldObject);
         if (Hold != null) Hold(heldObject);
     }

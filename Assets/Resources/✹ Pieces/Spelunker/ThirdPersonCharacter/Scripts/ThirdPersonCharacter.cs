@@ -26,6 +26,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] float m_GroundCheckRadius = 0.05f;    // slopes walkable up to approx. 45 deg
 		[SerializeField] float m_JumpMinNotGroundedTime = 0.1f;
 		[SerializeField] List<BooleanScript> m_ProhibitMotionWhen;
+		public float m_RelativeSwimSpeed = .5f;
+		public bool canSwim = false;
 
 		[NonSerialized] public Vector3 groundNormal;
 
@@ -33,6 +35,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		Rigidbody m_Rigidbody;
 		Animator m_Animator;
 		bool m_IsGrounded;
+		bool m_IsSwimming = false;
 		float m_NextGroundCheckAfterJump = 0;
 		float m_ActualGroundCheckDistance;
 		const float k_Half = 0.5f;
@@ -80,6 +83,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			if (m_IsGrounded) {
 				HandleGroundedMovement(forwardPush, jump);
 				m_Rigidbody.AddForce(Physics.gravity * m_GroundGravity);
+			} else if (m_IsSwimming) {
+				m_Rigidbody.AddForce(Physics.gravity * m_GroundGravity);
 			} else {
 				HandleAirborneMovement();
 			}
@@ -93,7 +98,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			// update the animator parameters
 			m_Animator.SetFloat("Forward", m_ForwardAmount, 0.1f, Time.deltaTime);
 			m_Animator.SetFloat("Turn", m_TurnAmount, 0.1f, Time.deltaTime);
-			m_Animator.SetBool("OnGround", m_IsGrounded);
+			m_Animator.SetBool("OnGround", m_IsGrounded || m_IsSwimming);
 			if (!m_IsGrounded)
 			{
 				m_Animator.SetFloat("Jump", m_Rigidbody.velocity.y);
@@ -113,7 +118,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 			// the anim speed multiplier allows the overall speed of walking/running to be tweaked in the inspector,
 			// which affects the movement speed because of the root motion.
-			if (m_IsGrounded && move.magnitude > 0) {
+			if ((m_IsGrounded || m_IsSwimming) && move.magnitude > 0) {
 				m_Animator.speed = m_AnimSpeedMultiplier;
 			} else {
 				// don't use that while airborne
@@ -133,6 +138,9 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			}
 
 			m_ActualGroundCheckDistance = m_Rigidbody.velocity.y < 0 ? m_GroundCheckDistance : 0.01f;
+
+			Wood wood = GetComponentInChildren<Wood>();
+			if (wood != null) wood.GetComponentStrict<Holdable>().Drop();
 		}
 
 
@@ -170,13 +178,12 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		}
 
 
-		public void OnAnimatorMove()
-		{
+		public void OnAnimatorMove() {
 			// we implement this function to override the default root motion.
 			// this allows us to modify the positional speed before it's applied.
-			if (m_IsGrounded && Time.deltaTime > 0)
-			{
+			if ((m_IsGrounded || m_IsSwimming) && Time.deltaTime > 0) {
 				Vector3 v = MovementIsProhibited ? Vector3.zero : (m_Animator.deltaPosition * m_MoveSpeedMultiplier) / Time.deltaTime;
+				if (m_IsSwimming) v *= m_RelativeSwimSpeed;
 
 				// we preserve the existing y part of the current velocity.
 				v.y = m_Rigidbody.velocity.y;
@@ -188,8 +195,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			Gizmos.DrawSphere(transform.position + (Vector3.up * (0.1f - m_ActualGroundCheckDistance)), m_GroundCheckRadius);
 		}
  
-		void CheckGroundStatus()
-		{
+		void CheckGroundStatus() {
 			RaycastHit hitInfo;
 #if UNITY_EDITOR
 			// helper to visualise the ground check ray in the scene view
@@ -207,18 +213,32 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			// m_RunningAvgGroundSlope = m_RunningAvgGroundSlope < slope ?
 			// 	 (m_RunningAvgGroundSlope * (m_SlopeCheckSmoother - 1) + slope) / m_SlopeCheckSmoother : slope;
 			// Debug.Log("Slope: " + (1 - hitInfo.normal.y) + " / new running avg:" + m_RunningAvgGroundSlope);
-			if (sphereCast)
-			{
+			if (sphereCast) {
 				groundNormal = hitInfo.normal;
 				m_IsGrounded = true;
+				m_IsSwimming = false;
 				m_Animator.applyRootMotion = true;
-			}
-			else
-			{
+			} else if (!CheckSwimStatus()) {
 				m_IsGrounded = false;
+				m_IsSwimming = false;
 				groundNormal = sphereCast ? hitInfo.normal : Vector3.up;
 				m_Animator.applyRootMotion = false;
 			}
+		}
+
+		bool CheckSwimStatus() {
+			bool raycast = Physics.Raycast(
+				transform.position,
+				Vector3.up,
+				1f,
+				1 << LayerMask.NameToLayer("Water"));
+			if (raycast) {
+				groundNormal = Vector3.up;
+				m_IsGrounded = false;
+				m_IsSwimming = true;
+				m_Animator.applyRootMotion = false;
+			}
+			return raycast;
 		}
 
 		private int GetCollidingLayerMask() {

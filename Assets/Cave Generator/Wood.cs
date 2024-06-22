@@ -8,7 +8,7 @@ public class Wood : MonoBehaviour {
     void OnTriggerEnter(Collider other) {
         if (other.gameObject.layer == LayerMask.NameToLayer("Water")) {
             if (myRigidbody == null) myRigidbody = GetComponent<Rigidbody>();
-            if (myRigidbody.isKinematic) myRigidbody.isKinematic = false;
+            if (myRigidbody != null && myRigidbody.isKinematic) myRigidbody.isKinematic = false;
         }
     }
 }

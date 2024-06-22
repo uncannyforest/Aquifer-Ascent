@@ -14,12 +14,13 @@ public class Holdable : MonoBehaviour
     public AudioClip pickUpSound;
     public AudioClip setDownSound;
     public float pickUpTime = 0.5f;
+    public Vector3 relativePosition = Vector3.zero;
 
     [NonSerialized] public Transform parentWhenFree;
     private float heldState = 0.0f; // 0 if not held, 1 if held
+    [NonSerialized] public HoldObject holder;
     [NonSerialized] public Transform playerHoldTransform;
     public Collider physicsCollider;
-    Rigidbody myRigidbody;
     Vector3 oldPosition;
     private AudioSource objectAudio; 
     private Bounds myColliderBounds;
@@ -67,10 +68,10 @@ public class Holdable : MonoBehaviour
 
     void Start(){
         OnChangeActiveScene(SceneManager.GetActiveScene(), SceneManager.GetActiveScene());
-        playerHoldTransform = GameObject.FindWithTag("Player").transform.Find("HoldLocation");
+        holder = FindObjectOfType<HoldObject>();
+        playerHoldTransform = holder.playerHoldTransform;
         if (physicsCollider == null) physicsCollider = this.GetComponentStrict<Collider>();
         myColliderBounds = physicsCollider.bounds;
-        myRigidbody = GetComponent<Rigidbody>();
         objectAudio = GetComponent<AudioSource>();
         parentWhenFree = this.transform.parent;
         if (!isEverHoldable) CanHold("ever", false);
@@ -103,24 +104,25 @@ public class Holdable : MonoBehaviour
 
     public void Drop() {
         FinishDrop();
-        playerHoldTransform.parent.GetComponent<HoldObject>().OnDropObject(gameObject, false);
+        holder.OnDropObject(gameObject, false);
     }
 
     public void FinishDrop() {
         IsHeld = false;
         if (!isUsed) {
             objectAudio.PlayOneShot(setDownSound, 0.5f);
-            myRigidbody.isKinematic = false;
+            Rigidbody myRigidbody = GetComponent<Rigidbody>();
+            if (myRigidbody != null) myRigidbody.isKinematic = false;
         }
     }
 
     public void Hold() {
         IsHeld = true;
         objectAudio.PlayOneShot(pickUpSound, 0.5f);
-        myRigidbody.isKinematic = true;
+        GetComponent<Rigidbody>().isKinematic = true;
         oldPosition = this.transform.position;
         this.transform.rotation = playerHoldTransform.rotation;
-        playerHoldTransform.parent.GetComponent<HoldObject>().OnHoldObject(gameObject);
+        holder.OnHoldObject(gameObject);
     }
 
     public void Use () {
@@ -129,7 +131,7 @@ public class Holdable : MonoBehaviour
 
     public void SetOptionalAction(string optionalAction) {
         this.optionalAction = optionalAction;
-        playerHoldTransform.parent.GetComponent<HoldObject>().OnHoldObject(gameObject);
+        holder.OnHoldObject(gameObject);
     }
 
     public float GetColliderWidth() {

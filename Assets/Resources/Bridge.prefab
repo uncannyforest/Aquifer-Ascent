@@ -54,6 +54,7 @@ MonoBehaviour:
   pickUpSound: {fileID: 0}
   setDownSound: {fileID: 0}
   pickUpTime: 0.5
+  relativePosition: {x: 0, y: 0.1, z: 0.05}
   physicsCollider: {fileID: 7549329206489614428}
   isEverHoldable: 1
 --- !u!54 &1362172379879167981

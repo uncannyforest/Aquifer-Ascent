@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityStandardAssets.Characters.ThirdPerson;
 
 [RequireComponent(typeof(Holdable))]
-[RequireComponent(typeof(Rigidbody))]
 public class Bridge : MonoBehaviour {
     public float holdAngle = 60f;
     public float dropDisplacement = .5f;
@@ -47,7 +46,9 @@ public class Bridge : MonoBehaviour {
             StopAllCoroutines();
             placed = false;
             childCollider.gameObject.SetActive(false);
-            myRigidbody.isKinematic = true;
+            // myRigidbody.isKinematic = true;
+            Destroy(myRigidbody);
+            player.GetComponentStrict<ThirdPersonCharacter>().canSwim = true;
             if (placingMode == -1) {
                 float worldHeight = height * transform.localScale.y;
                 if (!Physics.Raycast(transform.position, player.TransformDirection(Quaternion.Euler(dropRotation1) * Vector3.up), worldHeight, LayerMask.NameToLayer("Player"), QueryTriggerInteraction.Ignore)) {
@@ -85,7 +86,9 @@ public class Bridge : MonoBehaviour {
         childCollider.localScale = newBounds;
 
         childCollider.gameObject.SetActive(true);
-        myRigidbody.isKinematic = false;
+        myRigidbody = gameObject.AddComponent<Rigidbody>();
+        myRigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+        player.GetComponentStrict<ThirdPersonCharacter>().canSwim = false;
         yield return new WaitForFixedUpdate();
         yield return new WaitForFixedUpdate();
         while (myRigidbody.velocity.magnitude > maxStationarySpeed) {
