@@ -19,7 +19,7 @@ Shader "Custom/VertexAndVerticalOrientationSplatMap" {
     SubShader {
         Tags { "RenderType" = "Opaque" }
         CGPROGRAM
-        #pragma surface surf StandardSpecular fullforwardshadows noambient novertexlights vertex:vert
+        #pragma surface surf StandardSpecular fullforwardshadows vertex:vert
         #pragma require interpolators15
         struct Input {
             float2 uv2_MainTex;

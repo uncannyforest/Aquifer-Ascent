@@ -38,12 +38,17 @@ public class RandomWalk : MonoBehaviour {
 
     public void Awake() {
         darkness = GetComponentInChildren<InDarkness>();
-        StartCoroutine(Runner());
         GameObject cheatButtonGo = GameObject.Find("Cheat");
         if (cheatButtonGo != null) cheatButton = cheatButtonGo.GetComponent<Image>();
     }
 
+    public void Start() {
+        StartCoroutine(Runner());
+    }
+
     public IEnumerable<Output> MasterEnumerateSteps() {
+        Random.State seed = CaveGrid.I.seed;
+        Debug.Log("Loaded seed into RW");
 
         int numModes = 3;
         int currentMode = Random.Range(0, 2);
@@ -51,6 +56,7 @@ public class RandomWalk : MonoBehaviour {
         IEnumerator<Output> enumerator = MuxEnumerator(currentMode, GridPos.zero, GridPos.E, ref stepsUntilNextMode);
         while(enumerator.MoveNext()) {
             Output output = enumerator.Current;
+            seed = Random.state;
             yield return output;
 
             if (stepsUntilNextMode-- == 0) {
@@ -61,6 +67,8 @@ public class RandomWalk : MonoBehaviour {
                 enumerator = MuxEnumerator(currentMode, output.position, output.exitDirection, ref stepsUntilNextMode);
                 justChangedMode = true;
             } else justChangedMode = false;
+
+            Random.state = seed;
         }
     }
 
@@ -92,9 +100,8 @@ public class RandomWalk : MonoBehaviour {
             for (int i = 0; i < step.newCave.Length; i++) {
                 CaveGrid.Mod mod = step.newCave[i];
                 if (mod.IsUnnecessary) {
-                    canRubble = false;
                     continue;
-                } else if (step.newCave.Length == 1 && step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude > 1f) {
+                } else if (step.newCave.Length == 1 && step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude > 1f && !mod.Overlaps) {
                     if (canRubble && Random.value < rubbleRate) {
                         CaveGrid.I.soft[mod.pos] = true;
                         CaveGrid.I.SetPos(step.newCave[0].Inverted);

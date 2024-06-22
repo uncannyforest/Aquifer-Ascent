@@ -36,6 +36,7 @@ public class CaveGrid : MonoBehaviour {
     public GameObject tunnelBroadLedge;
     public Material defaultMaterial;
     public Material softMaterial;
+    public Random.State seed;
 
     public Grid<bool> grid = new Grid<bool>();
     public static Grid<bool> Grid { get => instance.grid; }
@@ -56,6 +57,11 @@ public class CaveGrid : MonoBehaviour {
             if (I.biome == null) I.biome = I.GetComponent<Biomes>();
             return I.biome;
         }
+    }
+
+    void Awake() {
+        seed = Random.state;
+        Debug.Log("Set seed from Random");
     }
 
     public static bool CanOpen(GridPos pos) {
@@ -135,6 +141,16 @@ public class CaveGrid : MonoBehaviour {
                 for (int i = 0; i <= roof; i++)
                     if (CaveGrid.I.grid[pos + i * GridPos.up] != open)
                         result = false;
+                return result;
+            }
+        }
+
+        public bool Overlaps {
+            get {
+                bool result = false;
+                for (int i = 0; i <= roof; i++)
+                    if (CaveGrid.I.grid[pos + i * GridPos.up] == open)
+                        result = true;
                 return result;
             }
         }

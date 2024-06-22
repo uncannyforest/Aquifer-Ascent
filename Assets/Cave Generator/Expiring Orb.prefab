@@ -140,7 +140,7 @@ PrefabInstance:
     - target: {fileID: 7456130516122914424, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: chargeTime
-      value: -60
+      value: -30
       objectReference: {fileID: 0}
     - target: {fileID: 7456130516122914424, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
@@ -161,6 +161,11 @@ PrefabInstance:
         type: 3}
       propertyPath: pleaseNeverHoldMe
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7456130516122914424, guid: 0eb13e365665b4feb907433579ff87a3,
+        type: 3}
+      propertyPath: colorTransitions.Array.data[1].frame
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 8660939059094344859, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}

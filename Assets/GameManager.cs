@@ -76,7 +76,7 @@ public class GameManager : MonoBehaviour {
         foreach (GameObject go in activateTheseOnDeath) go.SetActive(true);
     }
 
-    public void Restart() {
+    public void Restart(Random.State? seed = null) {
         SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(startScene));
         mode = Mode.PLAYING;
         Transform player = playerControl.transform;
@@ -87,11 +87,16 @@ public class GameManager : MonoBehaviour {
         foreach (GameObject go in activateTheseOnDeath) go.SetActive(false);
         Time.timeScale = 1;
         GameObject.FindObjectOfType<CameraMux>().SwitchCameraNow(false);
-        StartCoroutine(LoadScenes());
+        StartCoroutine(LoadScenes(seed));
     }
 
-	IEnumerator LoadScenes() {
+    public void RestartWithSeed(Random.State seed) => Restart(seed);
+
+	IEnumerator LoadScenes(Random.State? seed = null) {
         SceneManager.LoadScene(startScene, LoadSceneMode.Additive);
+        Debug.Log("Loaded scene");
+        if (seed is Random.State actualSeed) Random.state = actualSeed;
+        Debug.Log("Set seed from user");
 		yield return null;
 		SceneManager.SetActiveScene(SceneManager.GetSceneByName(startScene));
 	}

@@ -61,12 +61,13 @@ MonoBehaviour:
   rubblePrefab: {fileID: 2707940571529467398, guid: af733a8849d58473988d5a5921fdf3f3,
     type: 3}
   interiaOfEtherCurrent: 48
-  modRate: 0.8333335
+  modRate: 1
   slowDown: 0
   addOrbEvery: 1
   maxAddOrbSteps: 18
   orbChargeRampUp: 12
   changeBiomeEvery: 108
+  rubbleRate: 0.083333336
   biasToLeaveCenterOfGravity: 1
   cheatSlowdown: 4
   upwardRate: 0.9166667
