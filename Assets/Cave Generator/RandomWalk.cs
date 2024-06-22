@@ -111,16 +111,19 @@ public class RandomWalk : MonoBehaviour {
                     if (i == 1) Debug.DrawLine(mod.pos.World, step.newCave[i - 1].pos.World, Color.blue, 600);
                     if (i == 3) Debug.DrawLine(mod.pos.World, step.newCave[i - 1].pos.World, Color.white, 600);
                 }
-                bool blocksPath = false;
+                GridPos? blocksPath = null;
                 if (!mod.open) for (int j = -1; j <= mod.roof; j++) {
-                    if (path[mod.pos + GridPos.up * j]) blocksPath = true;
+                    if (path[mod.pos + GridPos.up * j]) {
+                        blocksPath = mod.pos + GridPos.up * j;
+                        break;
+                    }
+                }
+                if (blocksPath is GridPos soft) {
+                    Debug.Log("BLOCKS PATH! ADDING RUBBLE");
+                    CaveGrid.I.soft[soft] = true;
+                    Debug.DrawLine(soft.World - Vector3.up * .5f, soft.World + Vector3.up * .5f, Color.red, 600);
                 }
                 CaveGrid.I.SetPos(mod);
-                if (blocksPath) {
-                    Debug.Log("BLOCKS PATH! ADDING RUBBLE");
-                    CaveGrid.I.soft[mod.pos] = true;
-                    Debug.DrawLine(mod.pos.World - Vector3.up * .5f, mod.pos.World + Vector3.up * .5f, Color.red, 600);
-                }
             }
             // Debug.Log("Ether current magnitude:" + step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude);
             if (step.onPath is GridPos onPath) {
