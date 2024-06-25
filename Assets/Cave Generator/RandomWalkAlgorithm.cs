@@ -25,12 +25,12 @@ public class RandomWalkAlgorithm {
             // 1, 6, 12, 2,
             // 5, 3, 7, 4,
             // 11, 10, 8, 9
-        int currentHScale = new int[] {0, 3, 1, 3, 0, 1, 2, 2, 3, 1, 0, 3}[biome - 1];
+        int currentHScale = new int[] {0, 3, 1, 3, 0, 1, 2, 2, 3, 1, 0, 2}[biome - 1];
         int currentVScale = new int[] {0, 0, 1, 1, 1, 0, 1, 2, 2, 2, 2, 0}[biome - 1];
         Debug.Log("RW hScale " + currentHScale + " / vScale" + currentVScale);
 
         CaveGrid.Biome.Next(position, (_) => biome, true);
-        yield return new RandomWalk.Output(position.World, position, lastMove, SimpleHole(position), position, new GridPos[] {}, Vector3.zero);
+        yield return new RandomWalk.Output(position.World, position, lastMove, SimpleHole(position), 1/6f, position, new GridPos[] {}, Vector3.zero);
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
             // if (biomeTries == 108) {
             //     justFlipped = false;
@@ -76,7 +76,7 @@ public class RandomWalkAlgorithm {
                 int oldVScale = vScale;
                 int deltaHScale = 0;
                 int deltaVScale = 0;
-                if (Randoms.CoinFlip) deltaHScale = Randoms.Sign;
+                if (Random.value < 1/3f) deltaHScale = Randoms.Sign;
                 else deltaVScale = Randoms.Sign;
                 hScale += deltaHScale;
                 vScale += deltaVScale;
@@ -118,7 +118,7 @@ public class RandomWalkAlgorithm {
                     5, 3, 7, 4,
                     11, 10, 8, 9
                 }[(vScale % 3) * 4 + hScale];
-                nextBiomeCount = hScale == 1 ? modeSwitchRate * 3/2 : hScale >= 2 ? modeSwitchRate/2 : modeSwitchRate;
+                nextBiomeCount = hScale == 1 ? modeSwitchRate * 6 : modeSwitchRate;
             }
             if (!hScaleChange) {
                 if (hScale == 1) {
@@ -144,6 +144,7 @@ public class RandomWalkAlgorithm {
             else nextLoc = newPosition.World;
             if (vScale == 1) nextLoc += GridPos.up.World * .5f;
             List<CaveGrid.Mod> newCave = new List<CaveGrid.Mod>();
+            float speed = new float[] {.5f, 1/6f, .75f, 2/3f}[hScale];
             GridPos? onPath = null;
             if (doBridge) {
                 GridPos bridgePos = newPosition + GridPos.up * (int)bridgeInstead;
@@ -216,7 +217,7 @@ public class RandomWalkAlgorithm {
             // }
             foreach (CaveGrid.Mod mod in newCave) CaveGrid.Biome.Next(mod.pos);
 
-            yield return new RandomWalk.Output(nextLoc, newPosition, random, newCave.ToArray(), onPath, interesting.ToArray(), etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero), doBridge || lastMoveBridge >= 2 ? RandomWalk.Output.BridgeMode.ODDS : RandomWalk.Output.BridgeMode.NONE);
+            yield return new RandomWalk.Output(nextLoc, newPosition, random, newCave.ToArray(), speed, onPath, interesting.ToArray(), etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero), doBridge || lastMoveBridge >= 2 ? RandomWalk.Output.BridgeMode.ODDS : RandomWalk.Output.BridgeMode.NONE);
             lastMove = random;
             lastMoveBridge = doBridge && hScale >= 2 ? hScale - 1 : 0;
             position = newPosition;

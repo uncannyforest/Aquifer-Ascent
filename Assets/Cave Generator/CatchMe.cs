@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CatchMe : MonoBehaviour {
-    public float burstSize = 12;
-
     private RandomWalk rw;
     private float rwStepTime;
     private bool inBurst = true; // start with fake burst . . .
@@ -20,7 +18,6 @@ public class CatchMe : MonoBehaviour {
             Scarf scarf = collider.gameObject.GetComponentStrict<Scarf>();
             scarf.AddToCollection(scarf.MaxScarfFound + 1);
             scarf.SwapScarf(true, out int oldScarf, out int newScarf);
-            rw.modRate = rwStepTime / burstSize;
             inBurst = true;
             Invoke("EndBurst", rwStepTime * 2);
         }

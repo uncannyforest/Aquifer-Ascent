@@ -25,13 +25,13 @@ public class RandomWalk : MonoBehaviour {
     private Vector3 prevLoc = Vector3.zero;
     private Vector3 nextLoc = Vector3.zero;
     private float progress = 0;
+    private float relSpeed = 1;
     private bool cheat = false;
     private Image cheatButton = null;
 
     private InDarkness darkness;
     private Vector3 etherCurrent;
     private GridPos exitDirection;
-    private bool justChangedMode = true;
     private int orbChargeRampUpStep = 1;
 
     public Grid<bool> path = new Grid<bool>();
@@ -65,8 +65,7 @@ public class RandomWalk : MonoBehaviour {
                 currentMode = newMode;
                 Debug.Log("Starting mode " + currentMode + " at position " + output.position);
                 enumerator = MuxEnumerator(currentMode, output.position, output.exitDirection, ref stepsUntilNextMode);
-                justChangedMode = true;
-            } else justChangedMode = false;
+            };
 
             Random.state = seed;
         }
@@ -75,7 +74,9 @@ public class RandomWalk : MonoBehaviour {
     public IEnumerator<Output> MuxEnumerator(int currentMode, GridPos position, GridPos exitDirection, ref int stepsUntilNextMode) {
         Vector3 biasToFleeStartLocation = new Vector3(1, -.5f, -.5f) * biasToLeaveCenterOfGravity;
 
-        stepsUntilNextMode = currentMode == 0 ? Random.Range(modeSwitchRate / 2, modeSwitchRate * 6) : Random.Range(2, modeSwitchRate * 2);
+        stepsUntilNextMode = currentMode == 0 ? Random.Range(2, modeSwitchRate * 12)
+            : currentMode == 1 ? Random.Range(2, modeSwitchRate * (4 + RandomWalkAlgorithmStairs.GetVerticalScaleForBiome()) / 3)
+            : Random.Range(2, modeSwitchRate * 4);
 
         switch (currentMode) {
             case 0:
@@ -131,6 +132,7 @@ public class RandomWalk : MonoBehaviour {
                     Debug.DrawLine(soft.World - Vector3.up * .5f, soft.World + Vector3.up * .5f, Color.red, 600);
                 }
                 CaveGrid.I.SetPos(mod);
+                relSpeed = step.speed;
             }
             // Debug.Log("Ether current magnitude:" + step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude);
             if (step.onPath is GridPos onPath) {
@@ -165,13 +167,13 @@ public class RandomWalk : MonoBehaviour {
             prevLoc = nextLoc;
             nextLoc = step.location;
             progress = 0;
-            yield return new WaitForSeconds(modRate);
+            yield return new WaitForSeconds(modRate * relSpeed);
             modRate += slowDown;
         }
     }
 
     void Update() {
-        progress += Time.deltaTime / modRate;
+        progress += Time.deltaTime / (modRate * relSpeed);
         transform.position = Vector3.Lerp(prevLoc, nextLoc, CubicInterpolate(Mathf.Clamp01(progress)));
         if (etherCurrent.y > .5f) {
             etherCurrent = new Vector3(etherCurrent.x, 0, etherCurrent.z);
@@ -202,6 +204,7 @@ public class RandomWalk : MonoBehaviour {
         public GridPos position;
         public GridPos exitDirection;
         public CaveGrid.Mod[] newCave;
+        public float speed;
         public GridPos? onPath;
         public GridPos[] interesting;
         public Vector3 etherCurrent;
@@ -213,11 +216,12 @@ public class RandomWalk : MonoBehaviour {
             LAST
         }
 
-        public Output(Vector3 location, GridPos position, GridPos exitDirection, CaveGrid.Mod[] newCave, GridPos? onPath, GridPos[] interesting, Vector3 etherCurrent, BridgeMode bridgeMode = BridgeMode.NONE) {
+        public Output(Vector3 location, GridPos position, GridPos exitDirection, CaveGrid.Mod[] newCave, float speed, GridPos? onPath, GridPos[] interesting, Vector3 etherCurrent, BridgeMode bridgeMode = BridgeMode.NONE) {
             this.location = location;
             this.position = position;
             this.exitDirection = exitDirection;
             this.newCave = newCave;
+            this.speed = speed;
             this.onPath = onPath;
             this.interesting = interesting;
             this.etherCurrent = etherCurrent;

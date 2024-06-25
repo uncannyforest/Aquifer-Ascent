@@ -65,7 +65,7 @@ MonoBehaviour:
   slowDown: 0
   addOrbEvery: 1
   maxAddOrbSteps: 18
-  orbChargeRampUp: 12
+  orbChargeRampUp: 6
   changeBiomeEvery: 108
   rubbleRate: 0.083333336
   biasToLeaveCenterOfGravity: 1
@@ -84,7 +84,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cebe6f1922f24a37a6956fa5617aab2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  burstSize: 12
 --- !u!1001 &3768289526359141521
 PrefabInstance:
   m_ObjectHideFlags: 0
