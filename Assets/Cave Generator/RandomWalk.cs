@@ -58,7 +58,8 @@ public class RandomWalk : MonoBehaviour {
             Output output = enumerator.Current;
             seed = Random.state;
             yield return output;
-
+            Random.state = seed;
+            
             if (stepsUntilNextMode-- == 0) {
                 int newMode = Random.Range(0, numModes - 1);
                 if (newMode >= currentMode) newMode++; // don't allow current mode
@@ -66,8 +67,6 @@ public class RandomWalk : MonoBehaviour {
                 Debug.Log("Starting mode " + currentMode + " at position " + output.position);
                 enumerator = MuxEnumerator(currentMode, output.position, output.exitDirection, ref stepsUntilNextMode);
             };
-
-            Random.state = seed;
         }
     }
 

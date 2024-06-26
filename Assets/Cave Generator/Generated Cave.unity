@@ -306,10 +306,10 @@ MeshCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 512538799}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
-  m_Convex: 1
+  m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300006, guid: ba6a41dc489914734857bb5924eb70ad, type: 3}
 --- !u!1001 &891988059
@@ -458,6 +458,11 @@ MonoBehaviour:
     type: 3}
   defaultMaterial: {fileID: 2100000, guid: b03e2ebe6f5dd4a2fb436eb70f8a2147, type: 2}
   softMaterial: {fileID: 2100000, guid: 2ae5970bc7b2c469a90237e3917d8947, type: 2}
+  seed:
+    s0: 0
+    s1: 0
+    s2: 0
+    s3: 0
 --- !u!114 &1486949850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -472,7 +477,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deadTree: {fileID: 4152080433919208487, guid: 7d900be1d89ca43a1978b3b9d7f4bd2f,
     type: 3}
-  deadTreeRate: 54
+  deadTreeRate: 36
   nothingRate: 108
   sameDecorRate: 0.8333333
   positionOffsetRelHoriz: 0.5
@@ -725,7 +730,7 @@ MeshCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2130909691}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 4
   m_Convex: 1
