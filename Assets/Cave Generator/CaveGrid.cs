@@ -36,6 +36,7 @@ public class CaveGrid : MonoBehaviour {
     public GameObject tunnelBroadLedge;
     public Material defaultMaterial;
     public Material softMaterial;
+    public GameObject dustPrefab;
     public Random.State seed;
 
     public Grid<bool> grid = new Grid<bool>();
@@ -118,6 +119,9 @@ public class CaveGrid : MonoBehaviour {
             soft[pos + i * GridPos.up] = false;
         }
         UpdatePos(pos, relMinUpdated - 1, relMaxUpdated + 1);
+        Transform dust = GameObject.Instantiate(dustPrefab).transform;
+        dust.position = pos.World + Vector3.up * CaveGrid.Scale.y * relMinUpdated;
+        dust.localScale = Vector3.Scale(CaveGrid.Scale, new Vector3(1, relMaxUpdated - relMinUpdated, 1));
     }
 
     public struct Mod {
