@@ -1,7 +1,7 @@
 using UnityEngine.SceneManagement;
 
 public class MainMenu : Menu {
-    override public string[] Buttons { get => new string[] {"Start"}; }
+    override public string[] Buttons { get => new string[] {"New cave"}; }
 
     override public void OnPressed(int num) {
         switch (num) {
