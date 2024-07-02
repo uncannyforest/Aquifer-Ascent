@@ -139,7 +139,7 @@ public class RandomWalk : MonoBehaviour {
             // Debug.Log("Ether current magnitude:" + step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude);
             if (step.onPath is GridPos onPath) {
                 path[onPath] = true;
-                // if (lastPathForDebug is GridPos actualLastPath) Debug.DrawLine(onPath.World, actualLastPath.World, Color.white, 90);
+                if (lastPathForDebug is GridPos actualLastPath) Debug.DrawLine(onPath.World, actualLastPath.World, Color.white, 40);
 
             }
             lastPathForDebug = step.onPath;
