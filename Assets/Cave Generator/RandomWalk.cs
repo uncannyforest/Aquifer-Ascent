@@ -51,7 +51,7 @@ public class RandomWalk : MonoBehaviour {
         Debug.Log("Loaded seed into RW");
 
         int numModes = 3;
-        int currentMode = Random.Range(0, 2);
+        int currentMode = 3;//Random.Range(0, 2);
         int stepsUntilNextMode = 0;
         IEnumerator<Output> enumerator = MuxEnumerator(currentMode, GridPos.zero, GridPos.E, ref stepsUntilNextMode);
         while(enumerator.MoveNext()) {
@@ -60,7 +60,7 @@ public class RandomWalk : MonoBehaviour {
             yield return output;
             Random.state = seed;
             
-            if (stepsUntilNextMode-- == 0) {
+            if (false){//stepsUntilNextMode-- == 0) {
                 int newMode = Random.Range(0, numModes - 1);
                 if (newMode >= currentMode) newMode++; // don't allow current mode
                 currentMode = newMode;
@@ -75,7 +75,8 @@ public class RandomWalk : MonoBehaviour {
 
         stepsUntilNextMode = currentMode == 0 ? Random.Range(2, modeSwitchRate * 12)
             : currentMode == 1 ? Random.Range(2, modeSwitchRate * (4 + RandomWalkAlgorithmStairs.GetVerticalScaleForBiome()) / 3)
-            : Random.Range(2, modeSwitchRate * 4);
+            : currentMode == 2 ? Random.Range(2, modeSwitchRate * 4)
+            : modeSwitchRate;
 
         switch (currentMode) {
             case 0:
@@ -84,6 +85,8 @@ public class RandomWalk : MonoBehaviour {
                 return RandomWalkAlgorithmStairs.MoveVertically(position, exitDirection, upwardRate > .5f ? true : Randoms.CoinFlip).GetEnumerator();
             case 2:
                 return RandomWalkAlgorithmStairs.MoveHorizontally(position, exitDirection, modeSwitchRate, biasToFleeStartLocation, upwardRate).GetEnumerator();
+            case 3:
+                return RandomWalkable.EnumerateSteps(position, exitDirection, modeSwitchRate, interiaOfEtherCurrent, biasToFleeStartLocation, upwardRate, path).GetEnumerator();
             default: throw new IndexOutOfRangeException();
         }
     }
@@ -136,7 +139,7 @@ public class RandomWalk : MonoBehaviour {
             // Debug.Log("Ether current magnitude:" + step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude);
             if (step.onPath is GridPos onPath) {
                 path[onPath] = true;
-                if (lastPathForDebug is GridPos actualLastPath) Debug.DrawLine(onPath.World, actualLastPath.World, Color.white, 90);
+                // if (lastPathForDebug is GridPos actualLastPath) Debug.DrawLine(onPath.World, actualLastPath.World, Color.white, 90);
 
             }
             lastPathForDebug = step.onPath;

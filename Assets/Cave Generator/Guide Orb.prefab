@@ -67,7 +67,7 @@ MonoBehaviour:
   maxAddOrbSteps: 18
   orbChargeRampUp: 6
   changeBiomeEvery: 108
-  rubbleRate: 0.083333336
+  rubbleRate: 0.055555556
   biasToLeaveCenterOfGravity: 1
   cheatSlowdown: 4
   upwardRate: 0.9166667
