@@ -176,5 +176,15 @@ public class CaveGrid : MonoBehaviour {
             int roof = Mathf.Max(r1, r2) - floor;
             return new Mod(pos + GridPos.up * floor, roof, true);
         }
+
+        // Picks random floor and roof not equal
+        // returns column [floor, roof]
+        public static Mod RandomVertical(GridPos pos, int maxExtraFloor, int maxExtraRoof) {
+            int r1 = Random.Range(-maxExtraFloor, maxExtraRoof + 1);
+            int r2 = Random.Range(-maxExtraFloor, maxExtraRoof + 1);
+            int floor = Mathf.Min(r1, r2);
+            int roof = Mathf.Max(r1, r2) - floor + 1;
+            return new Mod(pos + GridPos.up * floor, roof, true);
+        }
     }
 }

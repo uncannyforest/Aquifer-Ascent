@@ -186,7 +186,7 @@ public class RandomWalkAlgorithm {
                     foreach (GridPos unit in GridPos.Units) {
                         newCave.Add(CaveGrid.Mod.Cave(newPosition + unit + GridPos.up * lowestFloor, roof));
                     }
-                    foreach (GridPos unit in GridPos.Units2) {
+                    foreach (GridPos unit in GridPos.ListAllWithMagnitude(2)) {
                         if (CaveGrid.Mod.RandomVerticalMaybe(newPosition + unit, maxExtraFloor, maxExtraRoof)
                             is CaveGrid.Mod mod) newCave.Add(mod);
                     }

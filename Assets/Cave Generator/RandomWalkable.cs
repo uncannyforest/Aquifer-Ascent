@@ -5,20 +5,23 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class RandomWalkable {
-    public struct Parameters {
+    public class Parameters {
         private static float[][] MODES = new float[][] {
-            new float[] {1.5f, 1.5f},
-            new float[] {1.5f, 8.5f}
+            new float[] {1.5f, 1.5f, -0.5f},
+            new float[] {1.5f, 8.5f, -0.5f},
+            new float[] {2.0f, 1.5f, 2.75f},
+            new float[] {2.0f, 8.5f, 2.75f},
         };
-        private static int PARAM_COUNT = 2;
+        private static int PARAM_COUNT = 3;
         public static int MODE_COUNT = MODES.Length;
 
         private float[] parameters;
         private float[] interpolateDiff;
         public int targetMode;
 
-        public float current { get => parameters[0]; } // in [0, 1]
-        public int vScale { get => Mathf.RoundToInt(parameters[1]); } // in [2, 8]
+        public float current { get => parameters[0]; } // in [0, 2]
+        public int vScale { get => Mathf.RoundToInt(parameters[1]); } // in (1.5, 8.5)
+        public float hScale { get => parameters[2]; } // in (-0.5, 3]
 
         public Parameters(int targetMode) {
             this.targetMode = targetMode;
@@ -40,13 +43,13 @@ public class RandomWalkable {
             if (interpolateDiff[p] * (parameters[p] - MODES[targetMode][p]) > 0) { // same sign means we overshot
                 parameters[p] = MODES[targetMode][p];
             }
-            Debug.Log("Approaching mode " + targetMode + " at " + String.Join(", ", parameters));
+            Debug.Log("Approaching mode " + targetMode + " at " + current + ", " + vScale + ", " + Mathf.Ceil(hScale));
         }
     }
 
     // returns int in [-3, 3]: 1 if path is one above, -1 if path is 1 below
     // 0 if no path overlap or we hit the path exactly
-    public static int? overlapsPathAt(Grid<bool> path, GridPos pos, Parameters p) {
+    public static int? OverlapsPathAt(Grid<bool> path, GridPos pos, Parameters p) {
         if (path[pos]) return 0;
         for (int i = 1; i <= 3; i++) {
             if (path[pos + GridPos.up * i]) return i;
@@ -56,6 +59,14 @@ public class RandomWalkable {
             if (path[pos + GridPos.up * i]) return i;
 
         return null;
+    }
+
+    public static List<GridPos> OverlapsShelfAt(Grid<bool> path, CaveGrid.Mod mod) {
+        List<GridPos> overlaps = new List<GridPos>();
+        for (int i = -1; i <= mod.roof; i++) {
+            if (path[mod.pos + GridPos.up * (i + 2)]) overlaps.Add(mod.pos + GridPos.up * i);
+        }
+        return overlaps;
     }
 
     public static IEnumerable<RandomWalk.Output> EnumerateSteps(GridPos initPos, GridPos initDirection, int modeSwitchRate, int inertiaOfEtherCurrent, Vector3 biasToLeaveStartLocation, float upwardRate, Grid<bool> path) {
@@ -74,36 +85,76 @@ public class RandomWalkable {
         int modeSwitchCountdown = 1;
 
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
-            if (--modeSwitchCountdown <= 0) {
-                modeSwitchCountdown = modeSwitchRate;
-                p.StartInterpolation(1 - p.targetMode, 1f / modeSwitchRate);
-            }
-            p.Interpolate();
+            InterpolateMode(ref modeSwitchCountdown, modeSwitchRate, p);
 
-            etherCurrent += GridPos.RandomHoriz(biasToLeaveStartLocation);
-            float currentFactor = p.current <= 1 ? p.current / inertiaOfEtherCurrent
-                : 1 / ((2 - p.current) * (inertiaOfEtherCurrent - 1) + 1);
-            // Debug.Log("Ether current factor " + etherCurrent.HComponents * currentFactor + " at " + smallPos);
-            if (etherCurrent.HComponents.Max() > inertiaOfEtherCurrent) {
-                Debug.Log("Ether current " + etherCurrent + " at " + smallPos + " FLIPPED: TAKE NOTE");
-                etherCurrent /= -2;
-                justFlipped = true;
-            } else justFlipped = false;
-            
-            smallMove = GridPos.Random(2/3f, etherCurrent.HComponents * currentFactor, upwardRate);
-            int? walkablePathCorrection = overlapsPathAt(path, smallPos + smallMove.Horizontal, p);
-            if (walkablePathCorrection is int correction) {
-                if (Mathf.Abs(correction) <= 1) smallMove.w = correction;
-                else if (Mathf.Abs(correction) == 3) smallMove.w = correction / -3;
+            Vector3 currentToApply = UpdateEtherCurrent(ref etherCurrent, ref justFlipped, inertiaOfEtherCurrent, biasToLeaveStartLocation, p);
+
+            smallMove = GridPos.Random(2/3f, currentToApply, upwardRate);
+            int? neededAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
+            if (neededAdjustment == 2 || neededAdjustment == -2) { // roll the dice one more time
+                smallMove = GridPos.Random(2/3f, currentToApply, upwardRate);
+                neededAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
             }
             smallPos += smallMove;
-            if (walkablePathCorrection == 2 || walkablePathCorrection == -2) Debug.Log("walkablePathCorrection " + walkablePathCorrection + " at " + smallPos);
 
-            List<CaveGrid.Mod> newCave = new List<CaveGrid.Mod>();
-            newCave.Add(CaveGrid.Mod.Cave(smallPos, walkablePathCorrection != null ? 1 : p.vScale - 1));
+            List<CaveGrid.Mod> newCave = LargePosMods(smallPos, path, p);
+            newCave.Add(CaveGrid.Mod.Cave(smallPos, neededAdjustment != null ? 1 : p.vScale - 1));
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
             foreach (CaveGrid.Mod mod in newCave) CaveGrid.Biome.Next(mod.pos);
             yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, newCave.ToArray(), 1, smallPos, new GridPos[] {}, etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero));
         }
     }
+
+    private static void InterpolateMode(ref int modeSwitchCountdown, int modeSwitchRate, Parameters p) {
+        if (--modeSwitchCountdown <= 0) {
+            modeSwitchCountdown = modeSwitchRate;
+            int newMode = Random.Range(1, Parameters.MODE_COUNT);
+            if (newMode == p.targetMode) newMode = 0;
+            p.StartInterpolation(newMode, Random.Range(.5f, 1f) / modeSwitchRate);
+        }
+        p.Interpolate();
+    }
+
+    private static Vector3 UpdateEtherCurrent(ref GridPos etherCurrent, ref bool justFlipped, int inertiaOfEtherCurrent, Vector3 biasToLeaveStartLocation, Parameters p) {
+        etherCurrent += GridPos.RandomHoriz(biasToLeaveStartLocation);
+        if (etherCurrent.HComponents.Max() > inertiaOfEtherCurrent) {
+            etherCurrent /= -2;
+            justFlipped = true;
+        } else justFlipped = false;
+        float currentFactor = p.current <= 1 ? p.current / inertiaOfEtherCurrent
+            : 1 / ((2 - p.current) * (inertiaOfEtherCurrent - 1) + 1);
+        return etherCurrent.HComponents * currentFactor;
+    }
+
+    private static int? AdjustToBeWalkable(ref GridPos smallMove, GridPos smallPos, Grid<bool> path, Parameters p) {
+        int? walkablePathCorrection = OverlapsPathAt(path, smallPos + smallMove.Horizontal, p);
+        if (walkablePathCorrection is int correction) {
+            if (Mathf.Abs(correction) <= 1) smallMove.w = correction;
+            else if (Mathf.Abs(correction) == 3) smallMove.w = correction / -3;
+        }
+        return walkablePathCorrection;
+    }
+
+    private static List<CaveGrid.Mod> LargePosMods(GridPos smallPos, Grid<bool> path, Parameters p) {
+        List<CaveGrid.Mod> newCave = new List<CaveGrid.Mod>();
+        int vMidpoint = p.vScale / 2 - 1;
+        int vMidpointExtraHeight = p.vScale % 2;
+        int magnitude = 1;
+        for ( ; magnitude < p.hScale; magnitude++) {
+            foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
+                CaveGrid.Mod mod = CaveGrid.Mod.RandomVerticalExtension(smallPos + unit + vMidpoint * GridPos.up, 0, vMidpoint, vMidpointExtraHeight, vMidpointExtraHeight + vMidpoint);
+                newCave.Add(mod);
+                foreach (GridPos overlap in OverlapsShelfAt(path, mod)) newCave.Add(CaveGrid.Mod.Wall(overlap));
+            }
+        }
+        foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
+            if (Random.value < p.hScale - magnitude + 1) {
+                CaveGrid.Mod mod = CaveGrid.Mod.RandomVertical(smallPos + unit, 0, p.vScale - 2);
+                newCave.Add(mod);
+                foreach (GridPos overlap in OverlapsShelfAt(path, mod)) newCave.Add(CaveGrid.Mod.Wall(overlap));
+            }
+        }
+        return newCave;
+    }
+
 }

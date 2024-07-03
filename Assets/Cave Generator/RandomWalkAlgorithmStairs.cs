@@ -78,7 +78,7 @@ public class RandomWalkAlgorithmStairs {
             if (smallMove.w != 0) { 
                 newCave.Add(CaveGrid.Mod.Cave(largePos));
                 foreach (GridPos unit in GridPos.Units) if (scale >= 0 || Random.value < 1/3f) newCave.Add(CaveGrid.Mod.Cave(largePos + unit));
-                if (scale >= 0) foreach (GridPos unit in GridPos.Units2) if (Random.value < units2Chance) newCave.Add(CaveGrid.Mod.Cave(largePos + unit));
+                if (scale >= 0) foreach (GridPos unit in GridPos.ListAllWithMagnitude(2)) if (Random.value < units2Chance) newCave.Add(CaveGrid.Mod.Cave(largePos + unit));
             }
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
 
@@ -136,7 +136,7 @@ public class RandomWalkAlgorithmStairs {
                     if (hScale == 1) newCave.Add(CaveGrid.Mod.Cave(largeCenter + unit - maxExtraFloor * GridPos.up, maxExtraRoof + maxExtraFloor + 1));
                     else newCave.Add(CaveGrid.Mod.RandomVerticalExtension(largeCenter + unit, 0, maxExtraFloor, 0, maxExtraRoof));
                 }
-                if (hScale == 1) foreach (GridPos unit in GridPos.Units2) newCave.Add(CaveGrid.Mod.RandomVerticalExtension(largeCenter + unit, 0, maxExtraFloor, 0, maxExtraRoof));
+                if (hScale == 1) foreach (GridPos unit in GridPos.ListAllWithMagnitude(2)) newCave.Add(CaveGrid.Mod.RandomVerticalExtension(largeCenter + unit, 0, maxExtraFloor, 0, maxExtraRoof));
             }
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
 

@@ -334,6 +334,11 @@ PrefabInstance:
       propertyPath: upwardRate
       value: 0.6666667
       objectReference: {fileID: 0}
+    - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
+        type: 3}
+      propertyPath: modeSwitchRate
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 317994074565316839, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
       propertyPath: m_RootOrder
