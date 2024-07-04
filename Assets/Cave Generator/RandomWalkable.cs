@@ -7,10 +7,10 @@ using Random = UnityEngine.Random;
 public class RandomWalkable {
     public class Parameters {
         private static float[][] MODES = new float[][] {
-            new float[] {1.5f, 1.5f, -0.5f},
-            new float[] {1.5f, 8.5f, -0.5f},
-            new float[] {2.0f, 1.5f, 2.75f},
-            new float[] {2.0f, 8.5f, 2.75f},
+            new float[] {0f, 1.5f, -0.5f},
+            new float[] {0f, 8.5f, -0.5f},
+            new float[] {1f, 1.5f, 2.75f},
+            new float[] {1f, 8.5f, 2.75f},
         };
         private static int PARAM_COUNT = 3;
         public static int MODE_COUNT = MODES.Length;
@@ -19,9 +19,9 @@ public class RandomWalkable {
         private float[] interpolateDiff;
         public int targetMode;
 
-        public float current { get => parameters[0]; } // in [0, 2]
-        public int vScale { get => Mathf.RoundToInt(parameters[1]); } // in (1.5, 8.5)
-        public float hScale { get => parameters[2]; } // in (-0.5, 3]
+        public float forwardBias { get => parameters[0]; } // in [0, 1]
+        public int vScale { get => Mathf.RoundToInt(parameters[1]); } // in [1.5, 8.5]
+        public float hScale { get => parameters[2]; } // in [-0.5, 3]
 
         public Parameters(int targetMode) {
             this.targetMode = targetMode;
@@ -37,13 +37,14 @@ public class RandomWalkable {
             }
         }
 
-        public void Interpolate() {
+        // returns debug string
+        public string Interpolate() {
             int p = Random.Range(0, PARAM_COUNT);
             parameters[p] += interpolateDiff[p];
             if (interpolateDiff[p] * (parameters[p] - MODES[targetMode][p]) > 0) { // same sign means we overshot
                 parameters[p] = MODES[targetMode][p];
             }
-            Debug.Log("Approaching mode " + targetMode + " at " + current + ", " + vScale + ", " + Mathf.Ceil(hScale));
+            return "Approaching mode " + targetMode + " at " + forwardBias + ", " + vScale + ", " + Mathf.Ceil(hScale);
         }
     }
 
@@ -85,14 +86,17 @@ public class RandomWalkable {
         int modeSwitchCountdown = 1;
 
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
-            InterpolateMode(ref modeSwitchCountdown, modeSwitchRate, p);
+            string interpolateDebug = InterpolateMode(ref modeSwitchCountdown, modeSwitchRate, p);
 
-            Vector3 currentToApply = UpdateEtherCurrent(ref etherCurrent, ref justFlipped, inertiaOfEtherCurrent, biasToLeaveStartLocation, p);
+            UpdateEtherCurrent(ref etherCurrent, ref justFlipped, inertiaOfEtherCurrent, biasToLeaveStartLocation, p);
+            Vector3 bias = GetBias(smallMove, etherCurrent, p);
 
-            smallMove = GridPos.Random(2/3f, currentToApply, upwardRate);
+            Debug.Log(interpolateDebug + ", ether current " + etherCurrent.HComponents.Max() / inertiaOfEtherCurrent + ", bias " + bias.Max());
+
+            smallMove = GridPos.Random(2/3f, bias, upwardRate);
             int? neededAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
             if (neededAdjustment == 2 || neededAdjustment == -2) { // roll the dice one more time
-                smallMove = GridPos.Random(2/3f, currentToApply, upwardRate);
+                smallMove = GridPos.Random(2/3f, bias, upwardRate);
                 neededAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
             }
             smallPos += smallMove;
@@ -105,25 +109,26 @@ public class RandomWalkable {
         }
     }
 
-    private static void InterpolateMode(ref int modeSwitchCountdown, int modeSwitchRate, Parameters p) {
+    private static string InterpolateMode(ref int modeSwitchCountdown, int modeSwitchRate, Parameters p) {
         if (--modeSwitchCountdown <= 0) {
             modeSwitchCountdown = modeSwitchRate;
             int newMode = Random.Range(1, Parameters.MODE_COUNT);
             if (newMode == p.targetMode) newMode = 0;
             p.StartInterpolation(newMode, Random.Range(.5f, 1f) / modeSwitchRate);
         }
-        p.Interpolate();
+        return p.Interpolate();
     }
 
-    private static Vector3 UpdateEtherCurrent(ref GridPos etherCurrent, ref bool justFlipped, int inertiaOfEtherCurrent, Vector3 biasToLeaveStartLocation, Parameters p) {
-        etherCurrent += GridPos.RandomHoriz(biasToLeaveStartLocation);
+    private static void UpdateEtherCurrent(ref GridPos etherCurrent, ref bool justFlipped, int inertiaOfEtherCurrent, Vector3 biasToLeaveStartLocation, Parameters p) {
+        etherCurrent += GridPos.RandomHoriz(biasToLeaveStartLocation * GridPos.MODERATE_BIAS);
         if (etherCurrent.HComponents.Max() > inertiaOfEtherCurrent) {
             etherCurrent /= -2;
             justFlipped = true;
         } else justFlipped = false;
-        float currentFactor = p.current <= 1 ? p.current / inertiaOfEtherCurrent
-            : 1 / ((2 - p.current) * (inertiaOfEtherCurrent - 1) + 1);
-        return etherCurrent.HComponents * currentFactor;
+    }
+
+    private static Vector3 GetBias(GridPos move, GridPos etherCurrent, Parameters p) {
+        return etherCurrent.HComponents.MaxNormalized() * (1 + p.forwardBias) * GridPos.MODERATE_BIAS + p.forwardBias * move.HComponents;
     }
 
     private static int? AdjustToBeWalkable(ref GridPos smallMove, GridPos smallPos, Grid<bool> path, Parameters p) {

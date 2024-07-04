@@ -133,27 +133,28 @@ public struct GridPos  {
         }
     }
 
+    // multiply RandomHoriz parameter by this factor to get the outcome of the old algorithm prior to refactor
+    public static float MODERATE_BIAS = 1/3f;
+
     // bias has components [-1, 1] which sum to 0
+    // bias magnitude (.Max()) impact on probability of angle from bias:
+    // mag | 180deg 120deg 60deg 0deg
+    //  0  |   1/6   1/6   1/6   1/6
+    // 1/3 |   1/18  2/18  4/18  5/18  <- multiply MaxNormalized Vector3 by MODERATE_BIAS
+    // 1/2 |    0    1/12  3/12  4/12
+    //  1  |    0     0    1/3   1/3
+    //  2  |    0     0    1/6   2/3
+    // inf |    0     0     0     1
     public static GridPos RandomHoriz(Vector3 bias) {
+        if (bias.Max() > 1 && UnityEngine.Random.value > 1 / bias.Max())
+            return GridPos.RoundFromVector3(bias.MaxNormalized());
+
         GridPos tentative = RandomHoriz();
-        int axis = UnityEngine.Random.Range(0, 3);
-        if (axis == 0) {
-            if (UnityEngine.Random.value < bias.x * -tentative.x) {
-                // Debug.Log("Bias flipped random x");
-                tentative = -tentative;
-            }
-        } else if (axis == 1) {
-            if (UnityEngine.Random.value < bias.y * -tentative.y) {
-                // Debug.Log("Bias flipped random y");
-                tentative = -tentative;
-            }
-        } else {
-            if (UnityEngine.Random.value < bias.z * -tentative.z) {
-                // Debug.Log("Bias flipped random z");
-                tentative = -tentative;
-            }
-        }
-        return tentative;
+        float chanceOfFlip = bias.x * -tentative.x + bias.y * -tentative.y + bias.z * -tentative.z;
+        // short-circuit: don't bother running Random.value if chanceOfFlip outside (0, 1)
+        if (chanceOfFlip >= 1 || chanceOfFlip > 0 && UnityEngine.Random.value < chanceOfFlip)
+            return -tentative;
+        else return tentative;
     }
 
     public static GridPos RandomHoriz() => Units[UnityEngine.Random.Range(0, 6)];

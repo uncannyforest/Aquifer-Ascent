@@ -47,7 +47,7 @@ public class RandomWalkAlgorithm {
             TriPos newTriPosition = triPosition;
             int vScale = currentVScale;
             int hScale = currentHScale;
-            for (int i = 0; i <= hScale + vScale; i++) etherCurrent += GridPos.RandomHoriz(biasToLeaveStartLocation);
+            for (int i = 0; i <= hScale + vScale; i++) etherCurrent += GridPos.RandomHoriz(biasToLeaveStartLocation * GridPos.MODERATE_BIAS);
             if (etherCurrent.HComponents.Max() > inertiaOfEtherCurrent) {
                 etherCurrent /= -3;
                 justFlipped = true;
@@ -59,7 +59,7 @@ public class RandomWalkAlgorithm {
                 : 2;
             GridPos random = changeAmount == 0 ? lastMove.RandomVertDeviation(2/3f, 2/3f, upwardRate > .5f ? 1 : upwardRate)
                 : changeAmount == 1 ? lastMove.RandomHorizDeviation(etherCurrent.HComponents.MaxNormalized())
-                : GridPos.Random(2/3f, etherCurrent.HComponents, hScale == 1 && upwardRate > .5f ? 1 : upwardRate);
+                : GridPos.Random(2/3f, etherCurrent.HComponents.MaxNormalized() * GridPos.MODERATE_BIAS, hScale == 1 && upwardRate > .5f ? 1 : upwardRate);
             if (levelOut != 0) {
                 random.w = levelOut;
                 Debug.Log("LEVELING OUT! " + levelOut);
