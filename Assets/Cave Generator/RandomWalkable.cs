@@ -73,6 +73,7 @@ public class RandomWalkable {
     public static IEnumerable<RandomWalk.Output> EnumerateSteps(GridPos initPos, GridPos initDirection, int modeSwitchRate, int inertiaOfEtherCurrent, Vector3 biasToLeaveStartLocation, float upwardRate, Grid<bool> path) {
         GridPos smallPos = initPos;
         GridPos smallMove = initDirection;
+        GridPos largePos = smallPos;
         GridPos etherCurrent = initDirection * (inertiaOfEtherCurrent / 2);
         
         List<CaveGrid.Mod> initCave = new List<CaveGrid.Mod>();
@@ -99,9 +100,12 @@ public class RandomWalkable {
                 smallMove = GridPos.Random(2/3f, bias, upwardRate);
                 neededAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
             }
-            smallPos += smallMove;
 
-            List<CaveGrid.Mod> newCave = LargePosMods(smallPos, path, p);
+            largePos = GetLargePosContainingSmall(largePos, smallPos, p);
+            smallPos += smallMove;
+            largePos += smallMove;
+
+            List<CaveGrid.Mod> newCave = LargePosMods(largePos, path, p);
             newCave.Add(CaveGrid.Mod.Cave(smallPos, neededAdjustment != null ? 1 : p.vScale - 1));
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
             foreach (CaveGrid.Mod mod in newCave) CaveGrid.Biome.Next(mod.pos);
@@ -140,21 +144,40 @@ public class RandomWalkable {
         return walkablePathCorrection;
     }
 
-    private static List<CaveGrid.Mod> LargePosMods(GridPos smallPos, Grid<bool> path, Parameters p) {
+    private static GridPos GetLargePosContainingSmall(GridPos oldLargePos, GridPos oldSmallPos, Parameters p) {
+        if (p.hScale <= 0) return oldSmallPos;
+        GridPos relative = oldLargePos - oldSmallPos;
+        if (Random.value < 1/6f) {
+            relative += GridPos.RandomHoriz();
+        }
+        while (relative.Magnitude >= p.hScale + 1) {
+            relative -= GridPos.RoundFromVector3(relative.HComponents.MaxNormalized());
+        }
+        return oldSmallPos + relative;
+    }
+
+    private static List<CaveGrid.Mod> LargePosMods(GridPos largePos, Grid<bool> path, Parameters p) {
         List<CaveGrid.Mod> newCave = new List<CaveGrid.Mod>();
+        if (p.hScale <= 0) return newCave;
+
         int vMidpoint = p.vScale / 2 - 1;
         int vMidpointExtraHeight = p.vScale % 2;
+
+        CaveGrid.Mod mod = CaveGrid.Mod.RandomVerticalExtension(largePos + vMidpoint * GridPos.up, 0, vMidpoint, vMidpointExtraHeight, vMidpointExtraHeight + vMidpoint);
+        newCave.Add(mod);
+        foreach (GridPos overlap in OverlapsShelfAt(path, mod)) newCave.Add(CaveGrid.Mod.Wall(overlap));
+
         int magnitude = 1;
         for ( ; magnitude < p.hScale; magnitude++) {
             foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
-                CaveGrid.Mod mod = CaveGrid.Mod.RandomVerticalExtension(smallPos + unit + vMidpoint * GridPos.up, 0, vMidpoint, vMidpointExtraHeight, vMidpointExtraHeight + vMidpoint);
+                mod = CaveGrid.Mod.RandomVerticalExtension(largePos + unit + vMidpoint * GridPos.up, 0, vMidpoint, vMidpointExtraHeight, vMidpointExtraHeight + vMidpoint);
                 newCave.Add(mod);
                 foreach (GridPos overlap in OverlapsShelfAt(path, mod)) newCave.Add(CaveGrid.Mod.Wall(overlap));
             }
         }
         foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
             if (Random.value < p.hScale - magnitude + 1) {
-                CaveGrid.Mod mod = CaveGrid.Mod.RandomVertical(smallPos + unit, 0, p.vScale - 2);
+                mod = CaveGrid.Mod.RandomVertical(largePos + unit, 0, p.vScale - 2);
                 newCave.Add(mod);
                 foreach (GridPos overlap in OverlapsShelfAt(path, mod)) newCave.Add(CaveGrid.Mod.Wall(overlap));
             }
