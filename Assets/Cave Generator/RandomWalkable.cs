@@ -7,21 +7,22 @@ using Random = UnityEngine.Random;
 public class RandomWalkable {
     public class Parameters {
         private static float[][] MODES = new float[][] {
-            new float[] {0f, 1.5f, -0.5f},
-            new float[] {0f, 8.5f, -0.5f},
-            new float[] {1f, 1.5f, 2.75f},
-            new float[] {1f, 8.5f, 2.75f},
+            new float[] {1.5f, -0.5f, 0, 0},
+            new float[] {8.5f, -0.5f, 0, 0},
+            new float[] {1.5f, 2.75f, 0, 1},
+            new float[] {8.5f, 2.75f, 1, 1}
         };
-        private static int PARAM_COUNT = 3;
+        private static int PARAM_COUNT = 4;
         public static int MODE_COUNT = MODES.Length;
 
         private float[] parameters;
         private float[] interpolateDiff;
         public int targetMode;
 
-        public float forwardBias { get => parameters[0]; } // in [0, 1]
-        public int vScale { get => Mathf.RoundToInt(parameters[1]); } // in [1.5, 8.5]
-        public float hScale { get => parameters[2]; } // in [-0.5, 3]
+        public int vScale { get => Mathf.RoundToInt(parameters[0]); } // in [1.5, 8.5]
+        public float hScale { get => parameters[1]; } // in [-0.5, 3]
+        public int vDelta { get => Mathf.RoundToInt(parameters[2]); } // in [0, 1]
+        public float forwardBias { get => parameters[3]; } // in [0, 1]
 
         public Parameters(int targetMode) {
             this.targetMode = targetMode;
@@ -44,7 +45,7 @@ public class RandomWalkable {
             if (interpolateDiff[p] * (parameters[p] - MODES[targetMode][p]) > 0) { // same sign means we overshot
                 parameters[p] = MODES[targetMode][p];
             }
-            return "Approaching mode " + targetMode + " at " + forwardBias + ", " + vScale + ", " + Mathf.Ceil(hScale);
+            return "Approaching mode " + targetMode + " at " + vScale + ", " + Mathf.Ceil(hScale) + ", " + (vDelta > 0 ? "WW, " : "Flr, ") + forwardBias;
         }
     }
 
@@ -80,7 +81,7 @@ public class RandomWalkable {
         initCave.Add(CaveGrid.Mod.Cave(smallPos));
         yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), 1/6f, smallPos, new GridPos[] {}, Vector3.zero);
 
-        Parameters p = new Parameters(0);
+        Parameters p = new Parameters(3);
 
         bool justFlipped = false;
 
@@ -101,12 +102,13 @@ public class RandomWalkable {
                 neededAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
             }
 
-            largePos = GetLargePosContainingSmall(largePos, smallPos, p);
+            int smallRelativeW = GetSmallWRelativeToLarge(largePos, smallPos, p);
+            GridPos largeRelativeHoriz = GetLargeHorizRelativeToSmall(largePos, smallPos, p);
             smallPos += smallMove;
-            largePos += smallMove;
+            largePos = smallPos + largeRelativeHoriz - GridPos.up * smallRelativeW;
 
             List<CaveGrid.Mod> newCave = LargePosMods(largePos, path, p);
-            newCave.Add(CaveGrid.Mod.Cave(smallPos, neededAdjustment != null ? 1 : p.vScale - 1));
+            newCave.Add(CaveGrid.Mod.Cave(smallPos, p.hScale > 0 || neededAdjustment != null ? 1 : p.vScale - 1));
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
             foreach (CaveGrid.Mod mod in newCave) CaveGrid.Biome.Next(mod.pos);
             yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, newCave.ToArray(), 1, smallPos, new GridPos[] {}, etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero));
@@ -144,16 +146,24 @@ public class RandomWalkable {
         return walkablePathCorrection;
     }
 
-    private static GridPos GetLargePosContainingSmall(GridPos oldLargePos, GridPos oldSmallPos, Parameters p) {
-        if (p.hScale <= 0) return oldSmallPos;
-        GridPos relative = oldLargePos - oldSmallPos;
+    private static int GetSmallWRelativeToLarge(GridPos oldLargePos, GridPos oldSmallPos, Parameters p) {
+        int oldW = oldSmallPos.w - oldLargePos.w;
+        if (p.hScale <= 0 || p.vScale < 5 || p.vDelta == 0) return Mathf.Max(0, oldW - 1);
+        if (oldW < 3) return oldW + 1;
+        else if (oldW > p.vScale - 2) return oldW - 1;
+        else return oldW + (Random.value < 1/3f ? Randoms.Sign : 0);
+    }
+    private static GridPos GetLargeHorizRelativeToSmall(GridPos largePos, GridPos smallPos, Parameters p) {
+        if (p.hScale <= 0) return GridPos.zero;
+
+        GridPos relative = largePos.Horizontal - smallPos.Horizontal;
         if (Random.value < 1/6f) {
             relative += GridPos.RandomHoriz();
         }
         while (relative.Magnitude >= p.hScale + 1) {
             relative -= GridPos.RoundFromVector3(relative.HComponents.MaxNormalized());
         }
-        return oldSmallPos + relative;
+        return relative;
     }
 
     private static List<CaveGrid.Mod> LargePosMods(GridPos largePos, Grid<bool> path, Parameters p) {
