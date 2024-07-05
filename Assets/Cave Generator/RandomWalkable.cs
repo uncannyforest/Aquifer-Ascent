@@ -7,22 +7,23 @@ using Random = UnityEngine.Random;
 public class RandomWalkable {
     public class Parameters {
         private static float[][] MODES = new float[][] {
-            new float[] {1.5f, -0.5f, 0, 0},
-            new float[] {8.5f, -0.5f, 0, 0},
-            new float[] {1.5f, 2.75f, 0, 1},
-            new float[] {8.5f, 2.75f, 1, 1}
+            new float[] {0, 1.5f, -0.333f, 0, 0},
+            new float[] {0, 8.5f, -0.333f, 0, 0},
+            new float[] {0, 1.5f, 2.667f, 0, 1},
+            new float[] {1, 8.5f, 2.667f, 1, 2}
         };
-        private static int PARAM_COUNT = 4;
+        private static int PARAM_COUNT = 5;
         public static int MODE_COUNT = MODES.Length;
 
         private float[] parameters;
         private float[] interpolateDiff;
         public int targetMode;
 
-        public int vScale { get => Mathf.RoundToInt(parameters[0]); } // in [1.5, 8.5]
-        public float hScale { get => parameters[1]; } // in [-0.5, 3]
-        public int vDelta { get => Mathf.RoundToInt(parameters[2]); } // in [0, 1]
-        public float forwardBias { get => parameters[3]; } // in [0, 1]
+        public bool followWall { get => parameters[0] > .5f; }
+        public int vScale { get => Mathf.RoundToInt(parameters[1]); } // in [1.5, 8.5]
+        public float hScale { get => parameters[2]; } // in [-0.5, 3]
+        public int vDelta { get => Mathf.RoundToInt(parameters[3]); } // in [0, 1]
+        public float forwardBias { get => parameters[4]; } // in [0, 1]
 
         public Parameters(int targetMode) {
             this.targetMode = targetMode;
@@ -45,7 +46,7 @@ public class RandomWalkable {
             if (interpolateDiff[p] * (parameters[p] - MODES[targetMode][p]) > 0) { // same sign means we overshot
                 parameters[p] = MODES[targetMode][p];
             }
-            return "Approaching mode " + targetMode + " at " + vScale + ", " + Mathf.Ceil(hScale) + ", " + (vDelta > 0 ? "WW, " : "Flr, ") + forwardBias;
+            return "Approaching mode " + targetMode + " at " + (followWall ? "FW, " : "Ins, ") + vScale + ", " + Mathf.Ceil(hScale) + ", " + (vDelta > 0 ? "WW, " : "Flr, ") + forwardBias;
         }
     }
 
@@ -75,6 +76,7 @@ public class RandomWalkable {
         GridPos smallPos = initPos;
         GridPos smallMove = initDirection;
         GridPos largePos = smallPos;
+        GridPos largeMove = initDirection;
         GridPos etherCurrent = initDirection * (inertiaOfEtherCurrent / 2);
         
         List<CaveGrid.Mod> initCave = new List<CaveGrid.Mod>();
@@ -88,27 +90,22 @@ public class RandomWalkable {
         int modeSwitchCountdown = 1;
 
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
-            string interpolateDebug = InterpolateMode(ref modeSwitchCountdown, modeSwitchRate, p);
+            string interpolateDebug = "";//InterpolateMode(ref modeSwitchCountdown, modeSwitchRate, p);
 
             UpdateEtherCurrent(ref etherCurrent, ref justFlipped, inertiaOfEtherCurrent, biasToLeaveStartLocation, p);
-            Vector3 bias = GetBias(smallMove, etherCurrent, p);
+            Vector3 bias = GetBias(p.followWall ? largeMove : smallMove, etherCurrent, p);
 
-            Debug.Log(interpolateDebug + ", ether current " + etherCurrent.HComponents.Max() / inertiaOfEtherCurrent + ", bias " + bias.Max());
+            Debug.Log(interpolateDebug + ", ether current " + etherCurrent.HComponents.Max() / inertiaOfEtherCurrent + ", bias " + GridPos.RoundFromVector3(bias));
 
-            smallMove = GridPos.Random(2/3f, bias, upwardRate);
-            int? neededAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
-            if (neededAdjustment == 2 || neededAdjustment == -2) { // roll the dice one more time
-                smallMove = GridPos.Random(2/3f, bias, upwardRate);
-                neededAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
-            }
+            int? neededWalkableAdjustment = null;
+            bool largeWait = false;
+            bool smallWait = false;
+            if (p.followWall && p.hScale > 0)
+                SetLargePosThenFollowWall(ref largePos, ref largeMove, ref largeWait, ref smallPos, ref smallMove, ref smallWait, ref neededWalkableAdjustment, path, bias, upwardRate, p);
+            else SetSmallPosThenLarge(ref largePos, ref largeMove, ref smallPos, ref smallMove, ref neededWalkableAdjustment, path, bias, upwardRate, p);
 
-            int smallRelativeW = GetSmallWRelativeToLarge(largePos, smallPos, p);
-            GridPos largeRelativeHoriz = GetLargeHorizRelativeToSmall(largePos, smallPos, p);
-            smallPos += smallMove;
-            largePos = smallPos + largeRelativeHoriz - GridPos.up * smallRelativeW;
-
-            List<CaveGrid.Mod> newCave = LargePosMods(largePos, path, p);
-            newCave.Add(CaveGrid.Mod.Cave(smallPos, p.hScale > 0 || neededAdjustment != null ? 1 : p.vScale - 1));
+            List<CaveGrid.Mod> newCave = largeWait ? new List<CaveGrid.Mod>() : LargePosMods(largePos, path, p);
+            newCave.Add(CaveGrid.Mod.Cave(smallPos, p.hScale > 0 || neededWalkableAdjustment != null ? 1 : p.vScale - 1));
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
             foreach (CaveGrid.Mod mod in newCave) CaveGrid.Biome.Next(mod.pos);
             yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, newCave.ToArray(), 1, smallPos, new GridPos[] {}, etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero));
@@ -134,7 +131,95 @@ public class RandomWalkable {
     }
 
     private static Vector3 GetBias(GridPos move, GridPos etherCurrent, Parameters p) {
-        return etherCurrent.HComponents.MaxNormalized() * (1 + p.forwardBias) * GridPos.MODERATE_BIAS + p.forwardBias * move.HComponents;
+        return etherCurrent.HComponents.MaxNormalized() * (1 + p.forwardBias) * GridPos.MODERATE_BIAS + p.forwardBias * move.HComponents.MaxNormalized();
+    }
+
+    private static void SetSmallPosThenLarge(ref GridPos largePos, ref GridPos largeMove,
+            ref GridPos smallPos, ref GridPos smallMove, ref int? neededWalkableAdjustment,
+            Grid<bool> path, Vector3 bias, float upwardRate, Parameters p) {
+        smallMove = GridPos.Random(2/3f, bias, upwardRate);
+        neededWalkableAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
+        if (neededWalkableAdjustment == 2 || neededWalkableAdjustment == -2) { // roll the dice one more time
+            smallMove = GridPos.Random(2/3f, bias, upwardRate);
+            neededWalkableAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
+        }
+
+        int smallRelativeW = (smallPos.w - largePos.w) + GetSmallWRelativeToLargeDelta(largePos, smallPos, p);
+        GridPos largeRelativeHoriz = GetLargeHorizRelativeToSmall(largePos, smallPos, p);
+        smallPos += smallMove;
+        GridPos oldLargePos = largePos;
+        largePos = smallPos + largeRelativeHoriz - GridPos.up * smallRelativeW;
+        largeMove = largePos - oldLargePos;
+    }
+
+    private static GridPos GetLargeHorizRelativeToSmall(GridPos largePos, GridPos smallPos, Parameters p) {
+        if (p.hScale <= 0) return GridPos.zero;
+        GridPos relative = largePos.Horizontal - smallPos.Horizontal;
+        if (Random.value < 1/6f)
+            relative += GridPos.RandomHoriz();
+        while (relative.Magnitude >= p.hScale + 1)
+            relative -= GridPos.RoundFromVector3(relative.HComponents.MaxNormalized());
+        return relative;
+    }
+
+    private static void SetLargePosThenFollowWall(ref GridPos largePos, ref GridPos largeMove, ref bool largeWait,
+            ref GridPos smallPos, ref GridPos smallMove, ref bool smallWait, ref int? neededWalkableAdjustment,
+            Grid<bool> path, Vector3 bias, float upwardRate, Parameters p) {
+        int hScale = Mathf.CeilToInt(p.hScale);
+
+        GridPos catchUp = largePos - smallPos;
+        int horizDistance = catchUp.Horizontal.Magnitude;
+        largeWait = horizDistance > hScale * 3;
+        smallWait = false;
+
+        int smallMoveW = GetSmallWRelativeToLargeDelta(largePos, smallPos, p);
+        if (!largeWait) {
+            largeMove = GridPos.Random(0 /*2/3f*/, bias, upwardRate);
+            largePos += largeMove;
+            catchUp = largePos - smallPos;
+            horizDistance = catchUp.Horizontal.Magnitude;
+            // Debug.Log("catchUp " + catchUp);
+            smallWait = horizDistance <= hScale + 1; // they are already adjacent
+        }
+        if (!smallWait) {
+            // at this point, hScale + 2 <= horizDistance <= hScale * 3 + 1 (unless smallCatchUp)
+            float smallTargetLargeFactor = Mathf.Min(1, (horizDistance - hScale - 2f) / (hScale * 2 - 1));
+            Vector3 smallBias = Vector3.Lerp(smallMove.HComponents, catchUp.HComponents.MaxNormalized(), smallTargetLargeFactor);
+            smallMove = GridPos.RoundFromVector3(smallBias.MaxNormalized());
+            smallMove.w = smallMoveW;
+            int wallAhead = CaveGrid.Grid[smallPos + smallMove] ? 0 : 1;
+            int wallLeft = CaveGrid.Grid[smallPos + smallMove.RotateLeft()] ? 0 : 1;
+            int wallRight = CaveGrid.Grid[smallPos + smallMove.RotateRight()] ? 0 : 1;
+            int wallCode = wallLeft << 2 | wallAhead << 1 | wallRight;
+            int turnCode = 0;
+            if (wallCode == 0b011 || wallCode == 0b100) {
+                if (Randoms.CoinFlip) turnCode = 1; // left
+            } else if (wallCode == 0b110 || wallCode == 0b001) {
+                if (Randoms.CoinFlip) turnCode = -1; // right
+            } else {
+                if (wallCode == 0b000 || wallCode == 0b111) {
+                    int wallLeft120 = CaveGrid.Grid[smallPos + smallMove.RotateLeft().RotateLeft()] ? 0 : 1;
+                    int wallRight120 = CaveGrid.Grid[smallPos + smallMove.RotateRight().RotateRight()] ? 0 : 1;
+                    wallCode = wallLeft120 << 4 | wallCode << 1 | wallRight120;
+                    if (wallCode == 0b01111 || wallCode == 0b10000) turnCode = 1; // left
+                    else if (wallCode == 0b11110 || wallCode == 0b00001) turnCode = -1; // right
+                    else if (wallCode == 0b10001 || wallCode == 0b01110) turnCode = Randoms.Sign;
+                    else turnCode = Random.Range(-1, 2);
+                } else turnCode = Random.Range(-1, 2);
+            }
+            // Debug.Log("Factor " + smallTargetLargeFactor + " smallMove " + smallMove + " wall code " + wallCode + (turnCode == 1 ? " turn left" : turnCode == -1 ? " turn right" : " no turn"));
+            smallMove = smallMove.Rotate(turnCode * 60);
+            neededWalkableAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
+            smallPos += smallMove;
+        }
+    }
+
+    private static int GetSmallWRelativeToLargeDelta(GridPos oldLargePos, GridPos oldSmallPos, Parameters p) {
+        int oldW = oldSmallPos.w - oldLargePos.w;
+        if (p.hScale <= 0 || p.vScale < 5 || p.vDelta == 0) return Mathf.Max(0, oldW - 1) - oldW;
+        if (oldW < 3) return 1;
+        else if (oldW > p.vScale - 2) return -1;
+        else return Random.value < 1/3f ? Randoms.Sign : 0;
     }
 
     private static int? AdjustToBeWalkable(ref GridPos smallMove, GridPos smallPos, Grid<bool> path, Parameters p) {
@@ -144,26 +229,6 @@ public class RandomWalkable {
             else if (Mathf.Abs(correction) == 3) smallMove.w = correction / -3;
         }
         return walkablePathCorrection;
-    }
-
-    private static int GetSmallWRelativeToLarge(GridPos oldLargePos, GridPos oldSmallPos, Parameters p) {
-        int oldW = oldSmallPos.w - oldLargePos.w;
-        if (p.hScale <= 0 || p.vScale < 5 || p.vDelta == 0) return Mathf.Max(0, oldW - 1);
-        if (oldW < 3) return oldW + 1;
-        else if (oldW > p.vScale - 2) return oldW - 1;
-        else return oldW + (Random.value < 1/3f ? Randoms.Sign : 0);
-    }
-    private static GridPos GetLargeHorizRelativeToSmall(GridPos largePos, GridPos smallPos, Parameters p) {
-        if (p.hScale <= 0) return GridPos.zero;
-
-        GridPos relative = largePos.Horizontal - smallPos.Horizontal;
-        if (Random.value < 1/6f) {
-            relative += GridPos.RandomHoriz();
-        }
-        while (relative.Magnitude >= p.hScale + 1) {
-            relative -= GridPos.RoundFromVector3(relative.HComponents.MaxNormalized());
-        }
-        return relative;
     }
 
     private static List<CaveGrid.Mod> LargePosMods(GridPos largePos, Grid<bool> path, Parameters p) {
