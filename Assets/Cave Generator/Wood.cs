@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Wood : MonoBehaviour {
+    public bool dropWhenAirborne = true;
+
     private Rigidbody myRigidbody;
 
     void OnTriggerEnter(Collider other) {

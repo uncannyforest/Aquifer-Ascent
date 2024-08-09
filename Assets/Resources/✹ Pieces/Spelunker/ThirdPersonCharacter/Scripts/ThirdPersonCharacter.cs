@@ -140,7 +140,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			m_ActualGroundCheckDistance = m_Rigidbody.velocity.y < 0 ? m_GroundCheckDistance : 0.01f;
 
 			Wood wood = GetComponentInChildren<Wood>();
-			if (wood != null) wood.GetComponentStrict<Holdable>().Drop();
+			if (wood != null&& wood.dropWhenAirborne) wood.GetComponentStrict<Holdable>().Drop();
 		}
 
 
@@ -213,12 +213,13 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			// m_RunningAvgGroundSlope = m_RunningAvgGroundSlope < slope ?
 			// 	 (m_RunningAvgGroundSlope * (m_SlopeCheckSmoother - 1) + slope) / m_SlopeCheckSmoother : slope;
 			// Debug.Log("Slope: " + (1 - hitInfo.normal.y) + " / new running avg:" + m_RunningAvgGroundSlope);
+			CheckShouldBeSwimming();
 			if (sphereCast) {
 				groundNormal = hitInfo.normal;
 				m_IsGrounded = true;
 				m_IsSwimming = false;
 				m_Animator.applyRootMotion = true;
-			} else if (!CheckSwimStatus()) {
+			} else if (!CheckIsSwimming()) {
 				m_IsGrounded = false;
 				m_IsSwimming = false;
 				groundNormal = sphereCast ? hitInfo.normal : Vector3.up;
@@ -226,7 +227,20 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			}
 		}
 
-		bool CheckSwimStatus() {
+		private void CheckShouldBeSwimming() {
+			if (!canSwim) return;
+			// Hardcoded values because I'm trying not to add more dependencies
+			bool raycast = Physics.Raycast(
+				transform.position + .75f * Vector3.up, // HoldLocationParent
+				Vector3.up,
+				1f, // Death - HoldLocationParent
+				1 << LayerMask.NameToLayer("Water"));
+			if (raycast) {
+				m_Rigidbody.AddForce(-2 * Physics.gravity);
+			}
+		}
+
+		private bool CheckIsSwimming() {
 			bool raycast = Physics.Raycast(
 				transform.position,
 				Vector3.up,
