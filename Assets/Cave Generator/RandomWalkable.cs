@@ -20,7 +20,10 @@ public class RandomWalkable {
 
         private float[] parameters;
         private float[] interpolateDiff;
+        public int prevMode;
         public int targetMode;
+        public float lerp = 0;
+        public float lerpStep = 0;
 
         public bool followWall { get => parameters[0] > 1/3f; }
         public int vScale { get => Mathf.RoundToInt(parameters[1]); } // in [1.5, 8.5]
@@ -30,6 +33,7 @@ public class RandomWalkable {
         public float forwardBias { get => parameters[5]; } // in [0, 2]
 
         public Parameters(int targetMode) {
+            this.prevMode = targetMode;
             this.targetMode = targetMode;
             interpolateDiff = new float[PARAM_COUNT];
             parameters = new float[PARAM_COUNT];
@@ -37,7 +41,10 @@ public class RandomWalkable {
         }
 
         public void StartInterpolation(int endMode, float fraction) {
+            prevMode = targetMode;
             targetMode = endMode;
+            lerp = 0;
+            lerpStep = fraction;
             for (int i = 0; i < PARAM_COUNT; i++) {
                 interpolateDiff[i] = (MODES[endMode][i] - parameters[i]) * PARAM_COUNT * fraction;
                 Debug.Log("interpolateDiff " + (MODES[endMode][i] - parameters[i]) * PARAM_COUNT * fraction);
@@ -46,6 +53,8 @@ public class RandomWalkable {
 
         // returns debug string
         public string Interpolate() {
+            lerp = Mathf.Min(1, lerp + lerpStep);
+
             int p = Random.Range(0, PARAM_COUNT);
             parameters[p] += interpolateDiff[p];
             if (interpolateDiff[p] * (parameters[p] - MODES[targetMode][p]) > 0) { // same sign means we overshot
@@ -53,6 +62,8 @@ public class RandomWalkable {
             }
             return "Approaching mode " + targetMode + " at " + parameters[0] + (followWall ? "FW, " : "Ins, ") + vScale + ", " + Mathf.Ceil(hScale) + ", " + parameters[3] + (vDelta > 0 ? "WW, " : "Flr, ") + grade + ", " + forwardBias;
         }
+
+        public int SupplyBiome(int _) => (Random.value < RandomWalk.CubicInterpolate(lerp) ? targetMode : prevMode) + 1;
     }
 
     // returns int in [-3, 3]: 1 if path is one above, -1 if path is 1 below
@@ -86,7 +97,7 @@ public class RandomWalkable {
         
         List<CaveGrid.Mod> initCave = new List<CaveGrid.Mod>();
         initCave.Add(CaveGrid.Mod.Cave(smallPos));
-        yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), 1/6f, smallPos, new GridPos[] {}, Vector3.zero);
+        yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), Biomes.NoChange, 1/6f, smallPos, new GridPos[] {}, Vector3.zero);
 
         Parameters p = new Parameters(0);
 
@@ -114,8 +125,7 @@ public class RandomWalkable {
             List<CaveGrid.Mod> newCave = largeWait ? new List<CaveGrid.Mod>() : LargePosMods(largePos, path, p);
             newCave.Add(CaveGrid.Mod.Cave(smallPos, p.hScale > 0 || neededWalkableAdjustment != null ? 1 : p.vScale - 1));
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
-            foreach (CaveGrid.Mod mod in newCave) CaveGrid.Biome.Next(mod.pos);
-            yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, newCave.ToArray(), 1, smallPos, new GridPos[] {}, etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero));
+            yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, newCave.ToArray(), p.SupplyBiome, 1, smallPos, new GridPos[] {}, etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero));
         }
     }
 

@@ -102,9 +102,10 @@ public class RandomWalk : MonoBehaviour {
         foreach (Output step in MasterEnumerateSteps()) {
             for (int i = 0; i < step.newCave.Length; i++) {
                 CaveGrid.Mod mod = step.newCave[i];
-                if (mod.IsUnnecessary) {
-                    continue;
-                } else if (step.newCave.Length == 1 && step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude > 1f && !mod.Overlaps) {
+                if (mod.IsUnnecessary) continue;
+                CaveGrid.Biome.Next(mod.pos, step.biome, true);
+                
+                if (step.newCave.Length == 1 && step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude > 1f && !mod.Overlaps) {
                     if (canRubble && Random.value < rubbleRate) {
                         CaveGrid.I.soft[mod.pos] = true;
                         CaveGrid.I.SetPos(step.newCave[0].Inverted);
@@ -197,7 +198,7 @@ public class RandomWalk : MonoBehaviour {
         }
     }
 
-    private static float CubicInterpolate(float x) {
+    public static float CubicInterpolate(float x) {
         return 3 * Mathf.Pow(x, 2) - 2 * Mathf.Pow(x, 3);
     }
 
@@ -206,6 +207,7 @@ public class RandomWalk : MonoBehaviour {
         public GridPos position;
         public GridPos exitDirection;
         public CaveGrid.Mod[] newCave;
+        public Func<int, int> biome;
         public float speed;
         public GridPos? onPath;
         public GridPos[] interesting;
@@ -218,11 +220,12 @@ public class RandomWalk : MonoBehaviour {
             LAST
         }
 
-        public Output(Vector3 location, GridPos position, GridPos exitDirection, CaveGrid.Mod[] newCave, float speed, GridPos? onPath, GridPos[] interesting, Vector3 etherCurrent, BridgeMode bridgeMode = BridgeMode.NONE) {
+        public Output(Vector3 location, GridPos position, GridPos exitDirection, CaveGrid.Mod[] newCave, Func<int, int> biome, float speed, GridPos? onPath, GridPos[] interesting, Vector3 etherCurrent, BridgeMode bridgeMode = BridgeMode.NONE) {
             this.location = location;
             this.position = position;
             this.exitDirection = exitDirection;
             this.newCave = newCave;
+            this.biome = biome;
             this.speed = speed;
             this.onPath = onPath;
             this.interesting = interesting;

@@ -30,6 +30,8 @@ public class Biomes : MonoBehaviour {
         return value;
     }
 
+    public static int NoChange(int lastBiome) => lastBiome;
+
     public int Next(GridPos pos) => Next(pos, (lastBiome) => lastBiome, true);
 
     public int this[GridPos pos] => grid[pos.Horizontal];

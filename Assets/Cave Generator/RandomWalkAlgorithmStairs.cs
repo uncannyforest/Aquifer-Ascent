@@ -67,7 +67,7 @@ public class RandomWalkAlgorithmStairs {
         foreach (GridPos unit in GridPos.Units) initCave.Add(CaveGrid.Mod.Cave(smallPos + initMove + unit));
 
         initCave.Add(CaveGrid.Mod.Wall(smallPos - 2 * GridPos.up));
-        yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), 1/6f, smallPos, new GridPos[] {}, Vector3.zero, RandomWalk.Output.BridgeMode.LAST);
+        yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), Biomes.NoChange, 1/6f, smallPos, new GridPos[] {}, Vector3.zero, RandomWalk.Output.BridgeMode.LAST);
 
         smallMove.w = verticalDirection;
         // smallMove = huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight();
@@ -82,9 +82,8 @@ public class RandomWalkAlgorithmStairs {
             }
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
 
-            foreach (CaveGrid.Mod mod in newCave) CaveGrid.Biome.Next(mod.pos);
             float speed = (11 - scale)/9f;
-            yield return new RandomWalk.Output(smallPos.World, smallPos, huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight(), newCave.ToArray(), speed, smallPos, new GridPos[] {}, Vector3.zero, RandomWalk.Output.BridgeMode.LAST);
+            yield return new RandomWalk.Output(smallPos.World, smallPos, huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight(), newCave.ToArray(), Biomes.NoChange, speed, smallPos, new GridPos[] {}, Vector3.zero, RandomWalk.Output.BridgeMode.LAST);
             
             smallMove.w = Random.value < flatChance ? 0 : verticalDirection;
 
@@ -140,9 +139,8 @@ public class RandomWalkAlgorithmStairs {
             }
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
 
-            foreach (CaveGrid.Mod mod in newCave) CaveGrid.Biome.Next(mod.pos);
             float speed = waiting ? 1/6f : 1f;
-            yield return new RandomWalk.Output(smallPos.World, smallPos, huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight(), newCave.ToArray(), speed, smallPos, new GridPos[] {}, Vector3.zero, RandomWalk.Output.BridgeMode.LAST);
+            yield return new RandomWalk.Output(smallPos.World, smallPos, huggingLeft ? smallMove.RotateLeft() : smallMove.RotateRight(), newCave.ToArray(), Biomes.NoChange, speed, smallPos, new GridPos[] {}, Vector3.zero, RandomWalk.Output.BridgeMode.LAST);
 
             if (nextScaleCount-- == 0) {
                 if (Randoms.CoinFlip) hScale = 1 - hScale;

@@ -29,8 +29,7 @@ public class RandomWalkAlgorithm {
         Debug.Log("RW hScale " + currentHScale + " / vScale" + currentVScale);
         int nextBiomeCount = currentHScale == 1 ? modeSwitchRate * 6 : modeSwitchRate; // formerly changeBiomeEvery;
 
-        CaveGrid.Biome.Next(position, (_) => biome, true);
-        yield return new RandomWalk.Output(position.World, position, lastMove, SimpleHole(position), 1/6f, position, new GridPos[] {}, Vector3.zero);
+        yield return new RandomWalk.Output(position.World, position, lastMove, SimpleHole(position), (_) => biome, 1/6f, position, new GridPos[] {}, Vector3.zero);
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
             // if (biomeTries == 108) {
             //     justFlipped = false;
@@ -209,15 +208,13 @@ public class RandomWalkAlgorithm {
             //     //     newTriPosition += move;
             //     // }
             // }
-            CaveGrid.Biome.Next(newPosition, (_) => biome, true);
             // if (maybeBiome == 0) {
             //     Debug.Log("Position " + newPosition + " failed (ethercurrent " + etherCurrent + "), trying again for same biome (" + biome + "), try " + (biomeTries + 1));
             //     biomeTries++;
             //     continue;
             // }
-            foreach (CaveGrid.Mod mod in newCave) CaveGrid.Biome.Next(mod.pos);
 
-            yield return new RandomWalk.Output(nextLoc, newPosition, random, newCave.ToArray(), speed, onPath, interesting.ToArray(), etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero), doBridge || lastMoveBridge >= 2 ? RandomWalk.Output.BridgeMode.ODDS : RandomWalk.Output.BridgeMode.NONE);
+            yield return new RandomWalk.Output(nextLoc, newPosition, random, newCave.ToArray(), (_) => biome, speed, onPath, interesting.ToArray(), etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero), doBridge || lastMoveBridge >= 2 ? RandomWalk.Output.BridgeMode.ODDS : RandomWalk.Output.BridgeMode.NONE);
             lastMove = random;
             lastMoveBridge = doBridge && hScale >= 2 ? hScale - 1 : 0;
             position = newPosition;
