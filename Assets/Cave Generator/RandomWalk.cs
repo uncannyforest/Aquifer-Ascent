@@ -177,7 +177,7 @@ public class RandomWalk : MonoBehaviour {
 
     void Update() {
         progress += Time.deltaTime / (modRate * relSpeed);
-        transform.position = Vector3.Lerp(prevLoc, nextLoc, CubicInterpolate(Mathf.Clamp01(progress)));
+        transform.position = Vector3.Lerp(prevLoc, nextLoc, Maths.CubicInterpolate(Mathf.Clamp01(progress)));
         if (etherCurrent.y > .5f) {
             etherCurrent = new Vector3(etherCurrent.x, 0, etherCurrent.z);
             Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta, 600);
@@ -196,10 +196,6 @@ public class RandomWalk : MonoBehaviour {
                 if (cheatButton != null) cheatButton.color = Color.grey;
             }
         }
-    }
-
-    public static float CubicInterpolate(float x) {
-        return 3 * Mathf.Pow(x, 2) - 2 * Mathf.Pow(x, 3);
     }
 
     public struct Output {

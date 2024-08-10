@@ -69,7 +69,7 @@ public class GoalOrb : MonoBehaviour
             }
         }
         if (!Vector3.negativeInfinity.Equals(successStartingPosition)) {
-            transform.position = Vector3.Lerp(goalArea.transform.position, successStartingPosition, CubicInterpolate(heldState));
+            transform.position = Vector3.Lerp(goalArea.transform.position, successStartingPosition, Maths.CubicInterpolate(heldState));
             orbScript.SetOrbColor(Color.Lerp(successColor, successStartingColor, heldState));
         }
     }
@@ -86,9 +86,5 @@ public class GoalOrb : MonoBehaviour
 
         orbScript.chargeTime = 0; // disables recolor
         holdableScript.CanHold("goal-success", false);
-    }
-
-    private float CubicInterpolate(float x) {
-        return 3 * Mathf.Pow(x, 2) - 2 * Mathf.Pow(x, 3);
     }
 }
