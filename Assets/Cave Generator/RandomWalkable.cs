@@ -125,6 +125,9 @@ public class RandomWalkable {
         GridPos largeMove = initDirection;
         GridPos etherCurrent = initDirection * (inertiaOfEtherCurrent / 2);
         
+        GridPos onePosAgo = smallPos;
+        GridPos twoPosAgo = smallPos;
+
         List<CaveGrid.Mod> initCave = new List<CaveGrid.Mod>();
         initCave.Add(CaveGrid.Mod.Cave(smallPos));
         yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), Biomes.NoChange, 1/6f, smallPos, new GridPos[] {}, Vector3.zero);
@@ -156,7 +159,8 @@ public class RandomWalkable {
             List<CaveGrid.Mod> newCave = largeWait ? new List<CaveGrid.Mod>() : LargePosMods(largePos, path, p);
             newCave.Add(CaveGrid.Mod.Cave(smallPos, p.hScale > 0 || neededWalkableAdjustment != null ? 1 : p.vScale - 1));
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
-            yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, newCave.ToArray(), p.SupplyBiome, 1, smallPos, new GridPos[] {}, etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero));
+            float stepTime = GetStepTime(smallPos, ref onePosAgo, ref twoPosAgo);
+            yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, newCave.ToArray(), p.SupplyBiome, stepTime, smallPos, new GridPos[] {}, etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero));
         }
     }
 
@@ -337,6 +341,17 @@ public class RandomWalkable {
             }
         }
         return newCave;
+    }
+
+    private static float GetStepTime(GridPos smallPos, ref GridPos onePosAgo, ref GridPos twoPosAgo) {
+        Vector3 scale = new Vector3(1, 4, 1);
+        Vector3 scaledDisplacement = Vector3.Scale(scale, smallPos.World - twoPosAgo.World);
+         // typically, (smallPos.World - twoPosAgo.World).magnitude is 8
+        float result = (scaledDisplacement.sqrMagnitude + 32) / 96;
+        Debug.Log("Distance " + scaledDisplacement.magnitude + " step time " + result);
+        twoPosAgo = onePosAgo;
+        onePosAgo = smallPos;
+        return result;
     }
 
 }

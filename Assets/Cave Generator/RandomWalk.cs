@@ -142,19 +142,10 @@ public class RandomWalk : MonoBehaviour {
                 path[onPath] = true;
                 if (lastPath is GridPos actualLastPath) Debug.DrawLine(onPath.World, actualLastPath.World, Color.white, 40);
                 if (lastPath is GridPos lastPathPos) {
-                    if (lastPathPos.w - onPath.w > 1) { // drop
-                        for (GridPos pos = onPath + GridPos.up; pos.w < lastPathPos.w; pos += GridPos.up)
-                            if (!CaveGrid.Grid[pos] || !CaveGrid.Grid[pos + GridPos.up]) {
-                                CaveGrid.I.soft[pos] = true;
-                                CaveGrid.I.UpdatePos(pos, 0, 1);
-                        } else Debug.Log("Already open, no need to soft");
-                    } else if (onPath.w - lastPathPos.w > 1) { // jump
-                        for (GridPos pos = lastPathPos + GridPos.up; pos.w < onPath.w; pos += GridPos.up)
-                            if (!CaveGrid.Grid[pos] || !CaveGrid.Grid[pos + GridPos.up]) {
-                                CaveGrid.I.soft[pos] = true;
-                                CaveGrid.I.UpdatePos(pos, 0, 1);
-                        } else Debug.Log("Already open, no need to soft");
-                    }
+                    if (lastPathPos.w - onPath.w > 1) // drop
+                        CaveGrid.I.SetPos(CaveGrid.Mod.Cave(onPath, lastPathPos.w - onPath.w));
+                    else if (onPath.w - lastPathPos.w > 1) // jump
+                        CaveGrid.I.SetPos(CaveGrid.Mod.Cave(lastPathPos, onPath.w - lastPathPos.w));
                 }
             }
             lastPath = step.onPath;
