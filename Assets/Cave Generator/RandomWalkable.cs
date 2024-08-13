@@ -94,6 +94,20 @@ public class RandomWalkable {
             if (newMode == mode) newMode = 0;
             return newMode;
         }
+        
+        public static int RandomOtherModeLegacy(int mode) {
+            int currentModeLegacy = mode / 4;
+            int newMode = Random.Range(1, Parameters.MODE_COUNT / 4);
+            if (newMode == currentModeLegacy) newMode = 0;
+            return newMode * 4 + Random.Range(0, 4);
+        }
+
+        public static int RandomOtherModeLegacyScale(int mode) {
+            int currentScaleLegacy = mode % 4;
+            int newMode = Random.Range(1, 4);
+            if (newMode == currentScaleLegacy) newMode = 0;
+            return newMode + (mode / 4) * 4;
+        }
     }
 
     // returns int in [-3, 3]: 1 if path is one above, -1 if path is 1 below
