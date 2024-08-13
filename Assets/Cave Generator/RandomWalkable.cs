@@ -47,11 +47,11 @@ public class RandomWalkable {
         }
 
         public int StartLinkMode() {
-            int linkModeLength = 3 + Mathf.CeilToInt(hScale);
+            int linkModeLength = 1 + 2 * Mathf.CeilToInt(hScale);
             Array.Copy(LINK_MODE, parameters, PARAM_COUNT);
             ResetInterpolation();
             targetMode = RandomOtherMode(targetMode);
-            linkModeLength += Mathf.CeilToInt(MODES[targetMode][2]);
+            linkModeLength += 2 * Mathf.CeilToInt(MODES[targetMode][2]);
             lerp = 0;
             lerpStep = 1f / linkModeLength;
             return linkModeLength;
@@ -94,7 +94,7 @@ public class RandomWalkable {
             if (newMode == mode) newMode = 0;
             return newMode;
         }
-        
+
         public static int RandomOtherModeLegacy(int mode) {
             int currentModeLegacy = mode / 4;
             int newMode = Random.Range(1, Parameters.MODE_COUNT / 4);
@@ -362,7 +362,7 @@ public class RandomWalkable {
         Vector3 scaledDisplacement = Vector3.Scale(scale, smallPos.World - twoPosAgo.World);
          // typically, (smallPos.World - twoPosAgo.World).magnitude is 8
         float result = (scaledDisplacement.sqrMagnitude + 32) / 96;
-        Debug.Log("Distance " + scaledDisplacement.magnitude + " step time " + result);
+        // Debug.Log("Distance " + scaledDisplacement.magnitude + " step time " + result);
         twoPosAgo = onePosAgo;
         onePosAgo = smallPos;
         return result;
