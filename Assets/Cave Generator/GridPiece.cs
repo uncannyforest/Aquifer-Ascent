@@ -212,7 +212,7 @@ public class GridPiece : MonoBehaviour {
         GridPos? maybeSoftPos = null;
         foreach (GridPos gridPos in pos.HorizCorners) {
             if (CaveGrid.I.soft[gridPos]) maybeSoftPos = gridPos;
-            if (CaveGrid.I.soft[gridPos - GridPos.up]) maybeSoftPos = gridPos - GridPos.up;
+            else if (CaveGrid.I.soft[gridPos - GridPos.up]) maybeSoftPos = gridPos - GridPos.up;
         }
         if (maybeSoftPos is GridPos softPos) {
             foreach (MeshRenderer renderer in newPiece.GetComponentsInChildren<MeshRenderer>())

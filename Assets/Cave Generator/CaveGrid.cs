@@ -69,7 +69,7 @@ public class CaveGrid : MonoBehaviour {
         return I.grid[pos] || I.soft[pos] || I.soft[pos - GridPos.up];
     }
 
-    private void UpdatePos(GridPos pos, int relMinNeedsUpdate, int relMaxNeedsUpdate) {
+    public void UpdatePos(GridPos pos, int relMinNeedsUpdate, int relMaxNeedsUpdate) {
         for (int i = relMaxNeedsUpdate; i >= relMinNeedsUpdate; i--) {
             GridPos posToCheck = pos + GridPos.up * i;
             foreach (TriPos tri in posToCheck.Triangles) {

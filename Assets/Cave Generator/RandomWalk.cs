@@ -95,7 +95,7 @@ public class RandomWalk : MonoBehaviour {
         int count = addOrbEvery;
         int absoluteCountDown = maxAddOrbSteps * orbChargeRampUpStep / orbChargeRampUp;
         
-        GridPos? lastPathForDebug = null;
+        GridPos? lastPath = null;
         bool canRubble = false;
 
         CaveGrid.Biome.Next(GridPos.zero, (_) => 1, true);
@@ -140,10 +140,24 @@ public class RandomWalk : MonoBehaviour {
             // Debug.Log("Ether current magnitude:" + step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude);
             if (step.onPath is GridPos onPath) {
                 path[onPath] = true;
-                if (lastPathForDebug is GridPos actualLastPath) Debug.DrawLine(onPath.World, actualLastPath.World, Color.white, 40);
-
+                if (lastPath is GridPos actualLastPath) Debug.DrawLine(onPath.World, actualLastPath.World, Color.white, 40);
+                if (lastPath is GridPos lastPathPos) {
+                    if (lastPathPos.w - onPath.w > 1) { // drop
+                        for (GridPos pos = onPath + GridPos.up; pos.w < lastPathPos.w; pos += GridPos.up)
+                            if (!CaveGrid.Grid[pos] || !CaveGrid.Grid[pos + GridPos.up]) {
+                                CaveGrid.I.soft[pos] = true;
+                                CaveGrid.I.UpdatePos(pos, 0, 1);
+                        } else Debug.Log("Already open, no need to soft");
+                    } else if (onPath.w - lastPathPos.w > 1) { // jump
+                        for (GridPos pos = lastPathPos + GridPos.up; pos.w < onPath.w; pos += GridPos.up)
+                            if (!CaveGrid.Grid[pos] || !CaveGrid.Grid[pos + GridPos.up]) {
+                                CaveGrid.I.soft[pos] = true;
+                                CaveGrid.I.UpdatePos(pos, 0, 1);
+                        } else Debug.Log("Already open, no need to soft");
+                    }
+                }
             }
-            lastPathForDebug = step.onPath;
+            lastPath = step.onPath;
             // if (step.newCave.Length > 0 && count++ % addOrbEvery == 0) {
             if (darkness.IsInDarkness) count++;
             else count = 0;
