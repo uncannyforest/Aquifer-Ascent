@@ -36,7 +36,8 @@ public class CaveGrid : MonoBehaviour {
     public GameObject tunnelBroadLedge;
     public Material defaultMaterial;
     public Material softMaterial;
-    public GameObject dustPrefab;
+    public ParticleSystem dustPrefab;
+    public ParticleSystem undustPrefab;
     public Random.State seed;
 
     public Grid<bool> grid = new Grid<bool>();
@@ -98,19 +99,24 @@ public class CaveGrid : MonoBehaviour {
         int relMinUpdated = 0;
         int relMaxUpdated = roof;
 
-        CaveGrid.Biome.Next(pos);
-        grid[pos] = value;
-        for (int i = 1; i <= roof; i++) {
-            grid[pos + GridPos.up * i] = value;
-        }
-        if (grid[pos + (roof + 1) * GridPos.up] != value && grid[pos + (roof + 2) * GridPos.up] == value) {
-            grid[pos + (roof + 1) * GridPos.up] = value;
+        if (grid[pos + (roof + 1) * GridPos.up] != value && grid[pos + (roof + 2) * GridPos.up] == value)
             relMaxUpdated++;
-        }
-        if (grid[pos - GridPos.up] != value && grid[pos - 2 * GridPos.up] == value) {
-            grid[pos - GridPos.up] = value;
+        if (grid[pos - GridPos.up] != value && grid[pos - 2 * GridPos.up] == value)
             relMinUpdated--;
+
+        if (value) {
+            ForceSetPos(pos, relMinUpdated, relMaxUpdated, true);
+            MakeDust(pos, relMinUpdated, relMaxUpdated, true);
+        } else {
+            MakeDust(pos, relMinUpdated, relMaxUpdated, false);
+            this.Invoke(() => ForceSetPos(pos, relMinUpdated, relMaxUpdated, false), undustPrefab.main.duration);
         }
+    }
+
+    private void ForceSetPos(GridPos pos, int relMinUpdated, int relMaxUpdated, bool value) {
+        CaveGrid.Biome.Next(pos);
+        for (int i = relMinUpdated; i <= relMaxUpdated; i++)
+            grid[pos + GridPos.up * i] = value;
         if (value)
             for (int i = relMinUpdated; i <= relMaxUpdated - 1; i++)
                 if (soft[pos + i * GridPos.up]) {
@@ -119,7 +125,12 @@ public class CaveGrid : MonoBehaviour {
             soft[pos + i * GridPos.up] = false;
         }
         UpdatePos(pos, relMinUpdated - 1, relMaxUpdated + 1);
-        Transform dust = GameObject.Instantiate(dustPrefab).transform;
+    }
+
+    private void MakeDust(GridPos pos, int relMinUpdated, int relMaxUpdated, bool open) {
+        Transform dust;
+        if (open) dust = GameObject.Instantiate(dustPrefab).transform;
+        else dust = GameObject.Instantiate(undustPrefab).transform;
         dust.position = pos.World + Vector3.up * CaveGrid.Scale.y * relMinUpdated;
         dust.localScale = Vector3.Scale(CaveGrid.Scale, new Vector3(1, relMaxUpdated - relMinUpdated, 1));
     }

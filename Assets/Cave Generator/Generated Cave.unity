@@ -473,7 +473,9 @@ MonoBehaviour:
     type: 3}
   defaultMaterial: {fileID: 2100000, guid: b03e2ebe6f5dd4a2fb436eb70f8a2147, type: 2}
   softMaterial: {fileID: 2100000, guid: 2ae5970bc7b2c469a90237e3917d8947, type: 2}
-  dustPrefab: {fileID: 516540169029251128, guid: 82d2163b0bdc440289bea829a4a26ee0,
+  dustPrefab: {fileID: 4686960206628654851, guid: fd6f9bf4fb67546f09276edcbbad8dd7,
+    type: 3}
+  undustPrefab: {fileID: 4686960206628654851, guid: 82d2163b0bdc440289bea829a4a26ee0,
     type: 3}
   seed:
     s0: 0

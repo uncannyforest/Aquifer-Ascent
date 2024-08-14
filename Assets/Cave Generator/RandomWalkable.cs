@@ -124,12 +124,27 @@ public class RandomWalkable {
         return null;
     }
 
-    public static List<GridPos> OverlapsShelfAt(Grid<bool> path, CaveGrid.Mod mod) {
-        List<GridPos> overlaps = new List<GridPos>();
+    public static List<CaveGrid.Mod> RemoveShelfOverlaps(Grid<bool> path, GridPos nextPos, CaveGrid.Mod mod) {
+        if (!mod.open) return new List<CaveGrid.Mod>() { mod };
+        int maxBelow = mod.roof;
+        int minAbove = 0;
+        bool wasShelf = false;
         for (int i = -1; i <= mod.roof; i++) {
-            if (path[mod.pos + GridPos.up * (i + 2)]) overlaps.Add(mod.pos + GridPos.up * i);
+            GridPos pathLocToCheck = mod.pos + GridPos.up * (i + 2);
+            if (path[pathLocToCheck] || nextPos == pathLocToCheck) {
+                maxBelow = Mathf.Min(maxBelow, i - 1);
+                minAbove = Mathf.Max(minAbove, i + 2);
+                wasShelf = true;
+            }
         }
-        return overlaps;
+        if (!wasShelf) return new List<CaveGrid.Mod>() { mod };
+
+        List<CaveGrid.Mod> validMods = new List<CaveGrid.Mod>();
+        if (maxBelow >= 1)
+            validMods.Add(CaveGrid.Mod.Cave(mod.pos, maxBelow));
+        if (minAbove <= mod.roof - 1)
+            validMods.Add(CaveGrid.Mod.Cave(mod.pos + GridPos.up * minAbove, mod.roof - minAbove));
+        return validMods;
     }
 
     public static IEnumerable<RandomWalk.Output> EnumerateSteps(GridPos initPos, GridPos initDirection, int modeSwitchRate, int inertiaOfEtherCurrent, Vector3 biasToLeaveStartLocation, float upwardRate, Grid<bool> path) {
@@ -170,7 +185,7 @@ public class RandomWalkable {
 
             Debug.Log(interpolateDebug + ", step " + modeSwitchCountdown + ", ether current " + etherCurrent.HComponents.Max() / inertiaOfEtherCurrent + ", bias " + bias.Max() + ", rel v " + (smallPos - largePos).w);
 
-            List<CaveGrid.Mod> newCave = largeWait ? new List<CaveGrid.Mod>() : LargePosMods(largePos, path, p);
+            List<CaveGrid.Mod> newCave = largeWait ? new List<CaveGrid.Mod>() : LargePosMods(largePos, smallPos, path, p);
             newCave.Add(CaveGrid.Mod.Cave(smallPos, p.hScale > 0 || neededWalkableAdjustment != null ? 1 : p.vScale - 1));
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
             float stepTime = GetStepTime(smallPos, ref onePosAgo, ref twoPosAgo);
@@ -328,7 +343,7 @@ public class RandomWalkable {
         return walkablePathCorrection;
     }
 
-    private static List<CaveGrid.Mod> LargePosMods(GridPos largePos, Grid<bool> path, Parameters p) {
+    private static List<CaveGrid.Mod> LargePosMods(GridPos largePos, GridPos smallPos, Grid<bool> path, Parameters p) {
         List<CaveGrid.Mod> newCave = new List<CaveGrid.Mod>();
         if (p.hScale <= 0) return newCave;
 
@@ -336,22 +351,19 @@ public class RandomWalkable {
         int vMidpointExtraHeight = p.vScale % 2;
 
         CaveGrid.Mod mod = CaveGrid.Mod.RandomVerticalExtension(largePos + vMidpoint * GridPos.up, 0, vMidpoint, vMidpointExtraHeight, vMidpointExtraHeight + vMidpoint);
-        newCave.Add(mod);
-        foreach (GridPos overlap in OverlapsShelfAt(path, mod)) newCave.Add(CaveGrid.Mod.Wall(overlap));
+        newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
 
         int magnitude = 1;
         for ( ; magnitude < p.hScale; magnitude++) {
             foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
                 mod = CaveGrid.Mod.RandomVerticalExtension(largePos + unit + vMidpoint * GridPos.up, 0, vMidpoint, vMidpointExtraHeight, vMidpointExtraHeight + vMidpoint);
-                newCave.Add(mod);
-                foreach (GridPos overlap in OverlapsShelfAt(path, mod)) newCave.Add(CaveGrid.Mod.Wall(overlap));
+                newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
             }
         }
         foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
             if (Random.value < p.hScale - magnitude + 1) {
                 mod = CaveGrid.Mod.RandomVertical(largePos + unit, 0, p.vScale - 2);
-                newCave.Add(mod);
-                foreach (GridPos overlap in OverlapsShelfAt(path, mod)) newCave.Add(CaveGrid.Mod.Wall(overlap));
+                newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
             }
         }
         return newCave;
