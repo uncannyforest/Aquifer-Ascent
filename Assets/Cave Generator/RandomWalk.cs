@@ -105,7 +105,7 @@ public class RandomWalk : MonoBehaviour {
                 if (mod.IsUnnecessary) continue;
                 CaveGrid.Biome.Next(mod.pos, step.biome, true);
                 
-                if (step.newCave.Length == 1 && step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude > 1f && !mod.Overlaps) {
+                if (step.newCave.Length <= 2 && step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude > 1f && !mod.Overlaps) {
                     if (canRubble && Random.value < rubbleRate) {
                         CaveGrid.I.soft[mod.pos] = true;
                         CaveGrid.I.SetPos(step.newCave[0].Inverted);
