@@ -209,27 +209,27 @@ public class GridPiece : MonoBehaviour {
     }
 
     private bool SetSoftMaterial(Transform newPiece) {
-        GridPos? maybeSoftPos = null;
+        List<GridPos> softPos = new List<GridPos>();
         foreach (GridPos gridPos in pos.HorizCorners) {
-            if (CaveGrid.I.soft[gridPos]) maybeSoftPos = gridPos;
-            else if (CaveGrid.I.soft[gridPos - GridPos.up]) maybeSoftPos = gridPos - GridPos.up;
+            if (CaveGrid.I.soft[gridPos]) softPos.Add(gridPos);
+            if (CaveGrid.I.soft[gridPos - GridPos.up]) softPos.Add(gridPos - GridPos.up);
         }
-        if (maybeSoftPos is GridPos softPos) {
+        if (softPos.Count >= 1) {
             foreach (MeshRenderer renderer in newPiece.GetComponentsInChildren<MeshRenderer>())
                 renderer.material = CaveGrid.I.softMaterial;
             Debug.Log("Set children to soft in " + gameObject);
             MeshCollider[] childColliders = GetComponentsInChildren<MeshCollider>();
             foreach (MeshCollider childCollider in childColliders) {
                 Debug.Log("Collider " + childCollider);
-                if (childCollider.GetComponent<SimpleSoluble>() != null && childCollider.GetComponent<SimpleSoluble>().pos == softPos) {
-                    Debug.Log("Found SimpleSoluble already " + gameObject);
-                    continue;
+                if (childCollider.GetComponent<SimpleSoluble>() != null) {
+                    SimpleSoluble foundSs = childCollider.GetComponent<SimpleSoluble>();
+                    foundSs.positions = softPos;
                 }
                 SimpleSoluble ss = childCollider.gameObject.AddComponent<SimpleSoluble>();
-                ss.pos = softPos;
+                ss.positions = softPos;
             }
         }
-        return maybeSoftPos != null;
+        return softPos.Count >= 1;
     }
 
     private void SetMaterial(Transform newPiece, int[] src) {

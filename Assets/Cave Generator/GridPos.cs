@@ -113,6 +113,7 @@ public struct GridPos  {
     };}
 
     public static GridPos[] ListAllWithMagnitude(int mag) {
+        if (mag == 0) return new GridPos[] { GridPos.zero };
         List<GridPos> result = new List<GridPos>();
         for (int i = 0; i < 6; i++) {
             GridPos corner = Units[i] * mag;

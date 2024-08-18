@@ -7,19 +7,21 @@ using Random = UnityEngine.Random;
 public class RandomWalkable {
     public class Parameters {
         private static float[] LINK_MODE =
-            new float[] {0, 2f, 0f, 0, .25f, 2};
+            new float[] {0, 2f, 0f, 0, .25f, 2, 1};
         private static float[][] MODES = new float[][] {
-            new float[] {0, 1.5f, -0.333f, 0, 1f, 0}, // orig
-            new float[] {0, 8.5f, -0.333f, 0, 1f, 0}, // tall
-            new float[] {0, 5f,    2.667f, 0, 1f, 1}, // wide
-            new float[] {1, 5f,    1f,     1, .5f, 2}, // path small
-            new float[] {1, 8.5f,  1f,     1, .5f, 2}, // path tall
-            new float[] {1, 8.5f,  2.667f, 1, .5f, 2}, // path large
-            new float[] {1, 1.5f,  0.333f, 1, 3f, 0}, // stairwell small
-            new float[] {1, 1.5f,  2.667f, 1, 3f, 0}, // stairwell large
-            new float[] {0, 1.5f,  2.667f, 0, 3f, 0}, //  spiral
+            new float[] {0, 1.5f, -0.333f, 0, 1f,  0, .51f}, // orig
+            new float[] {0, 8.5f, -0.333f, 0, 1f,  0, .51f}, // tall
+            new float[] {0, 1.5f,  2.667f, 0, 1f,  1, .51f}, // wide
+            new float[] {1, 5f,    1f,     1, .5f, 2, .51f}, // path small
+            new float[] {1, 8.5f,  1f,     1, .5f, 2, .51f}, // path tall
+            new float[] {1, 8.5f,  2.667f, 1, .5f, 2, .51f}, // path large
+            new float[] {1, 1.5f,  0.333f, 1, 3f,  0, .51f}, // stairwell small
+            new float[] {1, 1.5f,  2.667f, 1, 3f,  0, .51f}, // stairwell large
+            new float[] {0, 1.5f,  2.667f, 0, 3f,  0, .51f}, // spiral
+            new float[] {1, 8.5f,  2.667f, 0, 1f,  1, 8.5f}, // rooms
+            new float[] {1, 1.5f,  2.667f, 1, 2.5f, 0, 6.5f}, // levels
         };
-        private static int PARAM_COUNT = 6;
+        private static int PARAM_COUNT = 7;
         public static int MODE_COUNT = MODES.Length;
 
         private float[] parameters;
@@ -35,6 +37,7 @@ public class RandomWalkable {
         public int vDelta { get => Mathf.FloorToInt(parameters[3] + 1/3f); } // in [0, 3], 2 means diagonal
         public float grade { get => parameters[4]; } // in [0, 1]
         public float forwardBias { get => parameters[5]; } // in [0, 2]
+        public int stepSize { get => Mathf.RoundToInt(parameters[6]); } // [in 1, 8]
 
         public Parameters(int targetMode) {
             this.targetMode = targetMode;
@@ -53,7 +56,7 @@ public class RandomWalkable {
             Array.Copy(LINK_MODE, parameters, PARAM_COUNT);
             ResetInterpolation();
             targetMode = RandomOtherMode(targetMode);
-            linkModeLength += 2 * Mathf.CeilToInt(MODES[targetMode][2]);
+            linkModeLength += 2 * Mathf.CeilToInt(MODES[targetMode][2]) - Mathf.RoundToInt(MODES[targetMode][6]);
             lerp = 0;
             lerpStep = 1f / linkModeLength;
             return linkModeLength;
@@ -86,12 +89,13 @@ public class RandomWalkable {
             if (interpolateDiff[p] * (parameters[p] - MODES[targetMode][p]) > 0) { // same sign means we overshot
                 parameters[p] = MODES[targetMode][p];
             }
-            return "Approaching mode " + targetMode + " at " + parameters[0] + (followWall ? "FW, " : "Ins, ") + vScale + ", " + Mathf.Ceil(hScale) + ", " + parameters[3] + (vDelta > 0 ? "WW, " : "Flr, ") + grade + ", " + forwardBias;
+            return "Approaching mode " + targetMode + " at " + parameters[0] + (followWall ? "FW, " : "Ins, ") + vScale + ", " + Mathf.Ceil(hScale) + ", " + parameters[3] + (vDelta > 0 ? "WW, " : "Flr, ") + grade + ", " + forwardBias + ", " + stepSize;
         }
 
         public int SupplyBiome(int _) => (Random.value < Maths.CubicInterpolate(lerp) ? targetMode : prevMode) + 1;
 
         public static int RandomOtherMode(int mode) {
+            if (mode < 10 && Randoms.CoinFlip) return 10;
             int newMode = Random.Range(1, Parameters.MODE_COUNT);
             if (newMode == mode) newMode = 0;
             return newMode;
@@ -294,13 +298,14 @@ public class RandomWalkable {
         int hScale = Mathf.CeilToInt(p.hScale);
 
         GridPos catchUp = largePos - smallPos;
+        float catchUpThreshhold = (float)hScale * (p.grade < 2 ? 1f/p.stepSize : .5f + .5f/p.stepSize);
         int horizDistance = catchUp.Horizontal.Magnitude;
         int expectedW = Mathf.RoundToInt(upwardRate * 2 - 1); // when grade >= 2, this is only 0 if config UR = .5 && lastMove.w = 0
         int smallMoveW;
 
         if (p.grade < 2) {
-            largeWait = horizDistance > hScale * 3;
-            smallWait = horizDistance <= hScale;
+            largeWait = horizDistance > catchUpThreshhold * 3;
+            smallWait = horizDistance <= catchUpThreshhold;
 
             smallMoveW = GetSmallWRelativeToLargeDelta(largePos, smallPos, p);
         } else {
@@ -310,13 +315,15 @@ public class RandomWalkable {
             smallWait = catchUpW < targetW; // if expectedW == 0, always smallWait
 
             if (expectedW == 0) expectedW = Randoms.Sign;
-            float upChance = 1 / (1 + p.hScale);
+            float upChance = (catchUpW - targetW) / (1 + p.hScale);
             smallMoveW = Random.value < upChance ? expectedW : 0;
         }
 
         if (!smallWait) {
-            // at this point, hScale + 1 <= horizDistance <= hScale * 3 (unless smallCatchUp or grade >= 2)
-            float smallTargetLargeFactor = Mathf.Clamp01((horizDistance - hScale - 1f) / (hScale * 2 - 1));
+            // at this point, catchUpThreshhold + 1 <= horizDistance <= catchUpThreshhold * 3 (unless smallCatchUp or grade >= 2)
+            float smallTargetLargeFactor = catchUpThreshhold < .51f ? .99f
+                : Mathf.Clamp01((horizDistance - catchUpThreshhold - 1f) / (catchUpThreshhold * 2 - 1));
+            Debug.Log("catchUp " + catchUp + " catchUpThresshold " + catchUpThreshhold + " smallTargetLargeFactor " + smallTargetLargeFactor);
             Vector3 smallBias = Vector3.Lerp(smallMove.HComponents, catchUp.HComponents.MaxNormalized(), smallTargetLargeFactor);
             smallMove = GridPos.RoundFromVector3(smallBias.MaxNormalized());
             smallMove.w = smallMoveW;
@@ -330,7 +337,7 @@ public class RandomWalkable {
             } else if (wallCode == 0b110 || wallCode == 0b001) {
                 if (Randoms.CoinFlip) turnCode = -1; // right
             } else {
-                if (wallCode == 0b000 || wallCode == 0b111) {
+                if ((wallCode == 0b000 || wallCode == 0b111) && Random.value > smallTargetLargeFactor) {
                     int wallLeft120 = CaveGrid.Grid[smallPos + smallMove.RotateLeft().RotateLeft()] ? 0 : 1;
                     int wallRight120 = CaveGrid.Grid[smallPos + smallMove.RotateRight().RotateRight()] ? 0 : 1;
                     wallCode = wallLeft120 << 4 | wallCode << 1 | wallRight120;
@@ -349,6 +356,7 @@ public class RandomWalkable {
             largeMove = Random.value < (16 - 5 * p.grade) / 6 // 3 -> 1/6, 2 or less -> 1
                 ? GridPos.Random(smallWait && p.grade < 2 ? 0 : elevChange, bias, upwardRate)
                 : GridPos.zero + GridPos.up * expectedW;
+            JumpByStepSize(ref largeMove, p);
             if (smallWait && Mathf.Abs(smallMoveW) > 1) largeMove.w = -smallMoveW;
             largePos += largeMove;
             catchUp = largePos - smallPos;
@@ -357,12 +365,21 @@ public class RandomWalkable {
 
     private static int GetSmallWRelativeToLargeDelta(GridPos oldLargePos, GridPos oldSmallPos, Parameters p) {
         int oldW = oldSmallPos.w - oldLargePos.w;
-        if (p.hScale <= 0 || p.vDelta == 0) return -oldW;
-        else if (p.vScale < 5) return Mathf.Clamp(-oldW, -1, 1);
+        if (p.hScale <= 0) return -oldW;
+        else if (p.vScale < 5 || p.vDelta == 0) return Mathf.Clamp(-oldW, -1, 1);
         else if ((oldW < 1 || oldW > p.vScale) && p.vScale > 5 && p.grade < 1.5f) return Random.Range(3, p.vScale - 2) - oldW;
         else if (oldW < 3) return 1;
         else if (oldW > p.vScale - 2) return -1;
         else return Random.value < 1/3f ? Randoms.Sign : 0;
+    }
+
+    private static void JumpByStepSize(ref GridPos largeMove, Parameters p) {
+        float horizFactor = Mathf.Lerp(p.stepSize, 1, p.grade - 2);
+        float vertFactor = Mathf.Lerp(1, p.stepSize, p.grade / 2);
+        int w = Mathf.RoundToInt(largeMove.w * vertFactor);
+        largeMove *= Mathf.RoundToInt(horizFactor);
+        largeMove.w = w;
+        Debug.Log("jump horizFactor " + horizFactor + " vertFactor " + vertFactor + " largeMove " + largeMove);
     }
 
     private static int? AdjustToBeWalkable(ref GridPos smallMove, GridPos smallPos, Grid<bool> path, Parameters p) {
@@ -388,19 +405,24 @@ public class RandomWalkable {
         int vMidpoint = p.vScale / 2 - 1;
         int vMidpointExtraHeight = p.vScale % 2;
 
-        CaveGrid.Mod mod = CaveGrid.Mod.RandomVerticalExtension(largePos + vMidpoint * GridPos.up, 0, vMidpoint, vMidpointExtraHeight, vMidpointExtraHeight + vMidpoint);
-        newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
-
-        int magnitude = 1;
-        for ( ; magnitude < p.hScale; magnitude++) {
-            foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
-                mod = CaveGrid.Mod.RandomVerticalExtension(largePos + unit + vMidpoint * GridPos.up, 0, vMidpoint, vMidpointExtraHeight, vMidpointExtraHeight + vMidpoint);
-                newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
-            }
+        bool canBumpAtMinus1 = p.vScale >= 4;
+        int magnitude = 0;
+        for ( ; magnitude < p.hScale - (canBumpAtMinus1 ? 2 : 1); magnitude++) foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
+            CaveGrid.Mod mod = CaveGrid.Mod.Cave(largePos + unit, p.vScale - 1);
+            newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
+        }
+        for ( ; magnitude < p.hScale - 1; magnitude++) foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
+            int floorBump = Random.Range(0, 2);
+            CaveGrid.Mod mod = CaveGrid.Mod.Cave(largePos + unit + floorBump * GridPos.up, p.vScale - (floorBump + Random.Range(1, 3)));
+            newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
+        }
+        for ( ; magnitude < p.hScale; magnitude++) foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
+            CaveGrid.Mod mod = CaveGrid.Mod.RandomVerticalExtension(largePos + unit + vMidpoint * GridPos.up, 0, vMidpoint, vMidpointExtraHeight, vMidpointExtraHeight + vMidpoint);
+            newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
         }
         foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
             if (Random.value < p.hScale - magnitude + 1) {
-                mod = CaveGrid.Mod.RandomVertical(largePos + unit, 0, p.vScale - 2);
+                CaveGrid.Mod mod = CaveGrid.Mod.RandomVertical(largePos + unit, 0, p.vScale - 2);
                 newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
             }
         }

@@ -331,6 +331,11 @@ PrefabInstance:
       objectReference: {fileID: 285286790}
     - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
+      propertyPath: rubbleRate
+      value: 0.083333336
+      objectReference: {fileID: 0}
+    - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
+        type: 3}
       propertyPath: upwardRate
       value: 0.6666667
       objectReference: {fileID: 0}

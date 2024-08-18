@@ -105,10 +105,10 @@ public class RandomWalk : MonoBehaviour {
                 if (mod.IsUnnecessary) continue;
                 CaveGrid.Biome.Next(mod.pos, step.biome, true);
                 
-                if (step.newCave.Length <= 2 && step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude > 1f && !mod.Overlaps) {
+                if (step.newCave.Length <= 2 && mod.open && step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude > 1f && !mod.Overlaps) {
                     if (canRubble && Random.value < rubbleRate) {
                         CaveGrid.I.soft[mod.pos] = true;
-                        CaveGrid.I.SetPos(step.newCave[0].Inverted);
+                        CaveGrid.I.UpdatePos(mod.pos, 0, 1);
                         Debug.Log("Adding rubble for funsies :)");
                         Debug.DrawLine(mod.pos.World - Vector3.up * .5f, mod.pos.World + Vector3.up * .5f, Color.red, 600);
                         continue;

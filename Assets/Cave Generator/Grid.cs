@@ -31,8 +31,15 @@ public class Grid<T> {
         list[x] = value;
     }
 
+    private void ThrowIfLarge(GridPos pos) {
+        if (1000_000 <= pos.x || 1000_000 <= pos.y || 1000_000 <= pos.w
+                || 1000_000 <= -pos.x || 1000_000 <= -pos.y || 1000_000 <= -pos.w)
+            throw new ArgumentOutOfRangeException("Huge GridPos " + pos);
+    }
+
     public T this[GridPos pos] {
         get {
+            ThrowIfLarge(pos);
             int xIndex = pos.x >= 0 ? pos.x : -1 - pos.x;
             int yIndex = pos.y >= 0 ? pos.y : -1 - pos.y;
             int zIndex = pos.w >= 0 ? pos.w : -1 - pos.w;
@@ -42,6 +49,7 @@ public class Grid<T> {
             return get3D(quads[quadIndex], xIndex, yIndex, zIndex);
         }
         set {
+            ThrowIfLarge(pos);
             int xIndex = pos.x >= 0 ? pos.x : -1 - pos.x;
             int yIndex = pos.y >= 0 ? pos.y : -1 - pos.y;
             int zIndex = pos.w >= 0 ? pos.w : -1 - pos.w;
