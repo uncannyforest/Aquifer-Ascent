@@ -9,17 +9,17 @@ public class RandomWalkable {
         private static float[] LINK_MODE =
             new float[] {0, 2f, 0f, 0, .25f, 2, 1};
         private static float[][] MODES = new float[][] {
-            new float[] {0, 1.5f, -0.333f, 0, 1f,  0, .51f}, // orig
-            new float[] {0, 8.5f, -0.333f, 0, 1f,  0, .51f}, // tall
-            new float[] {0, 1.5f,  2.667f, 0, 1f,  1, .51f}, // wide
-            new float[] {1, 5f,    1f,     1, .5f, 2, .51f}, // path small
-            new float[] {1, 8.5f,  1f,     1, .5f, 2, .51f}, // path tall
-            new float[] {1, 8.5f,  2.667f, 1, .5f, 2, .51f}, // path large
-            new float[] {1, 1.5f,  0.333f, 1, 3f,  0, .51f}, // stairwell small
-            new float[] {1, 1.5f,  2.667f, 1, 3f,  0, .51f}, // stairwell large
-            new float[] {0, 1.5f,  2.667f, 0, 3f,  0, .51f}, // spiral
-            new float[] {1, 8.5f,  2.667f, 0, 1f,  1, 8.5f}, // rooms
-            new float[] {1, 1.5f,  2.667f, 1, 2.5f, 0, 6.5f}, // levels
+            new float[] {0, 1.5f, -0.333f, 0, 1f,  0, .51f}, //  1 // orig
+            new float[] {1, 8.5f,  2.667f, 1, .5f, 2, .51f}, //  2 // path large
+            new float[] {1, 1.5f,  0.333f, 1, 3f,  0, .51f}, //  3 // stairwell small
+            new float[] {1, 8.5f,  2.667f, 0, 1f,  1, 8.5f}, //  4 // jump rooms
+            new float[] {1, 8.5f,  1f,     1, .5f, 2, .51f}, //  5 // path tall
+            new float[] {1, 1.5f,  2.667f, 1, 2.5f, 0, 6.5f}, // 6 // jump levels
+            new float[] {0, 1.5f,  2.667f, 0, 3f,  0, .51f}, //  7 // spiral // 9?
+            new float[] {0, 1.5f,  2.667f, 0, 1f,  1, .51f}, //  8 // wide
+            new float[] {0, 8.5f, -0.333f, 0, 1f,  0, .51f}, //  9 // tall
+            new float[] {1, 1.5f,  2.667f, 1, 3f,  0, .51f}, // 10 // stairwell large
+            new float[] {1, 5f,    1f,     1, .5f, 2, .51f}, // 11 // path small
         };
         private static int PARAM_COUNT = 7;
         public static int MODE_COUNT = MODES.Length;
@@ -57,6 +57,7 @@ public class RandomWalkable {
             ResetInterpolation();
             targetMode = RandomOtherMode(targetMode);
             linkModeLength += 2 * Mathf.CeilToInt(MODES[targetMode][2]) - Mathf.RoundToInt(MODES[targetMode][6]);
+            if (linkModeLength < 1) linkModeLength = 1;
             lerp = 0;
             lerpStep = 1f / linkModeLength;
             return linkModeLength;
@@ -65,7 +66,9 @@ public class RandomWalkable {
         public void JumpToNewMode() {
             int partialMode = RandomOtherMode(targetMode);
             for (int i = 0; i < PARAM_COUNT; i++) {
-                parameters[i] = Mathf.Lerp(MODES[targetMode][i], MODES[partialMode][i], Maths.Bias0(Random.value) / 2);
+                float modeMix =  Maths.Bias0(Random.value);
+                parameters[i] = Mathf.Lerp(MODES[targetMode][i], MODES[partialMode][i], modeMix);
+                if (modeMix > .5f) Debug.Log("Used more of mode " + partialMode + " in param " + i);
             }
             ResetInterpolation();
         }
@@ -95,7 +98,6 @@ public class RandomWalkable {
         public int SupplyBiome(int _) => (Random.value < Maths.CubicInterpolate(lerp) ? targetMode : prevMode) + 1;
 
         public static int RandomOtherMode(int mode) {
-            if (mode < 10 && Randoms.CoinFlip) return 10;
             int newMode = Random.Range(1, Parameters.MODE_COUNT);
             if (newMode == mode) newMode = 0;
             return newMode;
