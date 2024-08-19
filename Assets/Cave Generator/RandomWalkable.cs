@@ -9,19 +9,19 @@ public class RandomWalkable {
         private static float[] LINK_MODE =
             new float[] {0, 2f, 0f, 0, .25f, 2, 1};
         private static float[][] MODES = new float[][] {
-            new float[] {0, 1.5f, -0.333f, 0, 1f,  0, .51f}, //  1 // orig
-            new float[] {1, 8.5f,  2.667f, 1, .5f, 2, .51f}, //  2 // path large
-            new float[] {1, 1.5f,  0.333f, 1, 3f,  0, .51f}, //  3 // stairwell small
-            new float[] {1, 8.5f,  2.667f, 0, 1f,  1, 8.5f}, //  4 // jump rooms
-            new float[] {1, 8.5f,  1f,     1, .5f, 2, .51f}, //  5 // path tall
-            new float[] {1, 1.5f,  2.667f, 1, 2.5f, 0, 6.5f}, // 6 // jump levels
-            new float[] {0, 1.5f,  2.667f, 0, 3f,  0, .51f}, //  7 // spiral // 9?
-            new float[] {0, 1.5f,  2.667f, 0, 1f,  1, .51f}, //  8 // wide
-            new float[] {0, 8.5f, -0.333f, 0, 1f,  0, .51f}, //  9 // tall
-            new float[] {1, 1.5f,  2.667f, 1, 3f,  0, .51f}, // 10 // stairwell large
-            new float[] {1, 5f,    1f,     1, .5f, 2, .51f}, // 11 // path small
+            new float[] {0, 1.5f, -0.333f, 0, 1f,  0, .51f,  1}, // orig
+            new float[] {0, 8.5f, -0.333f, 0, 1f,  0, .51f,  9}, // tall
+            new float[] {0, 1.5f,  2.667f, 0, 1f,  1, .51f,  8}, // wide
+            new float[] {1, 5f,    1f,     1, .5f, 2, .51f, 11}, // path small
+            new float[] {1, 8.5f,  1f,     1, .5f, 2, .51f,  5}, // path tall
+            new float[] {1, 8.5f,  2.667f, 1, .5f, 2, .51f,  2}, // path large
+            new float[] {1, 1.5f,  0.333f, 1, 3f,  0, .51f,  3}, // stairwell small
+            new float[] {1, 1.5f,  2.667f, 1, 3f,  0, .51f, 10}, // stairwell large
+            new float[] {0, 1.5f,  2.667f, 0, 3f,  0, .51f,  7}, // spiral // 9?
+            new float[] {1, 8.5f,  2.667f, 0, 1f,  1, 8.5f,  4}, // jump rooms
+            new float[] {1, 1.5f,  2.667f, 1, 2.5f, 0, 6.5f, 6}, // jump levels
         };
-        private static int PARAM_COUNT = 7;
+        private static int PARAM_COUNT = 7; // not counting biome, which is at index PARAM_COUNT
         public static int MODE_COUNT = MODES.Length;
 
         private float[] parameters;
@@ -38,6 +38,8 @@ public class RandomWalkable {
         public float grade { get => parameters[4]; } // in [0, 1]
         public float forwardBias { get => parameters[5]; } // in [0, 2]
         public int stepSize { get => Mathf.RoundToInt(parameters[6]); } // [in 1, 8]
+
+        public int getBiomeForMode(int mode) => Mathf.RoundToInt(MODES[mode][PARAM_COUNT]);
 
         public Parameters(int targetMode) {
             this.targetMode = targetMode;
@@ -95,7 +97,8 @@ public class RandomWalkable {
             return "Approaching mode " + targetMode + " at " + parameters[0] + (followWall ? "FW, " : "Ins, ") + vScale + ", " + Mathf.Ceil(hScale) + ", " + parameters[3] + (vDelta > 0 ? "WW, " : "Flr, ") + grade + ", " + forwardBias + ", " + stepSize;
         }
 
-        public int SupplyBiome(int _) => (Random.value < Maths.CubicInterpolate(lerp) ? targetMode : prevMode) + 1;
+        public int SupplyBiome(int _) => Random.value < Maths.CubicInterpolate(lerp) ?
+            getBiomeForMode(targetMode) : getBiomeForMode(prevMode);
 
         public static int RandomOtherMode(int mode) {
             int newMode = Random.Range(1, Parameters.MODE_COUNT);
