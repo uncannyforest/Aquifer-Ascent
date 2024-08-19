@@ -9,17 +9,17 @@ public class RandomWalkable {
         private static float[] LINK_MODE =
             new float[] {0, 2f, 0f, 0, .25f, 2, 1};
         private static float[][] MODES = new float[][] {
-            new float[] {0, 1.5f, -0.333f, 0, 1f,  0, .51f,  1}, // orig
-            new float[] {0, 8.5f, -0.333f, 0, 1f,  0, .51f,  9}, // tall
-            new float[] {0, 1.5f,  2.667f, 0, 1f,  1, .51f,  8}, // wide
+            new float[] {0, 1.5f, -1f,     0, 1f,  0, .51f,  1}, // orig
+            new float[] {0, 8.5f, -1f,     0, 1f,  0, .51f,  9}, // tall
+            // new float[] {0, 1.5f,  2.667f, 0, 1f,  1, .51f,  8}, // wide
             new float[] {1, 5f,    1f,     1, .5f, 2, .51f, 11}, // path small
             new float[] {1, 8.5f,  1f,     1, .5f, 2, .51f,  5}, // path tall
-            new float[] {1, 8.5f,  2.667f, 1, .5f, 2, .51f,  2}, // path large
+            // new float[] {1, 8.5f,  2.667f, 1, .5f, 2, .51f,  2}, // path large
             new float[] {1, 1.5f,  0.333f, 1, 3f,  0, .51f,  3}, // stairwell small
-            new float[] {1, 1.5f,  2.667f, 1, 3f,  0, .51f, 10}, // stairwell large
-            new float[] {0, 1.5f,  2.667f, 0, 3f,  0, .51f,  7}, // spiral // 9?
-            new float[] {1, 8.5f,  2.667f, 0, 1f,  1, 8.5f,  4}, // jump rooms
-            new float[] {1, 1.5f,  2.667f, 1, 2.5f, 0, 6.5f, 6}, // jump levels
+            // new float[] {1, 1.5f,  2.667f, 1, 3f,  0, .51f, 10}, // stairwell large
+            new float[] {0, 1.5f,  1f,     0, 3f,  0, .51f,  7}, // spiral // 9?
+            new float[] {1, 8.5f,  1f,     0, 1f,  1, 8.5f,  4}, // jump rooms
+            new float[] {1, 1.5f,  1f,     1, 2.5f, 0, 6.5f, 6}, // jump levels
         };
         private static int PARAM_COUNT = 7; // not counting biome, which is at index PARAM_COUNT
         public static int MODE_COUNT = MODES.Length;
@@ -70,6 +70,7 @@ public class RandomWalkable {
             for (int i = 0; i < PARAM_COUNT; i++) {
                 float modeMix =  Maths.Bias0(Random.value);
                 parameters[i] = Mathf.Lerp(MODES[targetMode][i], MODES[partialMode][i], modeMix);
+                if (ParamIsHScale(i)) RandomizeHScale(ref parameters[i]);
                 if (modeMix > .5f) Debug.Log("Used more of mode " + partialMode + " in param " + i);
             }
             ResetInterpolation();
@@ -81,7 +82,9 @@ public class RandomWalkable {
             lerp = 0;
             lerpStep = fraction;
             for (int i = 0; i < PARAM_COUNT; i++) {
-                interpolateDiff[i] = (MODES[targetMode][i] - parameters[i]) * PARAM_COUNT * fraction;
+                float targetLevel = MODES[targetMode][i];
+                if (ParamIsHScale(i)) RandomizeHScale(ref targetLevel);
+                interpolateDiff[i] = (targetLevel - parameters[i]) * PARAM_COUNT * fraction;
             }
         }
 
@@ -91,10 +94,17 @@ public class RandomWalkable {
 
             int p = Random.Range(0, PARAM_COUNT);
             parameters[p] += interpolateDiff[p];
-            if (interpolateDiff[p] * (parameters[p] - MODES[targetMode][p]) > 0) { // same sign means we overshot
-                parameters[p] = MODES[targetMode][p];
-            }
+            bool overshot = interpolateDiff[p] * (parameters[p] - MODES[targetMode][p]) > 0; // check for same sign
+            if (ParamIsHScale(p)) overshot = interpolateDiff[p] < 0 && parameters[p] < MODES[targetMode][p]; // only in neg direction
+            if (overshot) parameters[p] = MODES[targetMode][p];
             return "Approaching mode " + targetMode + " at " + parameters[0] + (followWall ? "FW, " : "Ins, ") + vScale + ", " + Mathf.Ceil(hScale) + ", " + parameters[3] + (vDelta > 0 ? "WW, " : "Flr, ") + grade + ", " + forwardBias + ", " + stepSize;
+        }
+
+        private bool ParamIsHScale(int param) => param == 2;
+        private void RandomizeHScale(ref float minimum) {
+            float hScale = minimum + Maths.SuperExpDecayDistribution(Random.value);
+            Debug.Log("Approaching hScale " + hScale + " (minimum " + minimum + ")");
+            minimum = hScale;
         }
 
         public int SupplyBiome(int _) => Random.value < Maths.CubicInterpolate(lerp) ?
