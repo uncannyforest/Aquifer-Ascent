@@ -217,10 +217,10 @@ public class GridPiece : MonoBehaviour {
         if (softPos.Count >= 1) {
             foreach (MeshRenderer renderer in newPiece.GetComponentsInChildren<MeshRenderer>())
                 renderer.material = CaveGrid.I.softMaterial;
-            Debug.Log("Set children to soft in " + gameObject);
+            // Debug.Log("Set children to soft in " + gameObject);
             MeshCollider[] childColliders = GetComponentsInChildren<MeshCollider>();
             foreach (MeshCollider childCollider in childColliders) {
-                Debug.Log("Collider " + childCollider);
+                // Debug.Log("Collider " + childCollider);
                 if (childCollider.GetComponent<SimpleSoluble>() != null) {
                     SimpleSoluble foundSs = childCollider.GetComponent<SimpleSoluble>();
                     foundSs.positions = softPos;

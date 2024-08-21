@@ -4,13 +4,11 @@ using UnityEngine;
 
 public class CatchMe : MonoBehaviour {
     private RandomWalk rw;
-    private float rwStepTime;
     private bool inBurst = true; // start with fake burst . . .
 
     void Start() {
         rw = transform.GetComponentStrict<RandomWalk>();
-        rwStepTime = rw.modRate;
-        Invoke("EndBurst", rwStepTime * 3); // . . . to give time to get away
+        Invoke("EndBurst", rw.modRate * 3); // . . . to give time to get away
     }
 
     void OnTriggerEnter(Collider collider) {
@@ -19,12 +17,11 @@ public class CatchMe : MonoBehaviour {
             scarf.AddToCollection(scarf.MaxScarfFound + 1);
             scarf.SwapScarf(true, out int oldScarf, out int newScarf);
             inBurst = true;
-            Invoke("EndBurst", rwStepTime * 2);
+            Invoke("EndBurst", rw.modRate * 2);
         }
     }
 
     private void EndBurst() {
-        rw.modRate = rwStepTime;
         inBurst = false;
     }
 }

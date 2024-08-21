@@ -10,16 +10,13 @@ public class RandomWalkable {
             new float[] {0, 2f, 0f, 0, .25f, 2, 1};
         private static float[][] MODES = new float[][] {
             new float[] {0, 1.5f, -1f,     0, 1f,  0, .51f,  1}, // orig
-            new float[] {0, 8.5f, -1f,     0, 1f,  0, .51f,  9}, // tall
-            // new float[] {0, 1.5f,  2.667f, 0, 1f,  1, .51f,  8}, // wide
+            new float[] {0, 8.5f, -1f,     0, 1f,  0, .51f,  9}, // tall // or 8
             new float[] {1, 5f,    1f,     1, .5f, 2, .51f, 11}, // path small
-            new float[] {1, 8.5f,  1f,     1, .5f, 2, .51f,  5}, // path tall
-            // new float[] {1, 8.5f,  2.667f, 1, .5f, 2, .51f,  2}, // path large
-            new float[] {1, 1.5f,  0.333f, 1, 3f,  0, .51f,  3}, // stairwell small
-            // new float[] {1, 1.5f,  2.667f, 1, 3f,  0, .51f, 10}, // stairwell large
+            new float[] {1, 8.5f,  1f,     1, .5f, 2, .51f,  5}, // path tall // or 2
+            new float[] {1, 1.5f,  0.333f, 1, 3f,  0, .51f,  3}, // stairwell small // or 10
             new float[] {0, 1.5f,  1f,     0, 3f,  0, .51f,  7}, // spiral // 9?
             new float[] {1, 8.5f,  1f,     0, 1f,  1, 8.5f,  4}, // jump rooms
-            new float[] {1, 1.5f,  1f,     1, 2.5f, 0, 6.5f, 6}, // jump levels
+            new float[] {1, 4f,    1f,     1, 2.5f, 0, 8.5f, 6}, // jump levels
         };
         private static int PARAM_COUNT = 7; // not counting biome, which is at index PARAM_COUNT
         public static int MODE_COUNT = MODES.Length;
@@ -30,6 +27,7 @@ public class RandomWalkable {
         public int targetMode;
         public float lerp = 0;
         public float lerpStep = 0;
+        private float targetHScale = -1;
 
         public bool followWall { get => parameters[0] > 1/3f; }
         public int vScale { get => Mathf.RoundToInt(parameters[1]); } // in [1.5, 8.5]
@@ -48,6 +46,8 @@ public class RandomWalkable {
             ResetInterpolation();
         }
 
+        public void Set(int p, float v) => parameters[p] = v;
+
         public void ResetInterpolation() {
             prevMode = targetMode;
             interpolateDiff = new float[PARAM_COUNT];
@@ -58,7 +58,9 @@ public class RandomWalkable {
             Array.Copy(LINK_MODE, parameters, PARAM_COUNT);
             ResetInterpolation();
             targetMode = RandomOtherMode(targetMode);
-            linkModeLength += 2 * Mathf.CeilToInt(MODES[targetMode][2]) - Mathf.RoundToInt(MODES[targetMode][6]);
+            targetHScale = MODES[targetMode][2];
+            RandomizeHScale(targetHScale);
+            linkModeLength += 2 * Mathf.CeilToInt(targetHScale) - Mathf.RoundToInt(MODES[targetMode][6]);
             if (linkModeLength < 1) linkModeLength = 1;
             lerp = 0;
             lerpStep = 1f / linkModeLength;
@@ -66,24 +68,27 @@ public class RandomWalkable {
         }
 
         public void JumpToNewMode() {
-            int partialMode = RandomOtherMode(targetMode);
+            int partialMode = RandomMode();
             for (int i = 0; i < PARAM_COUNT; i++) {
-                float modeMix =  Maths.Bias0(Random.value);
-                parameters[i] = Mathf.Lerp(MODES[targetMode][i], MODES[partialMode][i], modeMix);
-                if (ParamIsHScale(i)) RandomizeHScale(ref parameters[i]);
-                if (modeMix > .5f) Debug.Log("Used more of mode " + partialMode + " in param " + i);
+                if (ParamIsHScale(i)) {
+                    parameters[i] = targetHScale;
+                } else {
+                    float modeMix =  Maths.Bias0(Random.value);
+                    parameters[i] = Mathf.Lerp(MODES[targetMode][i], MODES[partialMode][i], modeMix);
+                    if (modeMix > .5f) Debug.Log("Used more of mode " + partialMode + " in param " + i);
+                }
             }
             ResetInterpolation();
         }
 
         public void StartNewInterpolation(float fraction) {
             prevMode = targetMode;
-            targetMode = RandomOtherMode(targetMode);
+            targetMode = RandomMode();
             lerp = 0;
             lerpStep = fraction;
             for (int i = 0; i < PARAM_COUNT; i++) {
                 float targetLevel = MODES[targetMode][i];
-                if (ParamIsHScale(i)) RandomizeHScale(ref targetLevel);
+                if (ParamIsHScale(i)) targetLevel = RandomizeHScale(targetLevel);
                 interpolateDiff[i] = (targetLevel - parameters[i]) * PARAM_COUNT * fraction;
             }
         }
@@ -97,19 +102,25 @@ public class RandomWalkable {
             bool overshot = interpolateDiff[p] * (parameters[p] - MODES[targetMode][p]) > 0; // check for same sign
             if (ParamIsHScale(p)) overshot = interpolateDiff[p] < 0 && parameters[p] < MODES[targetMode][p]; // only in neg direction
             if (overshot) parameters[p] = MODES[targetMode][p];
-            return "Approaching mode " + targetMode + " at " + parameters[0] + (followWall ? "FW, " : "Ins, ") + vScale + ", " + Mathf.Ceil(hScale) + ", " + parameters[3] + (vDelta > 0 ? "WW, " : "Flr, ") + grade + ", " + forwardBias + ", " + stepSize;
+            return "Approaching mode " + targetMode + " and hScale " + targetHScale.ToString("F1") + " at "
+                + parameters[0].ToString("F1") + (followWall ? "FW / " : "Ins / ")
+                + vScale + ", " + hScale.ToString("F1") + " / "
+                + parameters[3].ToString("F1") + (vDelta > 0 ? "WW / " : "Flr / ")
+                + grade.ToString("F1") + " / " + forwardBias.ToString("F1") + " / "
+                + stepSize;
         }
 
         private bool ParamIsHScale(int param) => param == 2;
-        private void RandomizeHScale(ref float minimum) {
-            float hScale = minimum + Maths.SuperExpDecayDistribution(Random.value);
-            Debug.Log("Approaching hScale " + hScale + " (minimum " + minimum + ")");
-            minimum = hScale;
+        private float RandomizeHScale(float minimum) {
+            targetHScale = minimum + Maths.SuperExpDecayDistribution(Random.value);
+            Debug.Log("Approaching hScale " + targetHScale + " (minimum " + minimum + ")");
+            return targetHScale;
         }
 
         public int SupplyBiome(int _) => Random.value < Maths.CubicInterpolate(lerp) ?
             getBiomeForMode(targetMode) : getBiomeForMode(prevMode);
 
+        public static int RandomMode() => Random.Range(0, MODE_COUNT);
         public static int RandomOtherMode(int mode) {
             int newMode = Random.Range(1, Parameters.MODE_COUNT);
             if (newMode == mode) newMode = 0;
@@ -175,14 +186,14 @@ public class RandomWalkable {
         GridPos largeMove = initDirection;
         GridPos etherCurrent = initDirection * (inertiaOfEtherCurrent / 2);
         
-        GridPos onePosAgo = smallPos;
-        GridPos twoPosAgo = smallPos;
+        LinkedList<GridPos> stepTimeQueue = SetUpStepTimeQueue(smallPos);
 
         List<CaveGrid.Mod> initCave = new List<CaveGrid.Mod>();
         initCave.Add(CaveGrid.Mod.Cave(smallPos));
         yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), Biomes.NoChange, 1/6f, smallPos, new GridPos[] {}, Vector3.zero);
 
         Parameters p = new Parameters(0);
+        p.Set(4, 1.5f);
 
         bool justFlipped = false;
 
@@ -209,7 +220,7 @@ public class RandomWalkable {
             List<CaveGrid.Mod> newCave = largeWait ? new List<CaveGrid.Mod>() : LargePosMods(largePos, smallPos, path, p);
             newCave.Add(CaveGrid.Mod.Cave(smallPos, p.hScale > 0 || neededWalkableAdjustment != null ? 1 : p.vScale - 1));
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
-            float stepTime = GetStepTime(smallPos, ref onePosAgo, ref twoPosAgo);
+            float stepTime = GetStepTime(smallPos, stepTimeQueue, etherCurrent.HComponents.Max() / inertiaOfEtherCurrent, p);
             yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, newCave.ToArray(), p.SupplyBiome, stepTime, smallPos, new GridPos[] {}, etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero));
         }
     }
@@ -256,7 +267,12 @@ public class RandomWalkable {
     }
 
     private static Vector3 GetBias(GridPos move, GridPos etherCurrent, Parameters p) {
-        Vector3 bias = etherCurrent.HComponents.MaxNormalized() * (1 + p.forwardBias) * GridPos.MODERATE_BIAS + p.forwardBias * move.HComponents.MaxNormalized();
+        Vector3 etherCurrentBias = etherCurrent.HComponents.MaxNormalized() * (1 + p.forwardBias) * GridPos.MODERATE_BIAS;
+        Vector3 forwardBias = p.forwardBias * move.HComponents.MaxNormalized();
+        Vector3 bias = etherCurrentBias + forwardBias;
+        Debug.Log("Bias from etherCurrent " + etherCurrentBias + " from forwardBias " + forwardBias
+            + " (" + etherCurrentBias.Max().ToString("F1") + " + " + forwardBias.Max().ToString("F1") + " = " + bias.Max().ToString("F1")
+            + ") grade factor " + Mathf.Min(1, 3 - p.grade));
         if (p.grade <= 2) return bias;
         else return Vector3.Lerp(bias, Vector3.zero, p.grade - 2);
     }
@@ -444,15 +460,22 @@ public class RandomWalkable {
         return newCave;
     }
 
-    private static float GetStepTime(GridPos smallPos, ref GridPos onePosAgo, ref GridPos twoPosAgo) {
-        Vector3 scale = new Vector3(1, 4, 1);
-        Vector3 scaledDisplacement = Vector3.Scale(scale, smallPos.World - twoPosAgo.World);
-         // typically, (smallPos.World - twoPosAgo.World).magnitude is 8
-        float result = (scaledDisplacement.sqrMagnitude + 32) / 96;
-        // Debug.Log("Distance " + scaledDisplacement.magnitude + " step time " + result);
-        twoPosAgo = onePosAgo;
-        onePosAgo = smallPos;
-        return result;
+    private static LinkedList<GridPos> SetUpStepTimeQueue(GridPos initialPos) {
+        LinkedList<GridPos> queue = new LinkedList<GridPos>();
+        for (int i = 0; i < 4; i++) queue.AddLast(initialPos);
+        return queue;
     }
-
+    private static float GetStepTime(GridPos smallPos, LinkedList<GridPos> recentPos, float etherCurrentMagnitude, Parameters p) {
+        GridPos fourPosAgo = recentPos.First.Value;
+        recentPos.RemoveFirst();
+        recentPos.AddLast(smallPos);
+        Vector3 scale = new Vector3(1, 2, 1);
+        Vector3 scaledDisplacement = Vector3.Scale(scale, smallPos.World - fourPosAgo.World);
+        // typically, (smallPos.World - onePosAgo.World).magnitude is 4. Finally, div by 4 because fourPosAgo
+        float displacementFactor = (scaledDisplacement.sqrMagnitude / 16).ScaleTo(2/3f, 1) / 4;
+        float forwardBiasFactor = p.forwardBias.ScaleTo(5/6f, 1f);
+        Debug.Log("Step time displacement " + scaledDisplacement + " " + displacementFactor.ToString("F1")
+            + " forwardBias " + forwardBiasFactor.ToString("F1"));
+        return displacementFactor;
+    }
 }

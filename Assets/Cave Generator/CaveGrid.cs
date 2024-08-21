@@ -197,5 +197,9 @@ public class CaveGrid : MonoBehaviour {
             int roof = Mathf.Max(r1, r2) - floor + 1;
             return new Mod(pos + GridPos.up * floor, roof, true);
         }
+
+        public override string ToString() {
+            return pos + " | " + roof + (open ? " air" : " wall");
+        }
     }
 }

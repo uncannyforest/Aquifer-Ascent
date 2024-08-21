@@ -2,6 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+public static class MathExtensions {
+    public static float ScaleTo(this float value, float from0, float from1) {
+        return (from1 - from0) * value + from0;
+    }
+}
+
 public class Maths {
     public static float CubicInterpolate(float x) {
         return 3 * Mathf.Pow(x, 2) - 2 * Mathf.Pow(x, 3);

@@ -11,7 +11,6 @@ public class RandomWalk : MonoBehaviour {
     public GameObject rubblePrefab;
     public int interiaOfEtherCurrent = 6;
     public float modRate = 2/3f;
-    public float slowDown = 1/18f;
     public int addOrbEvery = 18;
     public int maxAddOrbSteps = 18;
     public int orbChargeRampUp = 4;
@@ -100,22 +99,32 @@ public class RandomWalk : MonoBehaviour {
 
         CaveGrid.Biome.Next(GridPos.zero, (_) => 1, true);
         foreach (Output step in MasterEnumerateSteps()) {
+            relSpeed = step.speed;
             for (int i = 0; i < step.newCave.Length; i++) {
                 CaveGrid.Mod mod = step.newCave[i];
-                if (mod.IsUnnecessary) continue;
+                if (mod.IsUnnecessary) {
+                    if (mod.open) canRubble = false;
+                    continue;
+                }
                 CaveGrid.Biome.Next(mod.pos, step.biome, true);
                 
-                if (step.newCave.Length <= 2 && mod.open && step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude > 1f && !mod.Overlaps) {
-                    if (canRubble && Random.value < rubbleRate) {
-                        CaveGrid.I.soft[mod.pos] = true;
-                        CaveGrid.I.UpdatePos(mod.pos, 0, 1);
-                        Debug.Log("Adding rubble for funsies :)");
-                        Debug.DrawLine(mod.pos.World - Vector3.up * .5f, mod.pos.World + Vector3.up * .5f, Color.red, 600);
-                        continue;
+                if (mod.open) {
+                    // removed criterion step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude > 1f
+                    // because RandomWalkable's trajectory is much more complicated nowadays
+                    if (step.newCave.Length <= 2 && !mod.Overlaps) {
+                        if (canRubble && Random.value < rubbleRate) {
+                            CaveGrid.I.soft[mod.pos] = true;
+                            CaveGrid.I.UpdatePos(mod.pos, 0, 1);
+                            Debug.Log("Adding rubble for funsies :)");
+                            Debug.DrawLine(mod.pos.World - Vector3.up * .5f, mod.pos.World + Vector3.up * .5f, Color.red, 600);
+                            continue;
+                        }
+                        // Debug.Log(canRubble ? "Can rubble, still" : "Can rubble, now");
+                        canRubble = true;
+                    } else {
+                        canRubble = false;
+                        // if (step.newCave.Length <= 2) Debug.Log("Can NOT rubble! " + step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude + " " + mod.Overlaps);
                     }
-                    canRubble = true;
-                } else {
-                    canRubble = false;
                 }
                 if (step.bridgeMode == Output.BridgeMode.ODDS) {
                     Debug.Log("Bridge at " + mod.pos + ", open: " + (i % 2 == 1));
@@ -135,7 +144,6 @@ public class RandomWalk : MonoBehaviour {
                     Debug.DrawLine(soft.World - Vector3.up * .5f, soft.World + Vector3.up * .5f, Color.red, 600);
                 }
                 CaveGrid.I.SetPos(mod);
-                relSpeed = step.speed;
             }
             // Debug.Log("Ether current magnitude:" + step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude);
             if (step.onPath is GridPos onPath) {
@@ -176,7 +184,6 @@ public class RandomWalk : MonoBehaviour {
             nextLoc = step.location;
             progress = 0;
             yield return new WaitForSeconds(modRate * relSpeed);
-            modRate += slowDown;
         }
     }
 
