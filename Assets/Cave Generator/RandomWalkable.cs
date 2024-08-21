@@ -16,7 +16,7 @@ public class RandomWalkable {
             new float[] {1, 1.5f,  0.333f, 1, 3f,  0, .51f,  3}, // stairwell small // or 10
             new float[] {0, 1.5f,  1f,     0, 3f,  0, .51f,  7}, // spiral // 9?
             new float[] {1, 8.5f,  1f,     0, 1f,  1, 8.5f,  4}, // jump rooms
-            new float[] {1, 4f,    1f,     1, 2.5f, 0, 8.5f, 6}, // jump levels
+            new float[] {1, 4f,    1f,    1, 2.5f, 0, 8.5f,  6}, // jump levels
         };
         private static int PARAM_COUNT = 7; // not counting biome, which is at index PARAM_COUNT
         public static int MODE_COUNT = MODES.Length;
@@ -433,30 +433,20 @@ public class RandomWalkable {
         List<CaveGrid.Mod> newCave = new List<CaveGrid.Mod>();
         if (p.hScale <= 0) return newCave;
 
-        int vMidpoint = p.vScale / 2 - 1;
-        int vMidpointExtraHeight = p.vScale % 2;
+        for (int magnitude = 0; magnitude < p.hScale + 1; magnitude++)
+            foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
+                CaveGrid.Mod mod = CaveGrid.Mod.Cave(largePos + unit, p.vScale - 1);
 
-        bool canBumpAtMinus1 = p.vScale >= 4;
-        int magnitude = 0;
-        for ( ; magnitude < p.hScale - (canBumpAtMinus1 ? 2 : 1); magnitude++) foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
-            CaveGrid.Mod mod = CaveGrid.Mod.Cave(largePos + unit, p.vScale - 1);
-            newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
-        }
-        for ( ; magnitude < p.hScale - 1; magnitude++) foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
-            int floorBump = Random.Range(0, 2);
-            CaveGrid.Mod mod = CaveGrid.Mod.Cave(largePos + unit + floorBump * GridPos.up, p.vScale - (floorBump + Random.Range(1, 3)));
-            newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
-        }
-        for ( ; magnitude < p.hScale; magnitude++) foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
-            CaveGrid.Mod mod = CaveGrid.Mod.RandomVerticalExtension(largePos + unit + vMidpoint * GridPos.up, 0, vMidpoint, vMidpointExtraHeight, vMidpointExtraHeight + vMidpoint);
-            newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
-        }
-        foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
-            if (Random.value < p.hScale - magnitude + 1) {
-                CaveGrid.Mod mod = CaveGrid.Mod.RandomVertical(largePos + unit, 0, p.vScale - 2);
+                if (magnitude >= p.hScale) {
+                    if (Random.value > p.hScale - magnitude + 1) continue;
+                    mod = mod.RandomSubset();
+                }
+                else if (magnitude >= p.hScale - 1) mod = mod.RandomFromMidpoint();
+                else if (magnitude >= p.hScale - 2) mod = mod.RandomBump();
+
                 newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
-            }
         }
+
         return newCave;
     }
 

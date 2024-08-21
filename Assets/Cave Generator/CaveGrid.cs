@@ -170,12 +170,23 @@ public class CaveGrid : MonoBehaviour {
             }
         }
 
-        public static Mod RandomVerticalExtension(GridPos pos, int minExtraFloor, int maxExtraFloor, int minExtraRoof, int maxExtraRoof) {
+        public Mod RandomBump() {
+            if (roof <= 2) return this;
+            int floorBump = Random.Range(0, 2);
+            return CaveGrid.Mod.Cave(pos + floorBump * GridPos.up, roof - (floorBump + Random.Range(0, 2)));
+        }
+        public Mod RandomFromMidpoint() {
+            int vMidpoint = (roof - 1) / 2;
+            int vMidpointExtraHeight = (roof - 1) % 2;
+            return RandomVerticalExtension(pos + vMidpoint * GridPos.up, 0, vMidpoint, vMidpointExtraHeight, vMidpointExtraHeight + vMidpoint, open);
+        }
+        public Mod RandomSubset() => RandomVertical(pos, 0, roof - 1, open);
+
+        public static Mod RandomVerticalExtension(GridPos pos, int minExtraFloor, int maxExtraFloor, int minExtraRoof, int maxExtraRoof, bool open = true) {
             int floor = Random.Range(-maxExtraFloor, -minExtraFloor + 1);
             int roof = Random.Range(minExtraRoof, maxExtraRoof + 1) + 1 - floor;
             return new Mod(pos + GridPos.up * floor, roof, true);
         }
-
         // Picks random floor and roof
         // if equal, returns null
         // otherwise returns column [floor, roof]
@@ -190,12 +201,12 @@ public class CaveGrid : MonoBehaviour {
 
         // Picks random floor and roof not equal
         // returns column [floor, roof]
-        public static Mod RandomVertical(GridPos pos, int maxExtraFloor, int maxExtraRoof) {
+        public static Mod RandomVertical(GridPos pos, int maxExtraFloor, int maxExtraRoof, bool open = true) {
             int r1 = Random.Range(-maxExtraFloor, maxExtraRoof + 1);
             int r2 = Random.Range(-maxExtraFloor, maxExtraRoof + 1);
             int floor = Mathf.Min(r1, r2);
             int roof = Mathf.Max(r1, r2) - floor + 1;
-            return new Mod(pos + GridPos.up * floor, roof, true);
+            return new Mod(pos + GridPos.up * floor, roof, open);
         }
 
         public override string ToString() {
