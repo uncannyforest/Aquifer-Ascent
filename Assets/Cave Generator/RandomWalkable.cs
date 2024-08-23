@@ -122,8 +122,8 @@ public class RandomWalkable {
         public int SupplyBiome(int _) => Random.value < Maths.CubicInterpolate(lerp) ?
             getBiomeForMode(targetMode) : getBiomeForMode(prevMode);
 
-        public static int RandomMode() => Random.Range(0, MODE_COUNT);
-        public static int RandomOtherMode(int mode) {
+        public static int RandomMode() => Randoms.CoinFlip ? 6 : Random.Range(0, MODE_COUNT);
+        public static int RandomOtherMode(int mode) { if (mode != 6 && Randoms.CoinFlip) return 6;
             int newMode = Random.Range(1, Parameters.MODE_COUNT);
             if (newMode == mode) newMode = 0;
             return newMode;
@@ -194,8 +194,9 @@ public class RandomWalkable {
         initCave.Add(CaveGrid.Mod.Cave(smallPos));
         yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), Biomes.NoChange, 1/6f, smallPos, new GridPos[] {}, Vector3.zero);
 
-        Parameters p = new Parameters(0);
-        p.Set(4, 1.5f);
+        Parameters p = new Parameters(6);
+        p.Set(2, p.hScale + 1);
+        // p.Set(4, 1.5f);
 
         bool justFlipped = false;
         bool? canJump = false; // used by GetSmallWRelativeToLargeDelta(), null means walkway activated (vDelta 1)
@@ -406,7 +407,8 @@ public class RandomWalkable {
         nextCanJump = false;
         if (p.hScale <= 0) return -oldW;
         // hScale is valid for considering vDelta -1 and 1
-        if (p.vDelta == -1) return Randoms.CoinFlip ? 0 : Mathf.Clamp(Mathf.Clamp(oldW, 0, (p.vScale - 1) / 2) - oldW, -1, 1);
+        if (p.vDelta == -1) return Random.value > Mathf.Abs(p.vScale / 4 - oldW) * 2f / p.vScale // + .25f
+            ? 0 : Mathf.Clamp(p.vScale / 4 - oldW, -1, 1); // Mathf.Clamp(Mathf.Clamp(oldW, 0, (p.vScale - 1) / 2) - oldW, -1, 1);
         if (p.vScale < 5) return Mathf.Clamp(-oldW, -1, 1);
 
         // if anything, we only need vDelta to increment to start the walkway
