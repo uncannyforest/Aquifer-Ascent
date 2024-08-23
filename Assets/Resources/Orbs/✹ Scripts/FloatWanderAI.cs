@@ -18,7 +18,7 @@ public class FloatWanderAI : MonoBehaviour
 
     public bool CanMove {
         get {
-            if (holdableScript == null) {
+            if (holdableScript == null || !holdableScript.enabled) {
                 return orbScript.IsActive;
             }
             return orbScript.IsActive && holdableScript.IsFree;
