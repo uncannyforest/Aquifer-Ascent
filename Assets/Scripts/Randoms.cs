@@ -43,4 +43,9 @@ public class Randoms {
             yield return first;
         }
     }
+
+    public static int ExpDecay(int min, int max) {
+        int value = Mathf.FloorToInt(-Mathf.Log(Random.value, 2));
+        return Mathf.Min(min + value, max);
+    }
 }

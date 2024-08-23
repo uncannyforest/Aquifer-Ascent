@@ -175,12 +175,19 @@ public class CaveGrid : MonoBehaviour {
             int floorBump = Random.Range(0, 2);
             return CaveGrid.Mod.Cave(pos + floorBump * GridPos.up, roof - (floorBump + Random.Range(0, 2)));
         }
-        public Mod RandomFromMidpoint() {
+        public Mod RandomFromMidpoint(bool maximizeFloor = false, bool maximizeCeil = false) {
             int vMidpoint = (roof - 1) / 2;
             int vMidpointExtraHeight = (roof - 1) % 2;
-            return RandomVerticalExtension(pos + vMidpoint * GridPos.up, 0, vMidpoint, vMidpointExtraHeight, vMidpointExtraHeight + vMidpoint, open);
+            return RandomVerticalExtension(pos + vMidpoint * GridPos.up,
+                maximizeFloor ? vMidpoint : 0, vMidpoint,
+                vMidpointExtraHeight + (maximizeCeil ? vMidpoint : 0), vMidpointExtraHeight + vMidpoint,
+                open);
         }
         public Mod RandomSubset() => RandomVertical(pos, 0, roof - 1, open);
+        public Mod RandomEnd(bool ceil) {
+            int height = Randoms.ExpDecay(1, roof);
+            return new Mod(ceil ? pos + GridPos.up * (roof - height) : pos, height, open);
+        }
 
         public static Mod RandomVerticalExtension(GridPos pos, int minExtraFloor, int maxExtraFloor, int minExtraRoof, int maxExtraRoof, bool open = true) {
             int floor = Random.Range(-maxExtraFloor, -minExtraFloor + 1);

@@ -7,18 +7,19 @@ using Random = UnityEngine.Random;
 public class RandomWalkable {
     public class Parameters {
         private static float[] LINK_MODE =
-            new float[] {0, 2f, 0f, 0, .25f, 2, 1};
+            new float[] {0, 2f, 0f, 0, .25f, 2, 1, 1};
         private static float[][] MODES = new float[][] {
-            new float[] {0, 1.5f, -1f,     0, 1f,  0, .51f,  1}, // orig
-            new float[] {0, 8.5f, -1f,     0, 1f,  0, .51f,  9}, // tall // or 8
-            new float[] {1, 5f,    1f,     1, .5f, 2, .51f, 11}, // path small
-            new float[] {1, 8.5f,  1f,     1, .5f, 2, .51f,  5}, // path tall // or 2
-            new float[] {1, 1.5f,  0.333f, 1, 3f,  0, .51f,  3}, // stairwell small // or 10
-            new float[] {0, 1.5f,  1f,     0, 3f,  0, .51f,  7}, // spiral // 9?
-            new float[] {1, 8.5f,  1f,     0, 1f,  1, 8.5f,  4}, // jump rooms
-            new float[] {1, 4f,    1f,    1, 2.5f, 0, 8.5f,  6}, // jump levels
+            new float[] {0, 1.5f, -1f,     0, 1f,  0, .51f,  .5f, 1}, // orig
+            new float[] {0, 8.5f, -1f,     0, 1f,  0, .51f,  .5f, 9}, // tall // or 8
+            new float[] {1, 5f,    1f,     1, .5f, 2, .51f,  .5f, 11}, // path small
+            new float[] {1, 8.5f,  1f,     1, .5f, 2, .51f,  .5f, 5}, // path tall // or 2
+            new float[] {1, 1.5f,  0.333f, 1, 3f,  0, .51f,  .5f, 3}, // stairwell small // or 10
+            new float[] {0, 1.5f,  1f,     0, 3f,  0, .51f,    1, 7}, // spiral // 9?
+            new float[] {1, 8.5f,  2f,    -1, 1f,  1, 8.5f,  .5f, 4}, // jump rooms
+            new float[] {1, 4f,    1f, .667f, 2.5f, 0, 8.5f, .5f, 6}, // jump levels
+            new float[] {1, 8.5f,  1f,     0, 1f, 1.5f, 3f,     1, 12}, // pillars
         };
-        private static int PARAM_COUNT = 7; // not counting biome, which is at index PARAM_COUNT
+        private static int PARAM_COUNT = 8; // not counting biome, which is at index PARAM_COUNT
         public static int MODE_COUNT = MODES.Length;
 
         private float[] parameters;
@@ -32,10 +33,11 @@ public class RandomWalkable {
         public bool followWall { get => parameters[0] > 1/3f; }
         public int vScale { get => Mathf.RoundToInt(parameters[1]); } // in [1.5, 8.5]
         public float hScale { get => parameters[2]; } // in [-0.5, 3]
-        public int vDelta { get => Mathf.FloorToInt(parameters[3] + 1/3f); } // in [0, 3], 2 means diagonal
-        public float grade { get => parameters[4]; } // in [0, 1]
+        public int vDelta { get => parameters[3] < 0 ? -1 : parameters[3] < 2/3f ? 0 : 1; } // in [-1, 1]
+        public float grade { get => parameters[4]; } // in [0, 3], 2 means diagonal
         public float forwardBias { get => parameters[5]; } // in [0, 2]
         public int stepSize { get => Mathf.RoundToInt(parameters[6]); } // [in 1, 8]
+        public float stalactites { get => parameters[7]; } // [in 0, 1]
 
         public int getBiomeForMode(int mode) => Mathf.RoundToInt(MODES[mode][PARAM_COUNT]);
 
@@ -104,10 +106,10 @@ public class RandomWalkable {
             if (overshot) parameters[p] = MODES[targetMode][p];
             return "Approaching mode " + targetMode + " and hScale " + targetHScale.ToString("F1") + " at "
                 + parameters[0].ToString("F1") + (followWall ? "FW / " : "Ins / ")
-                + vScale + ", " + hScale.ToString("F1") + " / "
-                + parameters[3].ToString("F1") + (vDelta > 0 ? "WW / " : "Flr / ")
-                + grade.ToString("F1") + " / " + forwardBias.ToString("F1") + " / "
-                + stepSize;
+                + vScale + " x " + hScale.ToString("F1") + " / "
+                + parameters[3].ToString("F1") + (vDelta == 1 ? "WW / " : vDelta == 0 ? "Flr / " : "Low / ")
+                + grade.ToString("F1") + " x " + forwardBias.ToString("F1") + " / "
+                + stepSize + " / " + stalactites.ToString("F1");
         }
 
         private bool ParamIsHScale(int param) => param == 2;
@@ -329,7 +331,7 @@ public class RandomWalkable {
         int hScale = Mathf.CeilToInt(p.hScale);
 
         GridPos catchUp = largePos - smallPos;
-        float catchUpThreshhold = (float)hScale * (p.grade < 2 ? 1f/p.stepSize : .5f + .5f/p.stepSize);
+        float catchUpThreshhold = (float)hScale * (p.grade < 2 ? .25f + .75f/p.stepSize : .5f + .5f/p.stepSize);
         int horizDistance = catchUp.Horizontal.Magnitude;
         int expectedW = Mathf.RoundToInt(upwardRate * 2 - 1); // when grade >= 2, this is only 0 if config UR = .5 && lastMove.w = 0
         int smallMoveW;
@@ -397,6 +399,7 @@ public class RandomWalkable {
     private static int GetSmallWRelativeToLargeDelta(GridPos oldLargePos, GridPos oldSmallPos, Parameters p) {
         int oldW = oldSmallPos.w - oldLargePos.w;
         if (p.hScale <= 0) return -oldW;
+        else if (p.vDelta == -1) return Randoms.CoinFlip ? 0 : Mathf.Clamp(Mathf.Clamp(oldW, 0, (p.vScale - 1) / 2) - oldW, -1, 1);
         else if (p.vScale < 5 || p.vDelta == 0) return Mathf.Clamp(-oldW, -1, 1);
         else if ((oldW < 1 || oldW > p.vScale) && p.vScale > 5 && p.grade < 1.5f) return Random.Range(3, p.vScale - 2) - oldW;
         else if (oldW < 3) return 1;
@@ -433,15 +436,26 @@ public class RandomWalkable {
         List<CaveGrid.Mod> newCave = new List<CaveGrid.Mod>();
         if (p.hScale <= 0) return newCave;
 
+        bool stalactite = Random.value < p.stalactites;
+        bool stalagmite = p.hScale <= 2 ? stalactite : Random.value < p.stalactites;
         for (int magnitude = 0; magnitude < p.hScale + 1; magnitude++)
             foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
                 CaveGrid.Mod mod = CaveGrid.Mod.Cave(largePos + unit, p.vScale - 1);
 
-                if (magnitude >= p.hScale) {
+                int stalactiteBounds = Mathf.CeilToInt(p.hScale) / 4;
+                if (magnitude <= stalactiteBounds) {
+                    if (stalagmite & stalactite) continue;
+                    else if (stalactite) mod = mod.RandomEnd(false);
+                    else if (stalagmite) mod = mod.RandomEnd(true);
+                } else if (p.hScale > 2 && magnitude <= stalactiteBounds + 1) {
+                    if (stalagmite & stalactite) mod = mod.RandomSubset();
+                    else if (stalactite) mod = mod.RandomFromMidpoint(true, false);
+                    else if (stalagmite) mod = mod.RandomFromMidpoint(false, true);
+                } else if (magnitude >= p.hScale) {
                     if (Random.value > p.hScale - magnitude + 1) continue;
                     mod = mod.RandomSubset();
                 }
-                else if (magnitude >= p.hScale - 1) mod = mod.RandomFromMidpoint();
+                else if (magnitude >= p.hScale - 1 && !stalactite && !stalagmite) mod = mod.RandomFromMidpoint();
                 else if (magnitude >= p.hScale - 2) mod = mod.RandomBump();
 
                 newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
@@ -464,8 +478,8 @@ public class RandomWalkable {
         // typically, (smallPos.World - onePosAgo.World).magnitude is 4. Finally, div by 4 because fourPosAgo
         float displacementFactor = (scaledDisplacement.sqrMagnitude / 16).ScaleTo(2/3f, 1) / 4;
         float forwardBiasFactor = p.forwardBias.ScaleTo(5/6f, 1f);
-        Debug.Log("Step time displacement " + scaledDisplacement + " " + displacementFactor.ToString("F1")
-            + " forwardBias " + forwardBiasFactor.ToString("F1"));
+        // Debug.Log("Step time displacement " + scaledDisplacement + " " + displacementFactor.ToString("F1")
+        //     + " forwardBias " + forwardBiasFactor.ToString("F1"));
         return displacementFactor;
     }
 }
