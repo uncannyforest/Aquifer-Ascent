@@ -198,6 +198,7 @@ public class RandomWalkable {
         p.Set(4, 1.5f);
 
         bool justFlipped = false;
+        bool? canJump = false; // used by GetSmallWRelativeToLargeDelta(), null means walkway activated (vDelta 1)
 
         int modeSwitchCountdown = modeSwitchRate;
 
@@ -214,10 +215,10 @@ public class RandomWalkable {
             bool largeWait = false;
             bool smallWait = false;
             if (p.followWall && p.hScale > 0)
-                FollowWallThenMoveLarge(ref largePos, ref largeMove, ref largeWait, ref smallPos, ref smallMove, ref smallWait, ref neededWalkableAdjustment, path, bias, elevChange, upward, p);
-            else MoveSmallAndLargeRelative(ref largePos, ref largeMove, ref smallPos, ref smallMove, ref neededWalkableAdjustment, path, bias, elevChange, upward, p);
+                FollowWallThenMoveLarge(ref largePos, ref largeMove, ref largeWait, ref smallPos, ref smallMove, ref smallWait, ref neededWalkableAdjustment, ref canJump, path, bias, elevChange, upward, p);
+            else MoveSmallAndLargeRelative(ref largePos, ref largeMove, ref smallPos, ref smallMove, ref neededWalkableAdjustment, ref canJump, path, bias, elevChange, upward, p);
 
-            Debug.Log(interpolateDebug + ", step " + modeSwitchCountdown + ", ether current " + etherCurrent.HComponents.Max() / inertiaOfEtherCurrent + ", bias " + bias.Max() + ", rel v " + (smallPos - largePos).w);
+            Debug.Log(interpolateDebug + ", step " + modeSwitchCountdown + ", ether current " + etherCurrent.HComponents.Max() / inertiaOfEtherCurrent + ", bias " + bias.Max() + ", rel v " + (smallPos - largePos).w + " jump " + canJump);
 
             List<CaveGrid.Mod> newCave = largeWait ? new List<CaveGrid.Mod>() : LargePosMods(largePos, smallPos, path, p);
             newCave.Add(CaveGrid.Mod.Cave(smallPos, p.hScale > 0 || neededWalkableAdjustment != null ? 1 : p.vScale - 1));
@@ -298,7 +299,7 @@ public class RandomWalkable {
     }
 
     private static void MoveSmallAndLargeRelative(ref GridPos largePos, ref GridPos largeMove,
-            ref GridPos smallPos, ref GridPos smallMove, ref int? neededWalkableAdjustment,
+            ref GridPos smallPos, ref GridPos smallMove, ref int? neededWalkableAdjustment, ref bool? canJump,
             Grid<bool> path, Vector3 bias, float elevChange, float upwardRate, Parameters p) {
         smallMove = GridPos.Random(elevChange, bias, upwardRate);
         neededWalkableAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
@@ -307,7 +308,7 @@ public class RandomWalkable {
             neededWalkableAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
         }
 
-        int smallRelativeW = (smallPos.w - largePos.w) + GetSmallWRelativeToLargeDelta(largePos, smallPos, p);
+        int smallRelativeW = (smallPos.w - largePos.w) + GetSmallWRelativeToLargeDelta(largePos, smallPos, ref canJump, p);
         GridPos largeRelativeHoriz = GetLargeHorizRelativeToSmall(largePos, smallPos, p);
         smallPos += smallMove;
         GridPos oldLargePos = largePos;
@@ -326,7 +327,7 @@ public class RandomWalkable {
     }
 
     private static void FollowWallThenMoveLarge(ref GridPos largePos, ref GridPos largeMove, ref bool largeWait,
-            ref GridPos smallPos, ref GridPos smallMove, ref bool smallWait, ref int? neededWalkableAdjustment,
+            ref GridPos smallPos, ref GridPos smallMove, ref bool smallWait, ref int? neededWalkableAdjustment, ref bool? canJump,
             Grid<bool> path, Vector3 bias, float elevChange, float upwardRate, Parameters p) {
         int hScale = Mathf.CeilToInt(p.hScale);
 
@@ -340,8 +341,8 @@ public class RandomWalkable {
             largeWait = horizDistance > catchUpThreshhold * 3;
             smallWait = horizDistance <= catchUpThreshhold;
 
-            smallMoveW = GetSmallWRelativeToLargeDelta(largePos, smallPos, p);
-        } else {
+            smallMoveW = GetSmallWRelativeToLargeDelta(largePos, smallPos, ref canJump, p);
+        } else {            
             int catchUpW = catchUp.w * expectedW; // so catchUp always >= 0 unless small got ahead
             int targetW = expectedW > 0 ? 1 : p.vScale; // when going down, target top of large
             largeWait = catchUpW > targetW;
@@ -350,6 +351,7 @@ public class RandomWalkable {
             if (expectedW == 0) expectedW = Randoms.Sign;
             float upChance = (catchUpW - targetW) / (1 + p.hScale);
             smallMoveW = Random.value < upChance ? expectedW : 0;
+            canJump = false;
         }
 
         if (!smallWait) {
@@ -396,15 +398,29 @@ public class RandomWalkable {
         }
     }
 
-    private static int GetSmallWRelativeToLargeDelta(GridPos oldLargePos, GridPos oldSmallPos, Parameters p) {
+    private static int GetSmallWRelativeToLargeDelta(GridPos oldLargePos, GridPos oldSmallPos, ref bool? nextCanJump, Parameters p) {
+        bool? canJump = nextCanJump;
         int oldW = oldSmallPos.w - oldLargePos.w;
+
+        // comments indicate what state we are in if we've reached this line of code
+        nextCanJump = false;
         if (p.hScale <= 0) return -oldW;
-        else if (p.vDelta == -1) return Randoms.CoinFlip ? 0 : Mathf.Clamp(Mathf.Clamp(oldW, 0, (p.vScale - 1) / 2) - oldW, -1, 1);
-        else if (p.vScale < 5 || p.vDelta == 0) return Mathf.Clamp(-oldW, -1, 1);
-        else if ((oldW < 1 || oldW > p.vScale) && p.vScale > 5 && p.grade < 1.5f) return Random.Range(3, p.vScale - 2) - oldW;
-        else if (oldW < 3) return 1;
-        else if (oldW > p.vScale - 2) return -1;
-        else return Random.value < 1/3f ? Randoms.Sign : 0;
+        // hScale is valid for considering vDelta -1 and 1
+        if (p.vDelta == -1) return Randoms.CoinFlip ? 0 : Mathf.Clamp(Mathf.Clamp(oldW, 0, (p.vScale - 1) / 2) - oldW, -1, 1);
+        if (p.vScale < 5) return Mathf.Clamp(-oldW, -1, 1);
+
+        // if anything, we only need vDelta to increment to start the walkway
+        nextCanJump = p.grade < 2;
+        if (p.vDelta == 0) return canJump == null ? -oldW : Mathf.Clamp(-oldW, -1, 1); // null means can jump down
+
+        // do walkway because all are valid: hScale, vScale, vDelta
+        nextCanJump = null;
+        if (canJump == true && oldW < 2) return Random.Range(3, p.vScale - 2) - oldW;
+        // but don't jump
+        if (oldW < 3) return 1;
+        if (oldW > p.vScale - 2) return -1;
+        // walkway is already within walkway range
+        return Random.value < 1/3f ? Randoms.Sign : 0;
     }
 
     private static void JumpByStepSize(ref GridPos largeMove, Parameters p) {
