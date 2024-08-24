@@ -3,6 +3,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public static class MathExtensions {
+    // same as Mathf.LerpUnclamped(from0, from1, value)
     public static float ScaleTo(this float value, float from0, float from1) {
         return (from1 - from0) * value + from0;
     }

@@ -5,7 +5,20 @@ using UnityEngine;
 
 public static class GridPosExtensions {
     public static float Max(this Vector3 v) => Mathf.Max(Mathf.Abs(v.x), Mathf.Abs(v.y), Mathf.Abs(v.z));
+    public static Vector3 SetNaNTo(this Vector3 v, float def) {
+        float x = float.IsNaN(v.x) ? def : v.x;
+        float y = float.IsNaN(v.y) ? def : v.y;
+        float z = float.IsNaN(v.z) ? def : v.z;
+        return new Vector3(x, y, z);
+    }
     public static Vector3 MaxNormalized(this Vector3 v) {
+        if (v.Max() == float.PositiveInfinity) {
+            float x = v.x == float.PositiveInfinity ? 1 : v.x == float.NegativeInfinity ? -1 : 0;
+            float y = v.y == float.PositiveInfinity ? 1 : v.y == float.NegativeInfinity ? -1 : 0;
+            float z = v.z == float.PositiveInfinity ? 1 : v.z == float.NegativeInfinity ? -1 : 0;
+            float correction = (x + y + z) / -3; // make sum to zero in this case
+            v = new Vector3(x, y, z) + correction * Vector3.one;
+        }
         if (v == Vector3.zero) return Vector3.zero;
         else return v / v.Max();
     }
@@ -67,6 +80,15 @@ public struct GridPos  {
             default: return this;
         }
     }
+
+    // Not used, but sanity check that Angle() was coded correctly
+    public static int UnitsAngle(GridPos from, GridPos to) {
+        int angle = to.ToUnitRotation() - from.ToUnitRotation();
+        if (angle < 0) angle += 360;
+        return angle;
+    }
+
+    public static float Angle(GridPos from, GridPos to) => Vector3.SignedAngle(from.World, to.World, Vector3.down);
 
     public int ToUnitRotation() {
         if (this == E) return 0;
@@ -140,7 +162,7 @@ public struct GridPos  {
     // multiply RandomHoriz parameter by this factor to get the outcome of the old algorithm prior to refactor
     public static float MODERATE_BIAS = 1/3f;
 
-    // bias has components [-1, 1] which sum to 0
+    // bias has components which sum to 0
     // bias magnitude (.Max()) impact on probability of angle from bias:
     // mag | 180deg 120deg 60deg 0deg
     //  0  |   1/6   1/6   1/6   1/6

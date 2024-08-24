@@ -7,19 +7,21 @@ using Random = UnityEngine.Random;
 public class RandomWalkable {
     public class Parameters {
         private static float[] LINK_MODE =
-            new float[] {0, 2f, 0f, 0, .25f, 2, 1, 1};
+            new float[] {0, 2f,    0f,     0, .25f, 2, 0,     1,    1};
         private static float[][] MODES = new float[][] {
-            new float[] {0, 1.5f, -1f,     0, 1f,  0, .51f,  .5f, 1}, // orig
-            new float[] {0, 8.5f, -1f,     0, 1f,  0, .51f,  .5f, 9}, // tall // or 8
-            new float[] {1, 5f,    1f,     1, .5f, 2, .51f,  .5f, 11}, // path small
-            new float[] {1, 8.5f,  1f,     1, .5f, 2, .51f,  .5f, 5}, // path tall // or 2
-            new float[] {1, 1.5f,  0.333f, 1, 3f,  0, .51f,  .5f, 3}, // stairwell small // or 10
-            new float[] {0, 1.5f,  1f,     0, 3f,  0, .51f,    1, 7}, // spiral // 9?
-            new float[] {1, 8.5f,  2f,    -1, 1f,  1, 8.5f,  .5f, 4}, // jump rooms
-            new float[] {1, 4f,    1f, .667f, 2.5f, 0, 8.5f, .5f, 6}, // jump levels
-            new float[] {1, 8.5f,  1f,     0, 1f, 1.5f, 3f,     1, 12}, // pillars
+            new float[] {0, 1.5f, -1f,     0, 1f,  0,  0,  .51f,  .5f, 1}, // orig
+            new float[] {0, 8.5f, -1f,     0, 1f,  0,  0,  .51f,  .5f, 9}, // tall // or 8
+            new float[] {1, 5f,    1f,     1, .5f, 2,  0,  .51f,  .5f, 11}, // path small
+            new float[] {1, 8.5f,  1f,     1, .5f, 2,  0,  .51f,  .5f, 5}, // path tall // or 2
+            new float[] {1, 1.5f,  0.333f, 1, 3f,  0,  0,  .51f,  .5f, 3}, // stairwell small // or 10
+            new float[] {0, 1.5f,  1f,     0, 3f,  0,  0,  .51f,    1, 7}, // spiral // 9?
+            new float[] {1, 8.5f,  2f,    -1, 1f,  1,  0,  8.5f,  .5f, 4}, // jump rooms
+            new float[] {1, 4f,    1f,     1, 2.5f, 0,  0,  8.5f, .5f, 6}, // jump levels
+            new float[] {1, 8.5f,  1f,     0, 1f, 1.5f,  0,  3f,   1, 12}, // pillars
+            new float[] {0, 1.5f,  1f,     0, 2f,   3,   1, 1f, .25f, 2}, // turn 1
+            new float[] {1, 6f,    1f,     0, 1.5f, 3,   1, 3f, .25f, 2}, // turn 2
         };
-        private static int PARAM_COUNT = 8; // not counting biome, which is at index PARAM_COUNT
+        private static int PARAM_COUNT = 9; // not counting biome, which is at index PARAM_COUNT
         public static int MODE_COUNT = MODES.Length;
 
         private float[] parameters;
@@ -35,9 +37,10 @@ public class RandomWalkable {
         public float hScale { get => parameters[2]; } // in [-0.5, 3]
         public int vDelta { get => parameters[3] < 0 ? -1 : parameters[3] < 2/3f ? 0 : 1; } // in [-1, 1]
         public float grade { get => parameters[4]; } // in [0, 3], 2 means diagonal
-        public float forwardBias { get => parameters[5]; } // in [0, 2]
-        public int stepSize { get => Mathf.RoundToInt(parameters[6]); } // [in 1, 8]
-        public float stalactites { get => parameters[7]; } // [in 0, 1]
+        public float inertia { get => parameters[5]; } // in [0, 2]
+        public float torque { get=> parameters[6]; } // in [0, 2]
+        public int stepSize { get => Mathf.RoundToInt(parameters[7]); } // [in 1, 8]
+        public float stalactites { get => parameters[8]; } // [in 0, 1]
 
         public int getBiomeForMode(int mode) => Mathf.RoundToInt(MODES[mode][PARAM_COUNT]);
 
@@ -108,7 +111,7 @@ public class RandomWalkable {
                 + parameters[0].ToString("F1") + (followWall ? "FW / " : "Ins / ")
                 + vScale + " x " + hScale.ToString("F1") + " / "
                 + parameters[3].ToString("F1") + (vDelta == 1 ? "WW / " : vDelta == 0 ? "Flr / " : "Low / ")
-                + grade.ToString("F1") + " x " + forwardBias.ToString("F1") + " / "
+                + grade.ToString("F1") + " x " + inertia.ToString("F1") + " x " + torque.ToString("F1") + " / "
                 + stepSize + " / " + stalactites.ToString("F1");
         }
 
@@ -122,8 +125,8 @@ public class RandomWalkable {
         public int SupplyBiome(int _) => Random.value < Maths.CubicInterpolate(lerp) ?
             getBiomeForMode(targetMode) : getBiomeForMode(prevMode);
 
-        public static int RandomMode() => Randoms.CoinFlip ? 6 : Random.Range(0, MODE_COUNT);
-        public static int RandomOtherMode(int mode) { if (mode != 6 && Randoms.CoinFlip) return 6;
+        public static int RandomMode() => Randoms.CoinFlip ? 9 : Random.Range(0, MODE_COUNT);
+        public static int RandomOtherMode(int mode) { if (mode != 9 && Randoms.CoinFlip) return 9;
             int newMode = Random.Range(1, Parameters.MODE_COUNT);
             if (newMode == mode) newMode = 0;
             return newMode;
@@ -194,12 +197,13 @@ public class RandomWalkable {
         initCave.Add(CaveGrid.Mod.Cave(smallPos));
         yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), Biomes.NoChange, 1/6f, smallPos, new GridPos[] {}, Vector3.zero);
 
-        Parameters p = new Parameters(6);
+        Parameters p = new Parameters(9);
         p.Set(2, p.hScale + 1);
         // p.Set(4, 1.5f);
 
         bool justFlipped = false;
         bool? canJump = false; // used by GetSmallWRelativeToLargeDelta(), null means walkway activated (vDelta 1)
+        float turnTime = 0;
 
         int modeSwitchCountdown = modeSwitchRate;
 
@@ -208,7 +212,8 @@ public class RandomWalkable {
             if (modeSwitchCountdown == 0) SetUpBiasForLinkMode(ref etherCurrent, ref smallMove, smallPos, largePos, inertiaOfEtherCurrent);
 
             UpdateEtherCurrent(ref etherCurrent, ref justFlipped, inertiaOfEtherCurrent, biasToLeaveStartLocation, p);
-            Vector3 bias = GetBias(p.followWall ? largeMove : smallMove, etherCurrent, p);
+            GridPos inertialMove = Turn(p.followWall ? largeMove : smallMove, etherCurrent, inertiaOfEtherCurrent, ref turnTime, p);
+            Vector3 bias = GetBias(inertialMove, etherCurrent, p);
             float elevChange = GetElevChangeRate(p);
             float upward = GetUpwardRate(upwardRate, p.followWall ? largeMove : smallMove, p);
 
@@ -270,9 +275,38 @@ public class RandomWalkable {
         } else justFlipped = false;
     }
 
+    private static GridPos Turn(GridPos move, GridPos etherCurrent, int inertiaOfEtherCurrent, ref float turnTime, Parameters p) {
+        if (p.torque == 0) {
+            turnTime = 0;
+            return move;
+        }
+
+                             int direction;          float absTime;
+        if (turnTime > 0)      { direction = 1;            absTime = turnTime;  }
+        else if (turnTime < 0) { direction = -1;           absTime = -turnTime; }
+        else                   { direction = Randoms.Sign; absTime = 1;         }
+
+        absTime -= p.torque;
+
+        if (absTime <= 0) {
+            float etherAngle = GridPos.Angle(move, etherCurrent) * direction; // positive if turning towards etherCurrent
+            float etherStrength = etherCurrent.Magnitude / (float)inertiaOfEtherCurrent;
+            if (etherAngle >= -120 && etherAngle < -60 && Random.value < etherStrength / p.inertia) {
+                direction *= -1;
+                Debug.Log("Swap direction");
+            }
+            absTime += 1;
+            move = move.Rotate(60 * direction);
+        }
+
+        turnTime = absTime * direction;
+        return move;
+    }
+
     private static Vector3 GetBias(GridPos move, GridPos etherCurrent, Parameters p) {
-        Vector3 etherCurrentBias = etherCurrent.HComponents.MaxNormalized() * (1 + p.forwardBias) * GridPos.MODERATE_BIAS;
-        Vector3 forwardBias = p.forwardBias * move.HComponents.MaxNormalized();
+        Vector3 etherCurrentBias = etherCurrent.HComponents.MaxNormalized() * (1 + p.inertia) * GridPos.MODERATE_BIAS * (1 - p.torque);
+        Vector3 forwardBias = p.inertia / ((1 - p.torque) * (1 - p.torque)) * move.HComponents.MaxNormalized(); // can be infinite
+        forwardBias = forwardBias.SetNaNTo(0);
         Vector3 bias = etherCurrentBias + forwardBias;
         Debug.Log("Bias from etherCurrent " + etherCurrentBias + " from forwardBias " + forwardBias
             + " (" + etherCurrentBias.Max().ToString("F1") + " + " + forwardBias.Max().ToString("F1") + " = " + bias.Max().ToString("F1")
@@ -282,8 +316,8 @@ public class RandomWalkable {
     }
 
     private static float GetElevChangeRate(Parameters p) {
-        if (p.grade < 1) return p.grade * 2/3;
-        else if (p.grade < 2) return (p.grade + 1) / 3;
+        if (p.grade < 1) return p.grade.ScaleTo(0, 2/3f);
+        else if (p.grade < 2) return (p.grade - 1).ScaleTo(2/3f, 1);
         else return 1;
     }
 
@@ -302,6 +336,7 @@ public class RandomWalkable {
     private static void MoveSmallAndLargeRelative(ref GridPos largePos, ref GridPos largeMove,
             ref GridPos smallPos, ref GridPos smallMove, ref int? neededWalkableAdjustment, ref bool? canJump,
             Grid<bool> path, Vector3 bias, float elevChange, float upwardRate, Parameters p) {
+        GridPos oldSmallMove = smallMove;
         smallMove = GridPos.Random(elevChange, bias, upwardRate);
         neededWalkableAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
         if (WalkableAdjustmentIsDisfavored(neededWalkableAdjustment, upwardRate)) { // roll the dice one more time
@@ -311,6 +346,7 @@ public class RandomWalkable {
 
         int smallRelativeW = (smallPos.w - largePos.w) + GetSmallWRelativeToLargeDelta(largePos, smallPos, ref canJump, p);
         GridPos largeRelativeHoriz = GetLargeHorizRelativeToSmall(largePos, smallPos, p);
+        MaybeRotateLargeHorizRelativeToSmall(ref largeRelativeHoriz, oldSmallMove, smallMove, p);
         smallPos += smallMove;
         GridPos oldLargePos = largePos;
         largePos = smallPos + largeRelativeHoriz - GridPos.up * smallRelativeW;
@@ -325,6 +361,13 @@ public class RandomWalkable {
         if (relative.Magnitude >= p.hScale + 1)
             relative -= GridPos.RoundFromVector3(relative.HComponents.MaxNormalized());
         return relative;
+    }
+
+    private static void MaybeRotateLargeHorizRelativeToSmall(ref GridPos largeRelativeHoriz,
+            GridPos oldSmallMove, GridPos smallMove, Parameters p) {
+        if (p.torque == 0 || oldSmallMove.Horizontal == smallMove.Horizontal) return;
+        int rotation = GridPos.UnitsAngle(oldSmallMove.Horizontal, smallMove.Horizontal);
+        largeRelativeHoriz = largeRelativeHoriz.Rotate(rotation);
     }
 
     private static void FollowWallThenMoveLarge(ref GridPos largePos, ref GridPos largeMove, ref bool largeWait,
@@ -495,7 +538,7 @@ public class RandomWalkable {
         Vector3 scaledDisplacement = Vector3.Scale(scale, smallPos.World - fourPosAgo.World);
         // typically, (smallPos.World - onePosAgo.World).magnitude is 4. Finally, div by 4 because fourPosAgo
         float displacementFactor = (scaledDisplacement.sqrMagnitude / 16).ScaleTo(2/3f, 1) / 4;
-        float forwardBiasFactor = p.forwardBias.ScaleTo(5/6f, 1f);
+        float forwardBiasFactor = p.inertia.ScaleTo(5/6f, 1f);
         // Debug.Log("Step time displacement " + scaledDisplacement + " " + displacementFactor.ToString("F1")
         //     + " forwardBias " + forwardBiasFactor.ToString("F1"));
         return displacementFactor;
