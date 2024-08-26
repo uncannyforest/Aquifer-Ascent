@@ -3,6 +3,10 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public static class MathExtensions {
+    // same as Mathf.Lerp(to0, to1, value) if it were unclamped
+    public static float ScaleFrom(this float value, float to0, float to1) {
+        return (value - to0) / (to1 - to0);
+    }
     // same as Mathf.LerpUnclamped(from0, from1, value)
     public static float ScaleTo(this float value, float from0, float from1) {
         return (from1 - from0) * value + from0;
@@ -12,6 +16,10 @@ public static class MathExtensions {
 public class Maths {
     public static float CubicInterpolate(float x) {
         return 3 * Mathf.Pow(x, 2) - 2 * Mathf.Pow(x, 3);
+    }
+
+    public static float EaseOut(float x) {
+        return 1 - (x - 1) * (x - 1);
     }
 
     // Given a value with random uniform distribution [0, 1],

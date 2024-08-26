@@ -10,16 +10,16 @@ public class RandomWalkable {
             new float[] {0, 2f,    0f,     0, .25f, 2, 0,     1,    1};
         private static float[][] MODES = new float[][] {
             new float[] {0, 1.5f, -1f,     0, 1f,  0,  0,  .51f,  .5f, 1}, // orig
-            new float[] {0, 8.5f, -1f,     0, 1f,  0,  0,  .51f,  .5f, 9}, // tall // or 8
-            new float[] {1, 5f,    1f,     1, .5f, 2,  0,  .51f,  .5f, 11}, // path small
-            new float[] {1, 8.5f,  1f,     1, .5f, 2,  0,  .51f,  .5f, 5}, // path tall // or 2
-            new float[] {1, 1.5f,  0.333f, 1, 3f,  0,  0,  .51f,  .5f, 3}, // stairwell small // or 10
-            new float[] {0, 1.5f,  1f,     0, 3f,  0,  0,  .51f,    1, 7}, // spiral // 9?
+            new float[] {0, 8.5f, -1f,     0, 1f,  0,  0,  .51f,  .5f, 10}, // tall
+            new float[] {1, 5f,    1f,     1, .5f, 2,  0,  .51f,  .5f, 7}, // path small
+            new float[] {1, 8.5f,  1f,     1, .5f, 2,  0,  .51f,  .5f, 2}, // path tall
+            new float[] {1, 1.5f,  0.333f, 1, 3f,  2,  0,  .51f,  .5f, 3}, // stairwell small
+            new float[] {0, 1.5f,  1f,     0, 3f,  0,  0,  .51f,    1, 11}, // spiral
             new float[] {1, 8.5f,  2f,    -1, 1f,  1,  0,  8.5f,  .5f, 4}, // jump rooms
-            new float[] {1, 4f,    1f,     1, 2.5f, 0,  0,  8.5f, .5f, 6}, // jump levels
-            new float[] {1, 8.5f,  1f,     0, 1f, 1.5f,  0,  3f,   1, 12}, // pillars
-            new float[] {0, 1.5f,  1f,     0, 2f,   3,   1, 1f, .25f, 2}, // turn 1
-            new float[] {1, 6f,    1f,     0, 1.5f, 3,   1, 3f, .25f, 2}, // turn 2
+            new float[] {1, 4f,    1f,     1, 2.5f, 2,  0,  8.5f, .5f, 6}, // jump levels
+            new float[] {1, 8.5f,  1f,     0, 1f, 1.5f,  0,  3f,   1,  5}, // pillars 12
+            new float[] {0, 1.5f,  1f,     0, 2f,   3,   1, 1f, .25f,  9}, // turn
+            new float[] {1, 3f,  4f,     0, 3f,   0,  0,  3f,   1,    12}, // tower
         };
         private static int PARAM_COUNT = 9; // not counting biome, which is at index PARAM_COUNT
         public static int MODE_COUNT = MODES.Length;
@@ -125,25 +125,11 @@ public class RandomWalkable {
         public int SupplyBiome(int _) => Random.value < Maths.CubicInterpolate(lerp) ?
             getBiomeForMode(targetMode) : getBiomeForMode(prevMode);
 
-        public static int RandomMode() => Randoms.CoinFlip ? 9 : Random.Range(0, MODE_COUNT);
-        public static int RandomOtherMode(int mode) { if (mode != 9 && Randoms.CoinFlip) return 9;
+        public static int RandomMode() => Random.Range(0, MODE_COUNT);
+        public static int RandomOtherMode(int mode) {
             int newMode = Random.Range(1, Parameters.MODE_COUNT);
             if (newMode == mode) newMode = 0;
             return newMode;
-        }
-
-        public static int RandomOtherModeLegacy(int mode) {
-            int currentModeLegacy = mode / 4;
-            int newMode = Random.Range(1, Parameters.MODE_COUNT / 4);
-            if (newMode == currentModeLegacy) newMode = 0;
-            return newMode * 4 + Random.Range(0, 4);
-        }
-
-        public static int RandomOtherModeLegacyScale(int mode) {
-            int currentScaleLegacy = mode % 4;
-            int newMode = Random.Range(1, 4);
-            if (newMode == currentScaleLegacy) newMode = 0;
-            return newMode + (mode / 4) * 4;
         }
     }
 
@@ -197,9 +183,8 @@ public class RandomWalkable {
         initCave.Add(CaveGrid.Mod.Cave(smallPos));
         yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), Biomes.NoChange, 1/6f, smallPos, new GridPos[] {}, Vector3.zero);
 
-        Parameters p = new Parameters(9);
-        p.Set(2, p.hScale + 1);
-        // p.Set(4, 1.5f);
+        Parameters p = new Parameters(0);
+        p.Set(4, 1.5f);
 
         bool justFlipped = false;
         bool? canJump = false; // used by GetSmallWRelativeToLargeDelta(), null means walkway activated (vDelta 1)
@@ -376,14 +361,24 @@ public class RandomWalkable {
         int hScale = Mathf.CeilToInt(p.hScale);
 
         GridPos catchUp = largePos - smallPos;
-        float catchUpThreshhold = (float)hScale * (p.grade < 2 ? .25f + .75f/p.stepSize : .5f + .5f/p.stepSize);
+        //float stepSizeFactor = p.grade < 2 ? .75f : .5f;
+
+        // smallTargetLargeFactor will interpolate between 0 @ catchUpMin---beyond which smallWait = true if p.grade < 2
+        // ---and 1 @ catchUpMax---beyond which largeWait = true if p.grade < 2.
+        // Normally, we want catchUpThreshhold to be hScale.
+        // Usually, p.inertia is 2. But when p.inertia is 0, we want [catchUpMin, catchUpMax] to be [0, 3].
+        // When jumping levels, we have large stepSize, and we want it to be around .5 to linger inside the edge.
+        // When jumping rooms, large stepSize and p.inertia is 1, so catchUpMin and catchUpMax are about half jumping levels.
+        float catchUpThreshhold = (float)hScale * Mathf.Lerp(1, 1/p.stepSize, .5f);// stepSizeFactor);
+        float catchUpMin = p.inertia.ScaleFrom(0, 2).ScaleTo(0, catchUpThreshhold + 1);
+        float catchUpMax = p.inertia.ScaleFrom(0, 2).ScaleTo(3, catchUpThreshhold * 3);
         int horizDistance = catchUp.Horizontal.Magnitude;
         int expectedW = Mathf.RoundToInt(upwardRate * 2 - 1); // when grade >= 2, this is only 0 if config UR = .5 && lastMove.w = 0
         int smallMoveW;
 
         if (p.grade < 2) {
-            largeWait = horizDistance > catchUpThreshhold * 3;
-            smallWait = horizDistance <= catchUpThreshhold;
+            largeWait = horizDistance > catchUpMax;
+            smallWait = horizDistance < catchUpMin;
 
             smallMoveW = GetSmallWRelativeToLargeDelta(largePos, smallPos, ref canJump, p);
         } else {            
@@ -393,17 +388,24 @@ public class RandomWalkable {
             smallWait = catchUpW < targetW; // if expectedW == 0, always smallWait
 
             if (expectedW == 0) expectedW = Randoms.Sign;
-            float upChance = (catchUpW - targetW) / (1 + p.hScale);
+            // Usually, (catchupW - targetW) == 1 and largeWait == true.
+            // Usually, p.stalactites == .5.
+            // When p.hScale == .333f, upChance is 3/4
+            // When p.hScale == 2, upChance is 1/3
+            // But when p.stalactites is near 1, upChance is 1.
+            float lerp = Mathf.InverseLerp(.5f, 1, p.stalactites);
+            float upChance = Mathf.Lerp((catchUpW - targetW) / (1 + p.hScale), 1, Maths.EaseOut(lerp));
             smallMoveW = Random.value < upChance ? expectedW : 0;
             canJump = false;
         }
 
         if (!smallWait) {
-            // at this point, catchUpThreshhold + 1 <= horizDistance <= catchUpThreshhold * 3 (unless smallCatchUp or grade >= 2)
-            float smallTargetLargeFactor = catchUpThreshhold < .51f ? .99f
-                : Mathf.Clamp01((horizDistance - catchUpThreshhold - 1f) / (catchUpThreshhold * 2 - 1));
-            Debug.Log("catchUp " + catchUp + " catchUpThresshold " + catchUpThreshhold + " smallTargetLargeFactor " + smallTargetLargeFactor);
+            float smallTargetLargeFactor = Mathf.InverseLerp(catchUpMin, catchUpMax, horizDistance);
             Vector3 smallBias = Vector3.Lerp(smallMove.HComponents, catchUp.HComponents.MaxNormalized(), smallTargetLargeFactor);
+            Debug.Log("catchUp " + catchUp + " catchUpThresshold " + catchUpThreshhold + " catchUpMin " + catchUpMin
+                + " catchUpMax " + catchUpMax + " smallTargetLargeFactor " + smallTargetLargeFactor
+                + " smallMove " + smallMove.HComponents + " catchUp normalized " + catchUp.HComponents.MaxNormalized()
+                + " result " + GridPos.RoundFromVector3(smallBias.MaxNormalized()));
             smallMove = GridPos.RoundFromVector3(smallBias.MaxNormalized());
             smallMove.w = smallMoveW;
             int wallAhead = CaveGrid.Grid[smallPos + smallMove] ? 0 : 1;
@@ -423,8 +425,8 @@ public class RandomWalkable {
                     if (wallCode == 0b01111 || wallCode == 0b10000) turnCode = 1; // left
                     else if (wallCode == 0b11110 || wallCode == 0b00001) turnCode = -1; // right
                     else if (wallCode == 0b10001 || wallCode == 0b01110) turnCode = Randoms.Sign;
-                    else turnCode = Random.Range(-1, 2);
-                } else turnCode = Random.Range(-1, 2);
+                    else turnCode = RandomTurnCode();
+                } else turnCode = RandomTurnCode();
             }
             // Debug.Log("Factor " + smallTargetLargeFactor + " smallMove " + smallMove + " wall code " + wallCode + (turnCode == 1 ? " turn left" : turnCode == -1 ? " turn right" : " no turn"));
             smallMove = smallMove.Rotate(turnCode * 60);
@@ -440,6 +442,12 @@ public class RandomWalkable {
             largePos += largeMove;
             catchUp = largePos - smallPos;
         }
+    }
+
+    private static int RandomTurnCode() {
+        int turnCode = Random.Range(-1, 2); // Random.Range(3, 9) / 4 - 1;
+        if (turnCode != 0) Debug.Log("RANDOMLY TURNED! " + turnCode);
+        return turnCode;
     }
 
     private static int GetSmallWRelativeToLargeDelta(GridPos oldLargePos, GridPos oldSmallPos, ref bool? nextCanJump, Parameters p) {
@@ -503,7 +511,7 @@ public class RandomWalkable {
             foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
                 CaveGrid.Mod mod = CaveGrid.Mod.Cave(largePos + unit, p.vScale - 1);
 
-                int stalactiteBounds = Mathf.CeilToInt(p.hScale) / 4;
+                int stalactiteBounds = Mathf.Max(0, Mathf.CeilToInt(p.hScale) / 2 - 1);
                 if (magnitude <= stalactiteBounds) {
                     if (stalagmite & stalactite) continue;
                     else if (stalactite) mod = mod.RandomEnd(false);
@@ -534,7 +542,7 @@ public class RandomWalkable {
         GridPos fourPosAgo = recentPos.First.Value;
         recentPos.RemoveFirst();
         recentPos.AddLast(smallPos);
-        Vector3 scale = new Vector3(1, 2, 1);
+        Vector3 scale = new Vector3(1, 3, 1);
         Vector3 scaledDisplacement = Vector3.Scale(scale, smallPos.World - fourPosAgo.World);
         // typically, (smallPos.World - onePosAgo.World).magnitude is 4. Finally, div by 4 because fourPosAgo
         float displacementFactor = (scaledDisplacement.sqrMagnitude / 16).ScaleTo(2/3f, 1) / 4;
