@@ -19,7 +19,7 @@ public class RandomWalkable {
             new float[] {1, 4f,    1f,     1, 2.5f, 2,  0,  8.5f, .5f, 6}, // jump levels
             new float[] {1, 8.5f,  1f,     0, 1f, 1.5f,  0,  3f,   1,  5}, // pillars 12
             new float[] {0, 1.5f,  1f,     0, 2f,   3,   1, 1f, .25f,  9}, // turn
-            new float[] {1, 3f,  4f,     0, 3f,   0,  0,  3f,   1,    12}, // tower
+            new float[] {1, 3f,  5f,     0, 3f,   0,  0,  3f,   1,    12}, // tower
         };
         private static int PARAM_COUNT = 9; // not counting biome, which is at index PARAM_COUNT
         public static int MODE_COUNT = MODES.Length;
@@ -431,6 +431,17 @@ public class RandomWalkable {
             // Debug.Log("Factor " + smallTargetLargeFactor + " smallMove " + smallMove + " wall code " + wallCode + (turnCode == 1 ? " turn left" : turnCode == -1 ? " turn right" : " no turn"));
             smallMove = smallMove.Rotate(turnCode * 60);
             neededWalkableAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
+            if (WalkableAdjustmentIsDisfavored(neededWalkableAdjustment, 0)) {
+                int newTurnCode = Randoms.Sign;
+                GridPos newSmallMove = smallMove.Rotate(newTurnCode * 60);
+                int? newNeededWalkableAdjustment = AdjustToBeWalkable(ref newSmallMove, smallPos, path, p);
+                Debug.Log("Retry Walkable in FollowWallAndThenMoveLarge.  Old turnCode " + turnCode + " smallMove " + smallMove
+                    + " new turnCode " + newTurnCode + " smallMove " + newSmallMove + " neededWalkableAdjustment " + newNeededWalkableAdjustment);
+                if (!WalkableAdjustmentIsDisfavored(newNeededWalkableAdjustment, 0)) {
+                    smallMove = newSmallMove;
+                    neededWalkableAdjustment = newNeededWalkableAdjustment;
+                }
+            }
             smallPos += smallMove;
         }
         if (!largeWait) {
@@ -542,12 +553,14 @@ public class RandomWalkable {
         GridPos fourPosAgo = recentPos.First.Value;
         recentPos.RemoveFirst();
         recentPos.AddLast(smallPos);
-        Vector3 scale = new Vector3(1, 3, 1);
-        Vector3 scaledDisplacement = Vector3.Scale(scale, smallPos.World - fourPosAgo.World);
+        float scaleY = 4;
+        Vector3 displacement = smallPos.World - fourPosAgo.World;
+        Vector3 displacementHoriz = Vector3.Scale(displacement, new Vector3(1, 0, 1));
+        float semiChebyshevSquared = Mathf.Max(displacement.y * displacement.y * scaleY * scaleY, displacementHoriz.sqrMagnitude);
         // typically, (smallPos.World - onePosAgo.World).magnitude is 4. Finally, div by 4 because fourPosAgo
-        float displacementFactor = (scaledDisplacement.sqrMagnitude / 16).ScaleTo(2/3f, 1) / 4;
+        float displacementFactor = (semiChebyshevSquared / 16).ScaleTo(2/3f, 1) / 4;
         float forwardBiasFactor = p.inertia.ScaleTo(5/6f, 1f);
-        // Debug.Log("Step time displacement " + scaledDisplacement + " " + displacementFactor.ToString("F1")
+        // Debug.Log("Step time displacement " + semiChebyshevSquared + " " + displacementFactor.ToString("F1")
         //     + " forwardBias " + forwardBiasFactor.ToString("F1"));
         return displacementFactor;
     }

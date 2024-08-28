@@ -10,6 +10,7 @@ public class RisingWater : MonoBehaviour {
     private List<StandardOrb> orbs = new List<StandardOrb>();
 
     private Vector3 startLocation;
+    private Rigidbody myRigidbody;
     private float startChargeLevel;
     public StandardOrb lowestOrb;
     public StandardOrb secondLowestOrb;
@@ -19,6 +20,7 @@ public class RisingWater : MonoBehaviour {
 
     void Start() {
         startLocation = transform.position;
+        myRigidbody = GetComponent<Rigidbody>(); // not used rn, causes logs to move horizontally with water flow
     }
 
     public void AddOrb(StandardOrb go) {
@@ -69,7 +71,7 @@ public class RisingWater : MonoBehaviour {
         startChargeLevel = lowestOrb.state.currentChargeLevel;
     }
 
-    void Update() {
+    void FixedUpdate() {
         if (lowestOrb == null) return;
         transform.position = Vector3.Lerp(lowestOrb.transform.position + currentLevelBelow * Vector3.down, startLocation, lowestOrb.state.currentChargeLevel / startChargeLevel);
     }
