@@ -8,6 +8,10 @@ public class RandomWalkable {
     public class Parameters {
         private static float[] LINK_MODE =
             new float[] {0, 2f,    0f,     0, .25f, 2, 0,     1,    1};
+        private static float[] PARAMS_MIN =
+            new float[] {0, 1.5f, -1f,    -1,  0,  0,  0,  .51f,    0, 8};
+        private static float[] PARAMS_MAX =
+            new float[] {1,10.5f,  3f,     1, 3f,  4,  1, 12.5f,    1, 8};
         private static float[][] MODES = new float[][] {
             new float[] {0, 1.5f, -1f,     0, 1f,  0,  0,  .51f,  .5f, 1}, // orig
             new float[] {0, 8.5f, -1f,     0, 1f,  0,  0,  .51f,  .5f, 10}, // tall
@@ -20,9 +24,11 @@ public class RandomWalkable {
             new float[] {1, 8.5f,  1f,     0, 1f, 1.5f,  0,  3f,   1,  5}, // pillars 12
             new float[] {0, 1.5f,  1f,     0, 2f,   3,   1, 1f, .25f,  9}, // turn
             new float[] {1, 3f,  5f,     0, 3f,   0,  0,  3f,   1,    12}, // tower
+            new float[PARAM_COUNT + 1] // random
         };
-        private static int PARAM_COUNT = 9; // not counting biome, which is at index PARAM_COUNT
+        private const int PARAM_COUNT = 9; // not counting biome, which is at index PARAM_COUNT
         public static int MODE_COUNT = MODES.Length;
+        public static int RANDOM_MODE = MODE_COUNT - 1;
 
         private float[] parameters;
         private float[] interpolateDiff;
@@ -47,6 +53,7 @@ public class RandomWalkable {
         public Parameters(int targetMode) {
             this.targetMode = targetMode;
             parameters = new float[PARAM_COUNT];
+            SetRandomParams();
             Array.Copy(MODES[targetMode], parameters, PARAM_COUNT);
             ResetInterpolation();
         }
@@ -63,8 +70,7 @@ public class RandomWalkable {
             Array.Copy(LINK_MODE, parameters, PARAM_COUNT);
             ResetInterpolation();
             targetMode = RandomOtherMode(targetMode);
-            targetHScale = MODES[targetMode][2];
-            RandomizeHScale(targetHScale);
+            RandomizeHScale(MODES[targetMode][2]);
             linkModeLength += 2 * Mathf.CeilToInt(targetHScale) - Mathf.RoundToInt(MODES[targetMode][6]);
             if (linkModeLength < 1) linkModeLength = 1;
             lerp = 0;
@@ -73,6 +79,10 @@ public class RandomWalkable {
         }
 
         public void JumpToNewMode() {
+            if (targetMode == RANDOM_MODE) {
+                parameters = MODES[targetMode];
+                return;
+            }
             int partialMode = RandomMode();
             for (int i = 0; i < PARAM_COUNT; i++) {
                 if (ParamIsHScale(i)) {
@@ -93,7 +103,6 @@ public class RandomWalkable {
             lerpStep = fraction;
             for (int i = 0; i < PARAM_COUNT; i++) {
                 float targetLevel = MODES[targetMode][i];
-                if (ParamIsHScale(i)) targetLevel = RandomizeHScale(targetLevel);
                 interpolateDiff[i] = (targetLevel - parameters[i]) * PARAM_COUNT * fraction;
             }
         }
@@ -125,11 +134,26 @@ public class RandomWalkable {
         public int SupplyBiome(int _) => Random.value < Maths.CubicInterpolate(lerp) ?
             getBiomeForMode(targetMode) : getBiomeForMode(prevMode);
 
-        public static int RandomMode() => Random.Range(0, MODE_COUNT);
-        public static int RandomOtherMode(int mode) {
+        public int RandomMode() {
+            int mode = Random.Range(0, MODE_COUNT);
+            if (mode == RANDOM_MODE) SetRandomParams();
+            return mode;
+        }
+        public int RandomOtherMode(int mode) {
             int newMode = Random.Range(1, Parameters.MODE_COUNT);
             if (newMode == mode) newMode = 0;
+            if (newMode == RANDOM_MODE) SetRandomParams();
             return newMode;
+        }
+
+        public void SetRandomParams() {
+            for (int i = 0; i < PARAM_COUNT + 1; i++) {
+                if (ParamIsHScale(i)) {
+                    targetHScale = PARAMS_MIN[i] + RandomizeHScale(0) * PARAMS_MAX[i];
+                    MODES[RANDOM_MODE][i] = targetHScale;
+                }
+                else MODES[RANDOM_MODE][i] = Random.Range(PARAMS_MIN[i], PARAMS_MAX[i]);
+            }
         }
     }
 
@@ -183,7 +207,8 @@ public class RandomWalkable {
         initCave.Add(CaveGrid.Mod.Cave(smallPos));
         yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), Biomes.NoChange, 1/6f, smallPos, new GridPos[] {}, Vector3.zero);
 
-        Parameters p = new Parameters(0);
+        Parameters p = new Parameters(11);
+        p.SetRandomParams();
         p.Set(4, 1.5f);
 
         bool justFlipped = false;
