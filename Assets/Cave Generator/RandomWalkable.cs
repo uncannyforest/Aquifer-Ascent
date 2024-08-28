@@ -53,7 +53,6 @@ public class RandomWalkable {
         public Parameters(int targetMode) {
             this.targetMode = targetMode;
             parameters = new float[PARAM_COUNT];
-            SetRandomParams();
             Array.Copy(MODES[targetMode], parameters, PARAM_COUNT);
             ResetInterpolation();
         }
@@ -207,8 +206,7 @@ public class RandomWalkable {
         initCave.Add(CaveGrid.Mod.Cave(smallPos));
         yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), Biomes.NoChange, 1/6f, smallPos, new GridPos[] {}, Vector3.zero);
 
-        Parameters p = new Parameters(11);
-        p.SetRandomParams();
+        Parameters p = new Parameters(0);
         p.Set(4, 1.5f);
 
         bool justFlipped = false;
@@ -280,7 +278,8 @@ public class RandomWalkable {
     private static void UpdateEtherCurrent(ref GridPos etherCurrent, ref bool justFlipped, int inertiaOfEtherCurrent, Vector3 biasToLeaveStartLocation, Parameters p) {
         etherCurrent += GridPos.RandomHoriz(biasToLeaveStartLocation * GridPos.MODERATE_BIAS);
         if (etherCurrent.HComponents.Max() > inertiaOfEtherCurrent) {
-            etherCurrent /= -2;
+            etherCurrent /= 2;
+            etherCurrent = etherCurrent.Rotate(Randoms.Sign * 120);
             justFlipped = true;
         } else justFlipped = false;
     }

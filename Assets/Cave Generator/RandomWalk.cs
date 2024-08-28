@@ -178,7 +178,10 @@ public class RandomWalk : MonoBehaviour {
                     orb.chargeTime *= cheatSlowdown;
                 }
             }
-            etherCurrent = step.etherCurrent;
+            if (step.etherCurrent.y > .5f) {
+                Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta, 600);
+                etherCurrent = new Vector3(step.etherCurrent.x, 0, step.etherCurrent.z);
+            } else etherCurrent = step.etherCurrent;
             exitDirection = step.exitDirection;
             prevLoc = nextLoc;
             nextLoc = step.location;
@@ -190,11 +193,7 @@ public class RandomWalk : MonoBehaviour {
     void Update() {
         progress += Time.deltaTime / (modRate * relSpeed);
         transform.position = Vector3.Lerp(prevLoc, nextLoc, Maths.CubicInterpolate(Mathf.Clamp01(progress)));
-        if (etherCurrent.y > .5f) {
-            etherCurrent = new Vector3(etherCurrent.x, 0, etherCurrent.z);
-            Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta, 600);
-        } else
-            Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta);
+        Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta);
 
         Debug.DrawLine(transform.position, transform.position + exitDirection.World, Color.red);
 
