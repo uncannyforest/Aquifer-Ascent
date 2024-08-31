@@ -13,17 +13,19 @@ public class RandomWalkable {
         private static float[] PARAMS_MAX =
             new float[] {1,10.5f,  3f,     1, 3f,  4,  1, 12.5f,    1, 8};
         private static float[][] MODES = new float[][] {
-            new float[] {0, 1.5f, -1f,     0, 1f,  0,  0,  .51f,  .5f, 1}, // orig
-            new float[] {0, 8.5f, -1f,     0, 1f,  0,  0,  .51f,  .5f, 10}, // tall
-            new float[] {1, 5f,    1f,     1, .5f, 2,  0,  .51f,  .5f, 7}, // path small
-            new float[] {1, 8.5f,  1f,     1, .5f, 2,  0,  .51f,  .5f, 2}, // path tall
-            new float[] {1, 1.5f,  0.333f, 1, 3f,  2,  0,  .51f,  .5f, 3}, // stairwell small
-            new float[] {0, 1.5f,  1f,     0, 3f,  0,  0,  .51f,    1, 11}, // spiral
-            new float[] {1, 8.5f,  2f,    -1, 1f,  1,  0,  8.5f,  .5f, 4}, // jump rooms
-            new float[] {1, 4f,    1f,     1, 2.5f, 2,  0,  8.5f, .5f, 6}, // jump levels
-            new float[] {1, 8.5f,  1f,     0, 1f, 1.5f,  0,  3f,   1,  5}, // pillars 12
-            new float[] {0, 1.5f,  1f,     0, 2f,   3,   1, 1f, .25f,  9}, // turn
-            new float[] {1, 3f,  5f,     0, 3f,   0,  0,  3f,   1,    12}, // tower
+            new float[] {0, 1.5f, -1f,     0,  1f,   0,  0,  .51f,  .5f, 1}, // orig
+            new float[] {0, 8.5f, -1f,     0,  1f,   0,  0,  .51f,  .5f, 10}, // tall
+            new float[] {1, 5f,    1f,     1,  .5f,  2,  0,  .51f,  .5f, 7}, // path small
+            new float[] {1, 8.5f,  1f,     1,  .5f,  2,  0,  .51f,  .5f, 2}, // path tall
+            new float[] {1, 1.5f,  0.333f, 1,  3f,   2,  0,  .51f,  .5f, 3}, // stairwell small
+            // new float[] {0, 1.5f,  1f,     0, 3f,  0,  0,  .51f,    1, 11}, // spiral
+            new float[] {1, 8.5f,  2f,    -1,  1f,   1,  0,  8.5f,  .5f, 4}, // jump rooms
+            // new float[] {1, 4f,    1f,     1, 2.5f, 2,  0,  8.5f, .5f, 6}, // jump levels
+            new float[] {1, 8.5f,  1f,     0,  1f, 1.5f, 0,   3f,    1,  5}, // pillars
+            new float[] {0, 1.5f,  1f,     0,  2f,   3,  1,  .51f, .25f, 9}, // turn
+            new float[] {1, 3f,  5f,       1,  3f,   0,  0,   3f,    1, 12}, // tower
+            new float[] {1, 8.5f, 2f,      1, 2.25f, 1,  0,   6f,  .25f, 6}, // cliff
+            new float[] {0, 8.5f, -1f,     0, 1.5f, 1f, .8f, .51f, .5f, 11}, // tall turn
             new float[PARAM_COUNT + 1] // random
         };
         private const int PARAM_COUNT = 9; // not counting biome, which is at index PARAM_COUNT
@@ -41,7 +43,8 @@ public class RandomWalkable {
         public bool followWall { get => parameters[0] > 1/3f; }
         public int vScale { get => Mathf.RoundToInt(parameters[1]); } // in [1.5, 8.5]
         public float hScale { get => parameters[2]; } // in [-0.5, 3]
-        public int vDelta { get => parameters[3] < 0 ? -1 : parameters[3] < 2/3f ? 0 : 1; } // in [-1, 1]
+        public float vDelta { get => parameters[3]; } // in [-1, 1]
+        public int vDeltaMode { get => parameters[3] < 0 ? -1 : parameters[3] < 2/3f ? 0 : 1; } // in [-1, 1]
         public float grade { get => parameters[4]; } // in [0, 3], 2 means diagonal
         public float inertia { get => parameters[5]; } // in [0, 2]
         public float torque { get=> parameters[6]; } // in [0, 2]
@@ -102,6 +105,7 @@ public class RandomWalkable {
             lerpStep = fraction;
             for (int i = 0; i < PARAM_COUNT; i++) {
                 float targetLevel = MODES[targetMode][i];
+                if (ParamIsHScale(i) && targetMode != RANDOM_MODE) targetLevel = RandomizeHScale(targetLevel);
                 interpolateDiff[i] = (targetLevel - parameters[i]) * PARAM_COUNT * fraction;
             }
         }
@@ -118,13 +122,13 @@ public class RandomWalkable {
             return "Approaching mode " + targetMode + " and hScale " + targetHScale.ToString("F1") + " at "
                 + parameters[0].ToString("F1") + (followWall ? "FW / " : "Ins / ")
                 + vScale + " x " + hScale.ToString("F1") + " / "
-                + parameters[3].ToString("F1") + (vDelta == 1 ? "WW / " : vDelta == 0 ? "Flr / " : "Low / ")
+                + parameters[3].ToString("F1") + (vDeltaMode == 1 ? "WW / " : vDeltaMode == 0 ? "Flr / " : "Low / ")
                 + grade.ToString("F1") + " x " + inertia.ToString("F1") + " x " + torque.ToString("F1") + " / "
                 + stepSize + " / " + stalactites.ToString("F1");
         }
 
         private bool ParamIsHScale(int param) => param == 2;
-        private float RandomizeHScale(float minimum) {
+        public float RandomizeHScale(float minimum) {
             targetHScale = minimum + Maths.SuperExpDecayDistribution(Random.value);
             Debug.Log("Approaching hScale " + targetHScale + " (minimum " + minimum + ")");
             return targetHScale;
@@ -212,6 +216,7 @@ public class RandomWalkable {
         bool justFlipped = false;
         bool? canJump = false; // used by GetSmallWRelativeToLargeDelta(), null means walkway activated (vDelta 1)
         float turnTime = 0;
+        float lastGrade = 0;
 
         int modeSwitchCountdown = modeSwitchRate;
 
@@ -229,7 +234,7 @@ public class RandomWalkable {
             bool largeWait = false;
             bool smallWait = false;
             if (p.followWall && p.hScale > 0)
-                FollowWallThenMoveLarge(ref largePos, ref largeMove, ref largeWait, ref smallPos, ref smallMove, ref smallWait, ref neededWalkableAdjustment, ref canJump, path, bias, elevChange, upward, p);
+                FollowWallThenMoveLarge(ref largePos, ref largeMove, ref largeWait, ref smallPos, ref smallMove, ref smallWait, ref neededWalkableAdjustment, ref canJump, ref lastGrade, path, bias, elevChange, upward, p);
             else MoveSmallAndLargeRelative(ref largePos, ref largeMove, ref smallPos, ref smallMove, ref neededWalkableAdjustment, ref canJump, path, bias, elevChange, upward, p);
 
             Debug.Log(interpolateDebug + ", step " + modeSwitchCountdown + ", ether current " + etherCurrent.HComponents.Max() / inertiaOfEtherCurrent + ", bias " + bias.Max() + ", rel v " + (smallPos - largePos).w + " jump " + canJump);
@@ -278,9 +283,11 @@ public class RandomWalkable {
     private static void UpdateEtherCurrent(ref GridPos etherCurrent, ref bool justFlipped, int inertiaOfEtherCurrent, Vector3 biasToLeaveStartLocation, Parameters p) {
         etherCurrent += GridPos.RandomHoriz(biasToLeaveStartLocation * GridPos.MODERATE_BIAS);
         if (etherCurrent.HComponents.Max() > inertiaOfEtherCurrent) {
+            Debug.Log("Ether current flipped, was " + etherCurrent);
             etherCurrent /= 2;
             etherCurrent = etherCurrent.Rotate(Randoms.Sign * 120);
             justFlipped = true;
+            Debug.Log("Now " + etherCurrent);
         } else justFlipped = false;
     }
 
@@ -380,7 +387,7 @@ public class RandomWalkable {
     }
 
     private static void FollowWallThenMoveLarge(ref GridPos largePos, ref GridPos largeMove, ref bool largeWait,
-            ref GridPos smallPos, ref GridPos smallMove, ref bool smallWait, ref int? neededWalkableAdjustment, ref bool? canJump,
+            ref GridPos smallPos, ref GridPos smallMove, ref bool smallWait, ref int? neededWalkableAdjustment, ref bool? canJump, ref float lastGrade,
             Grid<bool> path, Vector3 bias, float elevChange, float upwardRate, Parameters p) {
         int hScale = Mathf.CeilToInt(p.hScale);
 
@@ -413,11 +420,10 @@ public class RandomWalkable {
 
             if (expectedW == 0) expectedW = Randoms.Sign;
             // Usually, (catchupW - targetW) == 1 and largeWait == true.
-            // Usually, p.stalactites == .5.
             // When p.hScale == .333f, upChance is 3/4
             // When p.hScale == 2, upChance is 1/3
-            // But when p.stalactites is near 1, upChance is 1.
-            float lerp = Mathf.InverseLerp(.5f, 1, p.stalactites);
+            // But when p.vDelta is near 1, upChance is 1.
+            float lerp = Mathf.InverseLerp(0, 1, p.vDelta);
             float upChance = Mathf.Lerp((catchUpW - targetW) / (1 + p.hScale), 1, Maths.EaseOut(lerp));
             smallMoveW = Random.value < upChance ? expectedW : 0;
             canJump = false;
@@ -472,8 +478,12 @@ public class RandomWalkable {
             largeMove = Random.value < (16 - 5 * p.grade) / 6 // 3 -> 1/6, 2 or less -> 1
                 ? GridPos.Random(smallWait && p.grade < 2 ? 0 : elevChange, bias, upwardRate)
                 : GridPos.zero + GridPos.up * expectedW;
-            JumpByStepSize(ref largeMove, p);
-            if (smallWait && Mathf.Abs(smallMoveW) > 1) largeMove.w = -smallMoveW;
+            JumpByStepSize(ref largeMove, ref lastGrade, p);
+            if (smallWait && lastGrade < 2) largeMove.w = 0;
+            else if (smallWait && Mathf.Abs(smallMoveW) > 1)  {
+                largeMove.w = -smallMoveW;
+                Debug.Log("When does this happen??????? " + smallMoveW);
+            }
             largePos += largeMove;
             catchUp = largePos - smallPos;
         }
@@ -493,13 +503,13 @@ public class RandomWalkable {
         nextCanJump = false;
         if (p.hScale <= 0) return -oldW;
         // hScale is valid for considering vDelta -1 and 1
-        if (p.vDelta == -1) return Random.value > Mathf.Abs(p.vScale / 4 - oldW) * 2f / p.vScale // + .25f
+        if (p.vDeltaMode == -1) return Random.value > Mathf.Abs(p.vScale / 4 - oldW) * 2f / p.vScale // + .25f
             ? 0 : Mathf.Clamp(p.vScale / 4 - oldW, -1, 1); // Mathf.Clamp(Mathf.Clamp(oldW, 0, (p.vScale - 1) / 2) - oldW, -1, 1);
         if (p.vScale < 5) return Mathf.Clamp(-oldW, -1, 1);
 
         // if anything, we only need vDelta to increment to start the walkway
         nextCanJump = p.grade < 2;
-        if (p.vDelta == 0) return canJump == null ? -oldW : Mathf.Clamp(-oldW, -1, 1); // null means can jump down
+        if (p.vDeltaMode == 0) return canJump == null ? -oldW : Mathf.Clamp(-oldW, -1, 1); // null means can jump down
 
         // do walkway because all are valid: hScale, vScale, vDelta
         nextCanJump = null;
@@ -511,13 +521,14 @@ public class RandomWalkable {
         return Random.value < 1/3f ? Randoms.Sign : 0;
     }
 
-    private static void JumpByStepSize(ref GridPos largeMove, Parameters p) {
-        float horizFactor = Mathf.Lerp(p.stepSize, 1, p.grade - 2);
-        float vertFactor = Mathf.Lerp(1, p.stepSize, p.grade / 2);
+    private static void JumpByStepSize(ref GridPos largeMove, ref float lastGrade, Parameters p) {
+        float horizFactor = Mathf.Lerp(p.stepSize, 1, lastGrade - 2);
+        float vertFactor = Mathf.Lerp(1, p.stepSize, lastGrade / 2);
         int w = Mathf.RoundToInt(largeMove.w * vertFactor);
         largeMove *= Mathf.RoundToInt(horizFactor);
         largeMove.w = w;
         Debug.Log("jump horizFactor " + horizFactor + " vertFactor " + vertFactor + " largeMove " + largeMove);
+        lastGrade = p.grade;
     }
 
     private static int? AdjustToBeWalkable(ref GridPos smallMove, GridPos smallPos, Grid<bool> path, Parameters p) {
