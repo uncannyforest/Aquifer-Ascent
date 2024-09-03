@@ -6,6 +6,11 @@ using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class RandomWalk : MonoBehaviour {
+    private static RandomWalk instance;
+    RandomWalk(): base() {
+        instance = this;
+    }
+
     public StandardOrb orbPrefab;
     public Transform orbParent;
     public GameObject rubblePrefab;
@@ -188,6 +193,11 @@ public class RandomWalk : MonoBehaviour {
             progress = 0;
             yield return new WaitForSeconds(modRate * relSpeed);
         }
+    }
+
+    public static void DebugDrawLine(GridPos from, GridPos to, Color color) => instance.DrawLine(from, to, color);
+    private void DrawLine(GridPos from, GridPos to, Color color) {
+        Debug.DrawLine(from.World, to.World, color, 600);
     }
 
     void Update() {

@@ -355,6 +355,7 @@ public class RandomWalkable {
             Grid<bool> path, Vector3 bias, float elevChange, float upwardRate, Parameters p) {
         GridPos oldSmallMove = smallMove;
         smallMove = GridPos.Random(elevChange, bias, upwardRate);
+        if (p.grade <= 1 || p.grade < 2 && p.grade - 1 < Random.value) AdjustToFollowGround(ref smallMove, smallPos, upwardRate);
         neededWalkableAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
         if (WalkableAdjustmentIsDisfavored(neededWalkableAdjustment, upwardRate)) { // roll the dice one more time
             smallMove = GridPos.Random(elevChange, bias, upwardRate);
@@ -415,17 +416,14 @@ public class RandomWalkable {
         int expectedW = Mathf.RoundToInt(upwardRate * 2 - 1); // when grade >= 2, this is only 0 if config UR = .5 && lastMove.w = 0
         int smallMoveW;
 
-        if (p.grade < 2) {
-            largeWait = horizDistance > catchUpMax;
-            smallWait = horizDistance < catchUpMin;
+        int catchUpW = catchUp.w * expectedW; // so catchUp always >= 0 unless small got ahead
+        int targetW = expectedW > 0 ? 1 : p.vScale; // when going down, target top of large
+        largeWait = horizDistance > catchUpMax || catchUpW > targetW;
+        smallWait = horizDistance < catchUpMin && catchUpW < targetW; // if expectedW == 0, always smallWait
 
+        if (p.grade < 2) {
             smallMoveW = GetSmallWRelativeToLargeDelta(largePos, smallPos, ref canJump, p);
         } else {            
-            int catchUpW = catchUp.w * expectedW; // so catchUp always >= 0 unless small got ahead
-            int targetW = expectedW > 0 ? 1 : p.vScale; // when going down, target top of large
-            largeWait = catchUpW > targetW;
-            smallWait = catchUpW < targetW; // if expectedW == 0, always smallWait
-
             if (expectedW == 0) expectedW = Randoms.Sign;
             // Usually, (catchupW - targetW) == 1 and largeWait == true.
             // When p.hScale == .333f, upChance is 3/4
@@ -468,6 +466,7 @@ public class RandomWalkable {
             }
             // Debug.Log("Factor " + smallTargetLargeFactor + " smallMove " + smallMove + " wall code " + wallCode + (turnCode == 1 ? " turn left" : turnCode == -1 ? " turn right" : " no turn"));
             smallMove = smallMove.Rotate(turnCode * 60);
+            if (p.vDelta >= -.333f) AdjustToFollowGround(ref smallMove, smallPos, upwardRate);
             neededWalkableAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
             if (WalkableAdjustmentIsDisfavored(neededWalkableAdjustment, 0)) {
                 int newTurnCode = Randoms.Sign;
@@ -537,6 +536,27 @@ public class RandomWalkable {
         largeMove.w = w;
         Debug.Log("jump horizFactor " + horizFactor + " vertFactor " + vertFactor + " largeMove " + largeMove);
         lastGrade = p.grade;
+    }
+
+    private static void AdjustToFollowGround(ref GridPos smallMove, GridPos oldSmallPos, float upwardRate) {
+        if (Mathf.Abs(smallMove.w) > 1) return;
+        int oldW = oldSmallPos.w;
+        bool[] possPath = new bool[4];
+        for (int i = -2; i <= 1; i++) {
+            GridPos posToCheck = oldSmallPos + smallMove;
+            posToCheck.w = oldW + i;
+            possPath[i + 2] = CaveGrid.Grid[posToCheck];
+        }
+        int? maybeOverride = null;
+        if (!possPath[0] && possPath[1]) maybeOverride = -1;
+        else if (!possPath[1] && possPath[2]) maybeOverride = 0;
+        else if (!possPath[2] && possPath[3]) maybeOverride = 1;
+        if (maybeOverride is int doOverride && doOverride != smallMove.w
+                && !WalkableAdjustmentIsDisfavored(doOverride, upwardRate)) {
+            GridPos oldSmallMove = smallMove;
+            smallMove.w = doOverride;
+            RandomWalk.DebugDrawLine(oldSmallPos + oldSmallMove, oldSmallPos + smallMove, Color.cyan);
+        }
     }
 
     private static int? AdjustToBeWalkable(ref GridPos smallMove, GridPos smallPos, Grid<bool> path, Parameters p) {
