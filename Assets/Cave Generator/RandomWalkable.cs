@@ -216,6 +216,7 @@ public class RandomWalkable {
         bool justFlipped = false;
         bool? canJump = false; // used by GetSmallWRelativeToLargeDelta(), null means walkway activated (vDelta 1)
         float turnTime = 0;
+        int skipLargeStep = 0;
         float lastGrade = 0;
 
         int modeSwitchCountdown = modeSwitchRate;
@@ -235,7 +236,7 @@ public class RandomWalkable {
             bool smallWait = false;
             if (p.followWall && p.hScale > 0)
                 FollowWallThenMoveLarge(ref largePos, ref largeMove, ref largeWait, ref smallPos, ref smallMove, ref smallWait, ref neededWalkableAdjustment, ref canJump, ref lastGrade, path, bias, elevChange, upward, p);
-            else MoveSmallAndLargeRelative(ref largePos, ref largeMove, ref smallPos, ref smallMove, ref neededWalkableAdjustment, ref canJump, path, bias, elevChange, upward, p);
+            else MoveSmallAndLargeRelative(ref largePos, ref largeMove, ref largeWait, ref smallPos, ref smallMove, ref neededWalkableAdjustment, ref canJump, ref skipLargeStep, path, bias, elevChange, upward, p);
 
             Debug.Log(interpolateDebug + ", step " + modeSwitchCountdown + ", ether current " + etherCurrent.HComponents.Max() / inertiaOfEtherCurrent + ", bias " + bias.Max() + ", rel v " + (smallPos - largePos).w + " jump " + canJump);
 
@@ -349,8 +350,8 @@ public class RandomWalkable {
         }
     }
 
-    private static void MoveSmallAndLargeRelative(ref GridPos largePos, ref GridPos largeMove,
-            ref GridPos smallPos, ref GridPos smallMove, ref int? neededWalkableAdjustment, ref bool? canJump,
+    private static void MoveSmallAndLargeRelative(ref GridPos largePos, ref GridPos largeMove, ref bool largeWait,
+            ref GridPos smallPos, ref GridPos smallMove, ref int? neededWalkableAdjustment, ref bool? canJump, ref int skipLargeStep,
             Grid<bool> path, Vector3 bias, float elevChange, float upwardRate, Parameters p) {
         GridPos oldSmallMove = smallMove;
         smallMove = GridPos.Random(elevChange, bias, upwardRate);
@@ -360,13 +361,20 @@ public class RandomWalkable {
             neededWalkableAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
         }
 
-        int smallRelativeW = (smallPos.w - largePos.w) + GetSmallWRelativeToLargeDelta(largePos, smallPos, ref canJump, p);
-        GridPos largeRelativeHoriz = GetLargeHorizRelativeToSmall(largePos, smallPos, p);
-        MaybeRotateLargeHorizRelativeToSmall(ref largeRelativeHoriz, oldSmallMove, smallMove, p);
-        smallPos += smallMove;
-        GridPos oldLargePos = largePos;
-        largePos = smallPos + largeRelativeHoriz - GridPos.up * smallRelativeW;
-        largeMove = largePos - oldLargePos;
+        largeWait = (++skipLargeStep < p.stepSize);
+        if (largeWait) {
+            smallPos += smallMove;
+            largePos += smallMove;
+        } else {
+            skipLargeStep = 0;
+            int smallRelativeW = (smallPos.w - largePos.w) + GetSmallWRelativeToLargeDelta(largePos, smallPos, ref canJump, p);
+            GridPos largeRelativeHoriz = GetLargeHorizRelativeToSmall(largePos, smallPos, p);
+            MaybeRotateLargeHorizRelativeToSmall(ref largeRelativeHoriz, oldSmallMove, smallMove, p);
+            smallPos += smallMove;
+            GridPos oldLargePos = largePos;
+            largePos = smallPos + largeRelativeHoriz - GridPos.up * smallRelativeW;
+            largeMove = largePos - oldLargePos;
+        }
     }
 
     private static GridPos GetLargeHorizRelativeToSmall(GridPos largePos, GridPos smallPos, Parameters p) {
