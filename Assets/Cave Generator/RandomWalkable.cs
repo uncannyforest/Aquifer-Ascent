@@ -466,7 +466,8 @@ public class RandomWalkable {
             }
             // Debug.Log("Factor " + smallTargetLargeFactor + " smallMove " + smallMove + " wall code " + wallCode + (turnCode == 1 ? " turn left" : turnCode == -1 ? " turn right" : " no turn"));
             smallMove = smallMove.Rotate(turnCode * 60);
-            if (p.vDelta >= -.333f) AdjustToFollowGround(ref smallMove, smallPos, upwardRate);
+            if (p.vDelta >= -.333f && (p.grade <= 2 || p.grade - 2 < Random.value))
+                AdjustToFollowGround(ref smallMove, smallPos, upwardRate);
             neededWalkableAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
             if (WalkableAdjustmentIsDisfavored(neededWalkableAdjustment, 0)) {
                 int newTurnCode = Randoms.Sign;

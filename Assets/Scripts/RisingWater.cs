@@ -4,14 +4,18 @@ using UnityEngine;
 using System.Linq;
 
 public class RisingWater : MonoBehaviour {
+    public Vector3 scale = new Vector3(.5f, 1, .5f);
     public float belowFactor = 1.5f;
     public float belowGuideFactor = 3f;
 
     private List<StandardOrb> orbs = new List<StandardOrb>();
 
     private Vector3 startLocation;
+    private Vector3 endLocation;
+    private Vector3 velocity;
     private Rigidbody myRigidbody;
     private float startChargeLevel;
+    private float unchargeTime;
     public StandardOrb lowestOrb;
     public StandardOrb secondLowestOrb;
     public float currentLevelBelow;
@@ -20,6 +24,7 @@ public class RisingWater : MonoBehaviour {
 
     void Start() {
         startLocation = transform.position;
+        endLocation = transform.position;
         myRigidbody = GetComponent<Rigidbody>(); // not used rn, causes logs to move horizontally with water flow
     }
 
@@ -37,7 +42,7 @@ public class RisingWater : MonoBehaviour {
     }
 
     private void SetLowestOrb() {
-        startLocation = transform.position;
+        startLocation = transform.position.ScaleDivide(scale);
         if (firstOrb) {
             lowestOrb = orbs[0];
             startChargeLevel = lowestOrb.state.currentChargeLevel;
@@ -69,10 +74,30 @@ public class RisingWater : MonoBehaviour {
         currentLevelBelow = belowFactor * belowFactor / (belowFactor + (secondLowestOrb.transform.position.y - lowestOrb.transform.position.y))
             + orbs.Count == 1 ? 0 : belowGuideFactor * belowGuideFactor / (belowGuideFactor + (lastOrb.transform.position.y - lowestOrb.transform.position.y));
         startChargeLevel = lowestOrb.state.currentChargeLevel;
+        unchargeTime = -lowestOrb.chargeTime * startChargeLevel;
+
+        SetVelocity();
     }
 
+    private void SetVelocity() {
+        if (lowestOrb == null || unchargeTime == 0) {
+            myRigidbody.velocity = Vector3.zero;
+            return;
+        }
+        endLocation = lowestOrb.transform.position + currentLevelBelow * Vector3.down;
+        velocity = (endLocation - startLocation) / unchargeTime;
+        velocity.Scale(scale);
+        Debug.Log("Set water velocity " + velocity + " to reach endLocation " + endLocation);
+        // myRigidbody.velocity = velocity;
+    }
+
+    // void FixedUpdate() {
+    //     if (lowestOrb == null) return;
+    //     targetLocation = Vector3.Lerp(lowestOrb.transform.position + currentLevelBelow * Vector3.down, startLocation, lowestOrb.state.currentChargeLevel / startChargeLevel);
+    //     targetLocation.Scale(new Vector3(horizontalFactor, 1, horizontalFactor));
+    //     myRigidbody.MovePosition(targetLocation);
+    // }
     void FixedUpdate() {
-        if (lowestOrb == null) return;
-        transform.position = Vector3.Lerp(lowestOrb.transform.position + currentLevelBelow * Vector3.down, startLocation, lowestOrb.state.currentChargeLevel / startChargeLevel);
+        myRigidbody.velocity = velocity;
     }
 }
