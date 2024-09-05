@@ -10,6 +10,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 	[RequireComponent(typeof(Animator))]
 	public class ThirdPersonCharacter : MonoBehaviour
 	{
+		[SerializeField] AudioClip m_JumpSound;
 		[SerializeField] PhysicMaterial m_StationaryMaterial;
 		[SerializeField] PhysicMaterial m_MovingMaterial;
 		[SerializeField] float m_MovingTurnSpeed = 360;
@@ -31,6 +32,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 		[NonSerialized] public Vector3 groundNormal;
 
+		AudioSource m_Audio;
 		int m_CollidingLayerMask;
 		Rigidbody m_Rigidbody;
 		Animator m_Animator;
@@ -45,6 +47,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 		void Start()
 		{
+			m_Audio = GetComponent<AudioSource>();
 			m_Animator = GetComponent<Animator>();
 			m_Rigidbody = GetComponent<Rigidbody>();
 			m_Capsule = GetComponent<CapsuleCollider>();
@@ -140,7 +143,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			m_ActualGroundCheckDistance = m_Rigidbody.velocity.y < 0 ? m_GroundCheckDistance : 0.01f;
 
 			Wood wood = GetComponentInChildren<Wood>();
-			if (wood != null&& wood.dropWhenAirborne) wood.GetComponentStrict<Holdable>().Drop();
+			if (wood != null&& wood.dropWhenAirborne) wood.Drop();
 		}
 
 
@@ -149,6 +152,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			// check whether conditions are right to allow a jump:
 			if (jump && m_Animator.GetCurrentAnimatorStateInfo(0).IsName("Grounded"))
 			{
+				if (m_JumpSound != null) m_Audio.PlayOneShot(m_JumpSound, .25f);
+
 				// jump!
 				Vector3 jumpPush = forwardPush * m_ForwardJumpPower;
 				Vector3 newVelocity;

@@ -110,7 +110,7 @@ public class Holdable : MonoBehaviour
     public void FinishDrop() {
         IsHeld = false;
         if (!isUsed) {
-            objectAudio.PlayOneShot(setDownSound, 0.5f);
+            if (setDownSound != null) objectAudio.PlayOneShot(setDownSound);
             Rigidbody myRigidbody = GetComponent<Rigidbody>();
             if (myRigidbody != null) myRigidbody.isKinematic = false;
         }
@@ -118,7 +118,7 @@ public class Holdable : MonoBehaviour
 
     public void Hold() {
         IsHeld = true;
-        objectAudio.PlayOneShot(pickUpSound, 0.5f);
+        if (pickUpSound != null) objectAudio.PlayOneShot(pickUpSound);
         GetComponent<Rigidbody>().isKinematic = true;
         oldPosition = this.transform.position;
         this.transform.rotation = playerHoldTransform.rotation;

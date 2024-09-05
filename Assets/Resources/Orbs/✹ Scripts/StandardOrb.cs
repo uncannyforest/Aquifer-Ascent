@@ -26,11 +26,13 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
         new ColorTransition(0.2f, new Color(0.5f, 0.125f, 0.0f))
     };
     public float explosionFactor = 10;
+    public AudioClip explosionSound;
 
     private Light myLight;
     private Light halo;
     private ParticleSystem childParticleSystem;
     private Holdable holdable;
+    private AudioSource objectAudio; 
     
     private bool isDead = false;
 
@@ -58,6 +60,7 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
         IsActive = state.isActive;
         childParticleSystem = gameObject.transform.GetComponentInChildren<ParticleSystem>();
         childParticleSystem.enableEmission = false;
+        objectAudio = GetComponent<AudioSource>();
     }
 
     void Update() => UpdateOrbState();
@@ -119,7 +122,9 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
     public void Kill() {
         state.isActive = false;
         isDead = true;
+        childParticleSystem.enableEmission = true;
         childParticleSystem.emissionRate *= explosionFactor;
+        if (explosionSound != null) objectAudio.PlayOneShot(explosionSound);
         if (died != null) died();
     }
 

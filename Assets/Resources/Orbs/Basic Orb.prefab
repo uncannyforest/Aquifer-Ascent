@@ -606,7 +606,7 @@ ParticleSystem:
     gravityModifier:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 2
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -4771,7 +4771,6 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 10308, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4969,6 +4968,7 @@ MonoBehaviour:
   pickUpSound: {fileID: 8300000, guid: 04df9b11a4dd24c46b51da18fa8cb302, type: 3}
   setDownSound: {fileID: 8300000, guid: 8315785413ece4064a677c8ae611927b, type: 3}
   pickUpTime: 0.5
+  relativePosition: {x: 0, y: 0, z: 0}
   physicsCollider: {fileID: 0}
   isEverHoldable: 1
 --- !u!82 &-3384256719804809807
@@ -4991,8 +4991,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
+  MinDistance: 0.5
+  MaxDistance: 90
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -5027,7 +5027,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -5085,7 +5085,7 @@ MonoBehaviour:
   spawnLocation: {fileID: 0}
   unchargeTime: 30
   chargeTime: 450
-  spawnTime: 1
+  spawnTime: 0.33333334
   haloIntensity: 1.5
   spawnState: 0
   heldIntensity: 0.4
@@ -5097,6 +5097,7 @@ MonoBehaviour:
   - frame: 0.2
     color: {r: 0.5, g: 0.125, b: 0, a: 1}
   explosionFactor: 10
+  explosionSound: {fileID: 8300000, guid: 7aee3aed691954efd9a526c28602265f, type: 3}
 --- !u!54 &4324324191667893875
 Rigidbody:
   m_ObjectHideFlags: 0
