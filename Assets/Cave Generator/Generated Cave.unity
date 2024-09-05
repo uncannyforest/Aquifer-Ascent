@@ -155,7 +155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d8acb235f3a454fbf5ac9cd93c4814, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  horizontalFactor: 0.5
+  scale: {x: 0.25, y: 1, z: 0.25}
   belowFactor: 1.5
   belowGuideFactor: 3
   lowestOrb: {fileID: 0}

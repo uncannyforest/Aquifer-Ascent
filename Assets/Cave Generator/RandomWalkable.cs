@@ -355,7 +355,7 @@ public class RandomWalkable {
             Grid<bool> path, Vector3 bias, float elevChange, float upwardRate, Parameters p) {
         GridPos oldSmallMove = smallMove;
         smallMove = GridPos.Random(elevChange, bias, upwardRate);
-        if (p.grade <= 1 || p.grade < 2 && p.grade - 1 < Random.value) AdjustToFollowGround(ref smallMove, smallPos, upwardRate);
+        if (p.grade < 2 && p.grade / 2 < Random.value) AdjustToFollowGround(ref smallMove, smallPos, upwardRate);
         neededWalkableAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
         if (WalkableAdjustmentIsDisfavored(neededWalkableAdjustment, upwardRate)) { // roll the dice one more time
             smallMove = GridPos.Random(elevChange, bias, upwardRate);
