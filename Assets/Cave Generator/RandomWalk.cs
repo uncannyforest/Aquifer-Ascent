@@ -153,12 +153,15 @@ public class RandomWalk : MonoBehaviour {
             // Debug.Log("Ether current magnitude:" + step.etherCurrent.ScaleDivide(CaveGrid.Scale).magnitude);
             if (step.onPath is GridPos onPath) {
                 path[onPath] = true;
-                if (lastPath is GridPos actualLastPath) Debug.DrawLine(onPath.World, actualLastPath.World, Color.white, 40);
                 if (lastPath is GridPos lastPathPos) {
-                    if (lastPathPos.w - onPath.w > 1) // drop
+                    Debug.DrawLine(onPath.World, lastPathPos.World, Color.white, 40);
+                    if (lastPathPos.w - onPath.w > 1) { // drop
                         CaveGrid.I.SetPos(CaveGrid.Mod.Cave(onPath, lastPathPos.w - onPath.w));
-                    else if (onPath.w - lastPathPos.w > 1) // jump
+                        for (int i = 1; i < lastPathPos.w - onPath.w; i++) path[onPath + GridPos.up * i] = true;
+                    } else if (onPath.w - lastPathPos.w > 1) { // jump
                         CaveGrid.I.SetPos(CaveGrid.Mod.Cave(lastPathPos, onPath.w - lastPathPos.w));
+                        for (int i = 1; i < onPath.w - lastPathPos.w; i++) path[lastPathPos + GridPos.up * i] = true;
+                    }
                 }
             }
             lastPath = step.onPath;

@@ -516,7 +516,7 @@ public class RandomWalkable {
         if (p.vScale < 5) return Mathf.Clamp(-oldW, -1, 1);
 
         // if anything, we only need vDelta to increment to start the walkway
-        nextCanJump = p.grade < 2;
+        nextCanJump = p.grade < 2 && p.stepSize == 1;
         if (p.vDeltaMode == 0) return canJump == null ? -oldW : Mathf.Clamp(-oldW, -1, 1); // null means can jump down
 
         // do walkway because all are valid: hScale, vScale, vDelta
