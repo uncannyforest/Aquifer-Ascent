@@ -154,7 +154,7 @@ public class RandomWalk : MonoBehaviour {
             if (step.onPath is GridPos onPath) {
                 path[onPath] = true;
                 if (lastPath is GridPos lastPathPos) {
-                    Debug.DrawLine(onPath.World, lastPathPos.World, Color.white, 40);
+                    Debug.DrawLine(onPath.World, lastPathPos.World, Color.white, 60);
                     if (lastPathPos.w - onPath.w > 1) { // drop
                         CaveGrid.I.SetPos(CaveGrid.Mod.Cave(onPath, lastPathPos.w - onPath.w));
                         for (int i = 1; i < lastPathPos.w - onPath.w; i++) path[onPath + GridPos.up * i] = true;
@@ -198,9 +198,9 @@ public class RandomWalk : MonoBehaviour {
         }
     }
 
-    public static void DebugDrawLine(GridPos from, GridPos to, Color color) => instance.DrawLine(from, to, color);
-    private void DrawLine(GridPos from, GridPos to, Color color) {
-        Debug.DrawLine(from.World, to.World, color, 600);
+    public static void DebugDrawLine(GridPos from, GridPos to, Color color, float duration = 600) => instance.DrawLine(from, to, color, duration);
+    private void DrawLine(GridPos from, GridPos to, Color color, float duration) {
+        Debug.DrawLine(from.World, to.World, color, duration);
     }
 
     void Update() {

@@ -1034,6 +1034,11 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8549625763485487282, guid: fb5a68e4cbeb0488fbca24519737b1d3,
+        type: 3}
+      propertyPath: m_MoveSpeed
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 8549625763485487283, guid: fb5a68e4cbeb0488fbca24519737b1d3,
         type: 3}
       propertyPath: m_RootOrder
@@ -1091,8 +1096,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8549625763485487292, guid: fb5a68e4cbeb0488fbca24519737b1d3,
         type: 3}
+      propertyPath: m_HTurnSpeed
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8549625763485487292, guid: fb5a68e4cbeb0488fbca24519737b1d3,
+        type: 3}
+      propertyPath: m_VTurnSpeed
+      value: 0.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 8549625763485487292, guid: fb5a68e4cbeb0488fbca24519737b1d3,
+        type: 3}
       propertyPath: m_MaxCameraSize
-      value: 16
+      value: 256
       objectReference: {fileID: 0}
     - target: {fileID: 8549625763485487292, guid: fb5a68e4cbeb0488fbca24519737b1d3,
         type: 3}
@@ -1112,12 +1127,12 @@ PrefabInstance:
     - target: {fileID: 8549625764302602978, guid: fb5a68e4cbeb0488fbca24519737b1d3,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1020
+      value: -2020
       objectReference: {fileID: 0}
     - target: {fileID: 8549625764302602989, guid: fb5a68e4cbeb0488fbca24519737b1d3,
         type: 3}
       propertyPath: far clip plane
-      value: 1140
+      value: 2140
       objectReference: {fileID: 0}
     - target: {fileID: 8549625764302602989, guid: fb5a68e4cbeb0488fbca24519737b1d3,
         type: 3}

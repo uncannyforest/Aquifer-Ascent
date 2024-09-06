@@ -22,7 +22,7 @@ public class RandomWalkable {
             new float[] {1, 8.5f,  2f,    -1,  1f,   1,  0,  8.5f,  .5f, 4}, // jump rooms
             // new float[] {1, 4f,    1f,     1, 2.5f, 2,  0,  8.5f, .5f, 6}, // jump levels
             new float[] {1, 8.5f,  1f,     0,  1f, 1.5f, 0,   3f,    1,  5}, // pillars
-            new float[] {0, 1.5f,  1f,     0,  2f,   3,  1,  .51f, .25f, 9}, // turn
+            new float[] {0, 1.5f,  1f,     0,  2f,   2,  1,  .51f, .25f, 9}, // turn
             new float[] {1, 3f,  5f,       1,  3f,   0,  0,   3f,    1, 12}, // tower
             new float[] {1, 8.5f, 2f,      1, 2.25f, 1,  0,   6f,  .25f, 6}, // cliff
             new float[] {0, 8.5f, -1f,     0, 1.5f, 1f, .8f, .51f, .5f, 11}, // tall turn
@@ -143,7 +143,7 @@ public class RandomWalkable {
             return mode;
         }
         public int RandomOtherMode(int mode) {
-            int newMode = Random.Range(1, Parameters.MODE_COUNT);
+            int newMode = Random.Range(1, MODE_COUNT);
             if (newMode == mode) newMode = 0;
             if (newMode == RANDOM_MODE) SetRandomParams();
             return newMode;
@@ -308,7 +308,7 @@ public class RandomWalkable {
         if (absTime <= 0) {
             float etherAngle = GridPos.Angle(move, etherCurrent) * direction; // positive if turning towards etherCurrent
             float etherStrength = etherCurrent.Magnitude / (float)inertiaOfEtherCurrent;
-            if (etherAngle >= -120 && etherAngle < -60 && Random.value < etherStrength / p.inertia) {
+            if (etherAngle >= -120 && etherAngle < -60 && Random.value < etherStrength) {
                 direction *= -1;
                 Debug.Log("Swap direction");
             }
@@ -355,7 +355,7 @@ public class RandomWalkable {
             Grid<bool> path, Vector3 bias, float elevChange, float upwardRate, Parameters p) {
         GridPos oldSmallMove = smallMove;
         smallMove = GridPos.Random(elevChange, bias, upwardRate);
-        if (p.grade < 2 && p.grade / 2 < Random.value) AdjustToFollowGround(ref smallMove, smallPos, upwardRate);
+        if (p.grade < 2 && p.grade / 2 < Random.value) AdjustToFollowGround(ref smallMove, smallPos, path, upwardRate);
         neededWalkableAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
         if (WalkableAdjustmentIsDisfavored(neededWalkableAdjustment, upwardRate)) { // roll the dice one more time
             smallMove = GridPos.Random(elevChange, bias, upwardRate);
@@ -467,7 +467,7 @@ public class RandomWalkable {
             // Debug.Log("Factor " + smallTargetLargeFactor + " smallMove " + smallMove + " wall code " + wallCode + (turnCode == 1 ? " turn left" : turnCode == -1 ? " turn right" : " no turn"));
             smallMove = smallMove.Rotate(turnCode * 60);
             if (p.vDelta >= -.333f && (p.grade <= 2 || p.grade - 2 < Random.value))
-                AdjustToFollowGround(ref smallMove, smallPos, upwardRate);
+                AdjustToFollowGround(ref smallMove, smallPos, path, upwardRate);
             neededWalkableAdjustment = AdjustToBeWalkable(ref smallMove, smallPos, path, p);
             if (WalkableAdjustmentIsDisfavored(neededWalkableAdjustment, 0)) {
                 int newTurnCode = Randoms.Sign;
@@ -483,15 +483,15 @@ public class RandomWalkable {
             smallPos += smallMove;
         }
         if (!largeWait) {
-            largeMove = Random.value < (16 - 5 * p.grade) / 6 // 3 -> 1/6, 2 or less -> 1
-                ? GridPos.Random(smallWait && p.grade < 2 ? 0 : elevChange, bias, upwardRate)
+            largeMove = Random.value < (16 - 5 * lastGrade) / 6 // 3 -> 1/6, 2 or less -> 1
+                ? GridPos.Random(smallWait && lastGrade < 2 ? 0 : elevChange, bias, upwardRate)
                 : GridPos.zero + GridPos.up * expectedW;
             JumpByStepSize(ref largeMove, ref lastGrade, p);
-            if (smallWait && lastGrade < 2) largeMove.w = 0;
-            else if (smallWait && Mathf.Abs(smallMoveW) > 1)  {
-                largeMove.w = -smallMoveW;
-                Debug.Log("When does this happen??????? " + smallMoveW);
+            if (smallWait)  { // just entered mode
+                if (p.grade < 2) largeMove.w = -smallMoveW; // keep small level, large below
+                else if (lastGrade < 2) largeMove.w = Mathf.Clamp(largeMove.w, 2 - p.vScale, 0); // bring large level w small
             }
+            RandomWalk.DebugDrawLine(largePos, largePos + largeMove, new Color(.5f, .5f, .5f, .125f), 60);
             largePos += largeMove;
             catchUp = largePos - smallPos;
         }
@@ -539,7 +539,7 @@ public class RandomWalkable {
         lastGrade = p.grade;
     }
 
-    private static void AdjustToFollowGround(ref GridPos smallMove, GridPos oldSmallPos, float upwardRate) {
+    private static void AdjustToFollowGround(ref GridPos smallMove, GridPos oldSmallPos, Grid<bool> path, float upwardRate) {
         if (Mathf.Abs(smallMove.w) > 1) return;
         int oldW = oldSmallPos.w;
         bool[] possPath = new bool[4];
@@ -556,7 +556,7 @@ public class RandomWalkable {
                 && !WalkableAdjustmentIsDisfavored(doOverride, upwardRate)) {
             GridPos oldSmallMove = smallMove;
             smallMove.w = doOverride;
-            RandomWalk.DebugDrawLine(oldSmallPos + oldSmallMove, oldSmallPos + smallMove, Color.cyan);
+            if(!path[oldSmallPos + smallMove]) RandomWalk.DebugDrawLine(oldSmallPos + oldSmallMove, oldSmallPos + smallMove, Color.cyan);
         }
     }
 
