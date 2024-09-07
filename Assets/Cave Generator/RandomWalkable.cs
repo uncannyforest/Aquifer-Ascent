@@ -21,9 +21,11 @@ public class RandomWalkable {
             // new float[] {0, 1.5f,  1f,     0, 3f,  0,  0,  .51f,    1, 11}, // spiral
             new float[] {1, 8.5f,  2f,    -1,  1f,   1,  0,  8.5f,  .5f, 4}, // jump rooms
             // new float[] {1, 4f,    1f,     1, 2.5f, 2,  0,  8.5f, .5f, 6}, // jump levels
-            new float[] {1, 8.5f,  1f,     0,  1f, 1.5f, 0,   3f,    1,  5}, // pillars
+            // new float[] {1, 8.5f,  1f,     0,  1f, 1.5f, 0,   3f,    1,  5}, // pillars
+            // new float[] {1, 4f,    2f,     0,  1.5f,  0, .5f,  5f, .5f,  5}, // maze
+            new float[] {1, 5f,    1f,     0,  1.5f,  1, .5f,  4f, .5f,  5}, // maze of mediocrity
             new float[] {0, 1.5f,  1f,     0,  2f,   2,  1,  .51f, .25f, 9}, // turn
-            new float[] {1, 3f,  5f,       1,  3f,   0,  0,   3f,    1, 12}, // tower
+            new float[] {1, 3f,  4f,       1,  3f,   0,  0,   3f,    1, 12}, // tower
             new float[] {1, 8.5f, 2f,      1, 2.25f, 1,  0,   6f,  .25f, 6}, // cliff
             new float[] {0, 8.5f, -1f,     0, 1.5f, 1f, .8f, .51f, .5f, 11}, // tall turn
             new float[PARAM_COUNT + 1] // random
@@ -85,7 +87,7 @@ public class RandomWalkable {
                 parameters = MODES[targetMode];
                 return;
             }
-            int partialMode = RandomMode();
+            int partialMode = RandomMode(5);
             for (int i = 0; i < PARAM_COUNT; i++) {
                 if (ParamIsHScale(i)) {
                     parameters[i] = targetHScale;
@@ -98,9 +100,9 @@ public class RandomWalkable {
             ResetInterpolation();
         }
 
-        public void StartNewInterpolation(float fraction) {
+        public bool StartNewInterpolation(float fraction) {
             prevMode = targetMode;
-            targetMode = RandomMode();
+            targetMode = RandomMode(2);
             lerp = 0;
             lerpStep = fraction;
             for (int i = 0; i < PARAM_COUNT; i++) {
@@ -108,6 +110,7 @@ public class RandomWalkable {
                 if (ParamIsHScale(i) && targetMode != RANDOM_MODE) targetLevel = RandomizeHScale(targetLevel);
                 interpolateDiff[i] = (targetLevel - parameters[i]) * PARAM_COUNT * fraction;
             }
+            return targetMode != prevMode;
         }
 
         // returns debug string
@@ -137,8 +140,9 @@ public class RandomWalkable {
         public int SupplyBiome(int _) => Random.value < Maths.CubicInterpolate(lerp) ?
             getBiomeForMode(targetMode) : getBiomeForMode(prevMode);
 
-        public int RandomMode() {
-            int mode = Random.Range(0, MODE_COUNT);
+        public int RandomMode(int additionalNoChangeFactor = 0) {
+            int mode = Random.Range(-additionalNoChangeFactor, MODE_COUNT);
+            if (mode < 0) mode = targetMode;
             if (mode == RANDOM_MODE) SetRandomParams();
             return mode;
         }
@@ -248,18 +252,19 @@ public class RandomWalkable {
         }
     }
 
-    private static string InterpolateMode(ref int modeSwitchCountdown, int modeSwitchRate, Parameters p) {
-        modeSwitchCountdown++;
-        if (modeSwitchCountdown == 0) {
+    private static string InterpolateMode(ref int modeSwitchCountup, int modeSwitchRate, Parameters p) {
+        modeSwitchCountup++;
+        if (modeSwitchCountup == 0) {
             p.JumpToNewMode();
-            p.StartNewInterpolation(1f / modeSwitchRate);
-        } else if (modeSwitchCountdown >= modeSwitchRate) {
+            bool modeChanged = p.StartNewInterpolation(1f / modeSwitchRate);
+            modeSwitchCountup = modeChanged ? 0 : Mathf.FloorToInt(Maths.Bias1(Random.value) * modeSwitchRate);
+        } else if (modeSwitchCountup >= modeSwitchRate) {
             if (Random.value > .5f) {
-                modeSwitchCountdown = 0;
-                p.StartNewInterpolation(1f / modeSwitchRate);
+                bool modeChanged = p.StartNewInterpolation(1f / modeSwitchRate);
+                modeSwitchCountup = modeChanged ? 0 : Mathf.FloorToInt(Maths.Bias1(Random.value) * modeSwitchRate);
             } else {
                 int linkModeLength = p.StartLinkMode();
-                modeSwitchCountdown = -linkModeLength;
+                modeSwitchCountup = -linkModeLength;
             }
         }
         return p.Interpolate();

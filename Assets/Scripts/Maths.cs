@@ -23,6 +23,12 @@ public class Maths {
     }
 
     // Given a value with random uniform distribution [0, 1],
+    // returns a new value (0, 1] where 0 is zero probability and 1 is double probability.
+    public static float Bias1(float x) {
+        return Mathf.Sqrt(x);
+    }
+
+    // Given a value with random uniform distribution [0, 1],
     // returns a new value [0, 1) where 0 is double probability and 1 is zero probability.
     // Output function is decreasing (transforms input 1 into 0 and 0 into 1):
     // use of this function manually pass (1 - x) if input
@@ -30,7 +36,7 @@ public class Maths {
     public static float Bias0(float x) {
         return 1 - Mathf.Sqrt(x);
     }
-
+    
     // Given a value with random uniform distribution [0, 1],
     // returns a value y in [0, infinity) where
     // - there is 1/2 chance y > 1; if so,
