@@ -24,8 +24,8 @@ public class RandomWalkable {
             // new float[] {1, 5f,    1f,     0, 1.5f,  1, .5f, .75f, .5f,  5}, // maze of mediocrity
             new float[] {1, 4f,    1.5f,     0, 1.5f,  0, .5f, .75f, .75f,  5}, // maze
             new float[] {0, 1.5f,  1f,     0,  2f,   2,  1,   0,  .25f, 9}, // turn
-            new float[] {1, 3f,  4f,       1,  3f,   0,  0,   1,    1, 12}, // tower
-            new float[] {1, 8.5f, 2f,      1, 2.25f, 1,  0, .75f, .25f, 6}, // cliff
+            new float[] {1, 3f,  4f,       0,  3f,   0,  0,   1,    1, 12}, // tower
+            new float[] {1, 8.5f, 2f,     -1, 2.25f, 1,  0, .75f, .25f, 6}, // cliff
             new float[] {0, 8.5f, -1f,     0, 1.5f, 1f, .8f,  0,  .5f, 11}, // tall turn
             new float[PARAM_COUNT + 1] // random
         };
@@ -143,13 +143,13 @@ public class RandomWalkable {
         public int SupplyBiome(int _) => Random.value < Maths.CubicInterpolate(lerp) ?
             getBiomeForMode(targetMode) : getBiomeForMode(prevMode);
 
-        public int RandomMode(int additionalNoChangeFactor = 0) {
+        public int RandomMode(int additionalNoChangeFactor = 0) { if (Randoms.CoinFlip) return (Randoms.CoinFlip ? 4 : 9);
             int mode = Random.Range(-additionalNoChangeFactor, MODE_COUNT);
             if (mode < 0) mode = targetMode;
             if (mode == RANDOM_MODE) SetRandomParams();
             return mode;
         }
-        public int RandomOtherMode(int mode) {
+        public int RandomOtherMode(int mode) { if (Randoms.CoinFlip) return (Randoms.CoinFlip ? 4 : 9);
             int newMode = Random.Range(1, MODE_COUNT);
             if (newMode == mode) newMode = 0;
             if (newMode == RANDOM_MODE) SetRandomParams();
@@ -433,14 +433,17 @@ public class RandomWalkable {
             smallMoveW = GetSmallWRelativeToLargeDelta(largePos, smallPos, ref canJump, p);
         } else {            
             if (expectedW == 0) expectedW = Randoms.Sign;
-            // Usually, (catchupW - targetW) == 1 and largeWait == true.
-            // When p.hScale == .333f, upChance is 3/4
-            // When p.hScale == 2, upChance is 1/3
-            // But when p.vDelta is near 1, upChance is 1.
-            float lerp = Mathf.InverseLerp(0, 1, p.vDelta);
-            float upChance = Mathf.Lerp((catchUpW - targetW) / (1 + p.hScale), 1, Maths.EaseOut(lerp));
-            smallMoveW = Random.value < upChance ? expectedW : 0;
             canJump = false;
+            if (p.vDeltaMode == -1) smallMoveW = VDeltaModeLazyHover(-catchUp.w, p);
+            else {
+                // Usually, (catchupW - targetW) == 1 and largeWait == true.
+                // When p.hScale == .333f, upChance is 3/4
+                // When p.hScale == 2, upChance is 1/3
+                // But when p.vDelta is near 0, upChance is 1.
+                float lerp = Mathf.InverseLerp(1, 0, p.vDelta);
+                float upChance = Mathf.Lerp((catchUpW - targetW) / (1 + p.hScale), 1, Maths.EaseOut(lerp));
+                smallMoveW = Random.value < upChance ? expectedW : 0;
+            }
         }
 
         if (!smallWait) {
@@ -499,7 +502,7 @@ public class RandomWalkable {
                 if (p.grade < 2) largeMove.w = -smallMoveW; // keep small level, large below
                 else if (lastGrade < 2) largeMove.w = Mathf.Clamp(largeMove.w, 2 - p.vScale, 0); // bring large level w small
             }
-            RandomWalk.DebugDrawLine(largePos, largePos + largeMove, new Color(.5f, .5f, .5f, .125f), 60);
+            RandomWalk.DebugDrawLine(largePos, largePos + largeMove, new Color(.125f, .125f, .125f), 60);
             largePos += largeMove;
             catchUp = largePos - smallPos;
         }
@@ -519,8 +522,7 @@ public class RandomWalkable {
         nextCanJump = false;
         if (p.hScale <= 0) return -oldW;
         // hScale is valid for considering vDelta -1 and 1
-        if (p.vDeltaMode == -1) return Random.value > Mathf.Abs(p.vScale / 4 - oldW) * 2f / p.vScale // + .25f
-            ? 0 : Mathf.Clamp(p.vScale / 4 - oldW, -1, 1); // Mathf.Clamp(Mathf.Clamp(oldW, 0, (p.vScale - 1) / 2) - oldW, -1, 1);
+        if (p.vDeltaMode == -1) return VDeltaModeLazyHover(oldW, p);
         if (p.vScale < 5) return Mathf.Clamp(-oldW, -1, 1);
 
         // if anything, we only need vDelta to increment to start the walkway
@@ -536,6 +538,10 @@ public class RandomWalkable {
         // walkway is already within walkway range
         return Random.value < 1/3f ? Randoms.Sign : 0;
     }
+
+    private static int VDeltaModeLazyHover(int oldW, Parameters p)
+        => Random.value > Mathf.Abs(p.vScale / 4 - oldW) * 2f / p.vScale // + .25f
+            ? 0 : Mathf.Clamp(p.vScale / 4 - oldW, -1, 1);
 
     private static void JumpByStepSize(ref GridPos largeMove, ref float lastGrade, Parameters p) {
         float horizFactor = Mathf.Lerp(p.stepSize, 1, lastGrade - 2);
