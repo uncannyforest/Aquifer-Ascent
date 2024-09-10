@@ -65,6 +65,10 @@ public struct GridPos  {
 
     public GridPos Horizontal { get => new GridPos(0, x, y); }
     public int Magnitude { get => Mathf.Abs(w) + Mathf.Max(Mathf.Abs(x), Mathf.Abs(y), Mathf.Abs(z)); }
+    // square of the Euclidian magnitude. A hex grid has an additional x*y term
+    public int SqrEuclMagnitude { get => w * w + x * x + x * y + y * y; }
+    // Square of the Euclidian magnitude of the hex pos represented. A hex grid has an additional x*y term
+    public static float SqrHexEuclMag(Vector3 v) => v.x * v.x + v.x * v.y + v.y * v.y;
 
     public GridPos RotateLeft() => Rotate(60);
     public GridPos RotateRight() => Rotate(-60);

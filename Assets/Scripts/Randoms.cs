@@ -48,4 +48,11 @@ public class Randoms {
         int value = Mathf.FloorToInt(-Mathf.Log(Random.value, 2));
         return Mathf.Min(min + value, max);
     }
+
+    // Returns random value, with even distribution, from range based on input:
+    // 0 -> [0, 0] / .5 -> [0, 1] / 1 -> [1, 1]
+    public static float DoubleEitherSide(float value) {
+        float doubleValue = value * 2;
+        return Random.Range(Mathf.Max(0, doubleValue - 1), Mathf.Min(1, doubleValue));
+    }
 }

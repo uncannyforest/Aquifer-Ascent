@@ -14,9 +14,9 @@ public class RandomWalkable {
             new float[] {1,10.5f,  3f,     1, 3f,  4,  1,     2,    1, 8};
         private static float[][] MODES = new float[][] {
             new float[] {0, 1.5f, -1f,     0,  1f,   0,  0,   0,  .5f, 1}, // orig
-            new float[] {0, 8.5f, -1f,     0,  1f,   0,  0,   0,  .5f, 10}, // tall
-            new float[] {1, 5f,    1f,     1,  .5f,  2,  0,   0,  .5f, 7}, // path small
-            new float[] {1, 8.5f,  1f,     1,  .5f,  2,  0,   0,  .5f, 2}, // path tall
+            new float[] {0, 8.5f, -1f,     0,  1f,   0,  0,   0, .25f, 10}, // tall
+            new float[] {1, 5f,    1f,     1,  .5f,  2,  0,   0, .25f, 7}, // path small
+            new float[] {1, 8.5f,  1f,     1,  .5f,  2,  0,   0,    0, 2}, // path tall
             new float[] {1, 1.5f,  0.333f, 1,  3f,   2,  0,   0,  .5f, 3}, // stairwell small
             new float[] {1, 8.5f,  2f,    -1,  1f,   1,  0, 1.5f, .5f, 4}, // jump rooms
             // new float[] {1, 4f,    1f,     1, 2.5f, 2,  0, 1.5f, .5f, 6}, // jump levels
@@ -590,30 +590,75 @@ public class RandomWalkable {
 
         bool stalactite = Random.value < p.stalactites;
         bool stalagmite = p.hScale <= 2 ? stalactite : Random.value < p.stalactites;
+
+        float circleExtent = (p.hScale + 1) * Mathf.Sqrt(3) / 2;
+
+        // Debug.Log("Stalactites etc. " + stalactite + " " + stalagmite + " circleExtent " + circleExtent);
         for (int magnitude = 0; magnitude < p.hScale + 1; magnitude++)
             foreach (GridPos unit in GridPos.ListAllWithMagnitude(magnitude)) {
-                CaveGrid.Mod mod = CaveGrid.Mod.Cave(largePos + unit, p.vScale - 1);
+                bool include;
+                float floorFrac = 0, ceilFrac = 0;
 
-                int stalactiteBounds = Mathf.Max(0, Mathf.CeilToInt(p.hScale) / 2 - 1);
-                if (magnitude <= stalactiteBounds) {
-                    if (stalagmite & stalactite) continue;
-                    else if (stalactite) mod = mod.RandomEnd(false);
-                    else if (stalagmite) mod = mod.RandomEnd(true);
-                } else if (p.hScale > 2 && magnitude <= stalactiteBounds + 1) {
-                    if (stalagmite & stalactite) mod = mod.RandomSubset();
-                    else if (stalactite) mod = mod.RandomFromMidpoint(true, false);
-                    else if (stalagmite) mod = mod.RandomFromMidpoint(false, true);
-                } else if (magnitude >= p.hScale) {
-                    if (Random.value > p.hScale - magnitude + 1) continue;
-                    mod = mod.RandomSubset();
+                Vector3 scaledPos = unit.HComponents / circleExtent;
+                float sqrMag = GridPos.SqrHexEuclMag(scaledPos);
+
+                if (!stalactite && !stalagmite) include = SphereDims(sqrMag, ref floorFrac, ref ceilFrac);
+                else if (stalactite && stalagmite) include = TorusDims(sqrMag, ref floorFrac, ref ceilFrac);
+                else include = StalagmiteDims(sqrMag, ref floorFrac, ref ceilFrac, stalactite);
+
+                if (!include) continue;
+                float heightFrac = ceilFrac - floorFrac;
+                int floor, height;
+                if (heightFrac < 1) {
+                    float randomHeightFrac = Randoms.DoubleEitherSide(heightFrac);
+                    height = Mathf.RoundToInt(randomHeightFrac * p.vScale);
+                    if (height < 2)  {
+                        if ((stalactite ^ stalagmite) && sqrMag < 4/9f) {
+                            height = 2;
+                            randomHeightFrac = 1.5f / p.vScale;
+                            // Debug.Log("Don't touch stala");
+                        }
+                        else continue;
+                    }
+                    float floorFracOfCave = floorFrac / (1 - heightFrac);
+                    float randomFloorFracOfCave = floorFracOfCave; // could randomize this but easier to understand map w/o
+                    floor = Mathf.RoundToInt(randomFloorFracOfCave * (1 - randomHeightFrac) * p.vScale);
+                } else {
+                    floor = 0;
+                    height = p.vScale;
                 }
-                else if (magnitude >= p.hScale - 1 && !stalactite && !stalagmite) mod = mod.RandomFromMidpoint();
-                else if (magnitude >= p.hScale - 2) mod = mod.RandomBump();
 
+                CaveGrid.Mod mod = CaveGrid.Mod.Cave(largePos + unit + GridPos.up * floor, height - 1);
                 newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
         }
 
         return newCave;
+    }
+
+    private static bool SphereDims(float sqrMag, ref float floor, ref float ceil) {
+        if (sqrMag >= 1) return false;
+        float height = Mathf.Sqrt(1 - sqrMag);
+        floor = (1 - height) / 2;
+        ceil = 1 - floor;
+        return true;
+    }
+
+    private static bool TorusDims(float sqrMag, ref float floor, ref float ceil) {
+        if (sqrMag <= 1/9f || sqrMag >= 1) return false;
+        float height = Mathf.Sqrt(-9 * sqrMag + 12 * Mathf.Sqrt(sqrMag) - 3);
+        floor = (1 - height) / 2;
+        ceil = 1 - floor;
+        return true;
+    }
+
+    private static bool StalagmiteDims(float sqrMag, ref float floor, ref float ceil, bool stalactite) {
+        if (sqrMag >= 1) return false;
+        float sphereHeight = Mathf.Sqrt(1 - sqrMag) * 3 / 4;
+        bool isInTorus = sqrMag > 1/9f;
+        float curvyHeight = isInTorus ? Mathf.Sqrt(-9 * sqrMag + 12 * Mathf.Sqrt(sqrMag) - 3) / 4 : Mathf.Sqrt(1 -  9 * sqrMag) / -4;
+        floor = stalactite ? .75f - sphereHeight : .25f - curvyHeight;
+        ceil = stalactite ? .75f + curvyHeight : .25f + sphereHeight;
+        return true;
     }
 
     private static LinkedList<GridPos> SetUpStepTimeQueue(GridPos initialPos) {
