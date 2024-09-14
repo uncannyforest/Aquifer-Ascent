@@ -156,17 +156,17 @@ MonoBehaviour:
   orbParent: {fileID: 0}
   rubblePrefab: {fileID: 2707940571529467398, guid: af733a8849d58473988d5a5921fdf3f3,
     type: 3}
-  interiaOfEtherCurrent: 48
+  interiaOfEtherCurrent: 24
   modRate: 1
   addOrbEvery: 1
   maxAddOrbSteps: 18
   orbChargeRampUp: 6
   changeBiomeEvery: 108
-  rubbleRate: 0.055555556
+  rubbleRate: 0.041666668
   biasToLeaveCenterOfGravity: 1
   cheatSlowdown: 4
-  upwardRate: 0.9166667
-  modeSwitchRate: 20
+  upwardRate: 0.6666667
+  modeSwitchRate: 72
 --- !u!114 &929735342216708032
 MonoBehaviour:
   m_ObjectHideFlags: 0

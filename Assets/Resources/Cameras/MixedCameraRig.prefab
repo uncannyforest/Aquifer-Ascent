@@ -43,8 +43,9 @@ GameObject:
   - component: {fileID: 7757260547586297443}
   - component: {fileID: 7757260547596959587}
   - component: {fileID: 7757260547592917571}
+  - component: {fileID: 3105209433269336356}
   m_Layer: 9
-  m_Name: MainCamera
+  m_Name: PerspectiveCamera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -73,11 +74,11 @@ Camera:
   m_GameObject: {fileID: 7757260547587279937}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.61960787, g: 0.6745098, b: 0.76862746, a: 0.019607844}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0.019607844}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
-  m_FOVAxisMode: 0
+  m_FOVAxisMode: 1
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
   m_FocalLength: 50
@@ -88,8 +89,8 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.02
-  far clip plane: 20
-  field of view: 50
+  far clip plane: 40
+  field of view: 80.15016
   orthographic: 0
   orthographic size: 4.5
   m_Depth: -1
@@ -123,6 +124,22 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7757260547587279937}
   m_Enabled: 1
+--- !u!114 &3105209433269336356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7757260547587279937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce1bdae64fe294dceaa6692c5016aa97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  layers:
+    serializedVersion: 2
+    m_Bits: 24576
+  cullDistance: 30
 --- !u!1 &7757260547587279939
 GameObject:
   m_ObjectHideFlags: 0
@@ -169,7 +186,7 @@ GameObject:
   - component: {fileID: 7757260547590221603}
   m_Layer: 9
   m_Name: MixedCameraRig
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: -215833656, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -182,7 +199,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7757260547587279943}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -7, y: -2.5, z: -13}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7757260547586789475}

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 8900000, guid: 746f27d4a0d8349a5b2ce5dbec144808, type: 3}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.01636155, g: 0.019181503, b: 0.021893535, a: 1}
+  m_IndirectSpecularColor: {r: 0.016021518, g: 0.01882578, b: 0.021876836, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -452,34 +452,9 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
-      propertyPath: modRate
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
-        type: 3}
       propertyPath: orbParent
       value: 
       objectReference: {fileID: 285286790}
-    - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
-        type: 3}
-      propertyPath: rubbleRate
-      value: 0.041666668
-      objectReference: {fileID: 0}
-    - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
-        type: 3}
-      propertyPath: upwardRate
-      value: 0.6666667
-      objectReference: {fileID: 0}
-    - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
-        type: 3}
-      propertyPath: modeSwitchRate
-      value: 72
-      objectReference: {fileID: 0}
-    - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
-        type: 3}
-      propertyPath: interiaOfEtherCurrent
-      value: 24
-      objectReference: {fileID: 0}
     - target: {fileID: 317994074565316839, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
       propertyPath: m_RootOrder
@@ -540,13 +515,38 @@ PrefabInstance:
       propertyPath: m_Name
       value: Guide Orb
       objectReference: {fileID: 0}
-    - target: {fileID: 3226984548907044838, guid: b51de46c03f1e406386c2a4e5e72d01b,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b51de46c03f1e406386c2a4e5e72d01b, type: 3}
+--- !u!1 &1271115887
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1271115888}
+  m_Layer: 0
+  m_Name: Other Objects
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1271115888
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1271115887}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -31.04565, y: -2.0551033, z: 306.39224}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1486949848
 GameObject:
   m_ObjectHideFlags: 0

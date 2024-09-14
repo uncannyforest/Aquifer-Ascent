@@ -12,7 +12,7 @@ public class DiedMenu : Menu {
                 GameManager.I.SeeMap();
                 break;
             case 2: 
-                SceneManager.LoadScene("Start", LoadSceneMode.Single);
+                GameManager.I.MainMenu();
                 break;
         }
     }

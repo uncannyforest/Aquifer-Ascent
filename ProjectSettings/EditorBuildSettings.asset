@@ -24,7 +24,7 @@ EditorBuildSettings:
     path: Assets/Menus/Start.unity
     guid: addfcaa57ed174e15bfb303c953df408
   - enabled: 1
-    path: Assets/Scenes/PermanentElements.unity
+    path: Assets/Scenes/Game Management.unity
     guid: a388ff524a82b433b8b498bfa3834b50
   - enabled: 1
     path: Assets/Cave Generator/Generated Cave.unity

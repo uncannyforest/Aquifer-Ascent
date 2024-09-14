@@ -13,8 +13,13 @@ public class GameManager : MonoBehaviour {
 
     public string startScene;
 
+    public List<GameObject> spawnBeforeLevelLoad = new List<GameObject>();
+
+    public GameObject background;
+    public GameObject mainMenu;
     public GameObject pauseMenu;
     public GameObject diedMenu;
+    public GameObject panCamera;
 
     public List<GameObject> activateTheseOnDeath = new List<GameObject>();
     public List<GameObject> deactivateTheseOnDeath = new List<GameObject>();
@@ -22,6 +27,7 @@ public class GameManager : MonoBehaviour {
     private Mode mode = Mode.PLAYING;
 
     private enum Mode {
+        FOYER,
         PLAYING,
         PAUSED,
         DEAD_MENU,
@@ -29,12 +35,6 @@ public class GameManager : MonoBehaviour {
     }
 
     private ThirdPersonUserControl playerControl;
-
-    void Start() {
-        playerControl = GameObject.FindObjectOfType<ThirdPersonUserControl>();
-        StartCoroutine(LoadScenes());
-        Time.timeScale = 1;
-    }
 
     void Update() {
         if (Input.GetKeyDown(KeyCode.Escape)) {
@@ -45,6 +45,22 @@ public class GameManager : MonoBehaviour {
                 case Mode.VIEWING_MAP: Die(); break;
             }
         }
+    }
+
+    public void MainMenu() {
+        mode = Mode.FOYER;
+        playerControl.enabled = false;
+        Time.timeScale = 0;
+        diedMenu.SetActive(false);
+        background.SetActive(true);
+        mainMenu.SetActive(true);
+        Scene maybeLevel = SceneManager.GetSceneByName(startScene);
+        if (maybeLevel != null) SceneManager.UnloadSceneAsync(maybeLevel);
+    }
+
+    public void CloseMainMenu() {
+        background.SetActive(false);
+        mainMenu.SetActive(false);
     }
 
     public void Pause() {
@@ -70,36 +86,38 @@ public class GameManager : MonoBehaviour {
 
     public void SeeMap() {
         mode = Mode.VIEWING_MAP;
-        GameObject.FindObjectOfType<CameraMux>().SwitchCameraNow(true);
-        GameObject.FindObjectOfType<PanController>().transform.position = playerControl.transform.position;
+        GameObject.Destroy(GameObject.FindObjectOfType<UnityStandardAssets.Cameras.MixedAutoCam>().gameObject);
+        panCamera.transform.position = playerControl.transform.position;
         foreach (GameObject go in deactivateTheseOnDeath) go.SetActive(false);
         foreach (GameObject go in activateTheseOnDeath) go.SetActive(true);
     }
 
+    public void StartLevel(Random.State? seed = null) => StartCoroutine(LoadScenes(seed));
+
+    public void RestartWithSeed(Random.State seed) => Restart(seed);
     public void Restart(Random.State? seed = null) {
         SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(startScene));
-        mode = Mode.PLAYING;
-        Transform player = playerControl.transform;
-        player.position = Vector3.zero;
-        player.rotation = Quaternion.identity;
-        player.GetComponent<ThirdPersonUserControl>().enabled = true;
-        foreach (GameObject go in deactivateTheseOnDeath) go.SetActive(true);
-        foreach (GameObject go in activateTheseOnDeath) go.SetActive(false);
-        Time.timeScale = 1;
-        GameObject.FindObjectOfType<CameraMux>().SwitchCameraNow(false);
         StartCoroutine(LoadScenes(seed));
     }
 
-    public void RestartWithSeed(Random.State seed) => Restart(seed);
-
 	IEnumerator LoadScenes(Random.State? seed = null) {
+		yield return null; // Wait for old scene to unload
+        List<GameObject> spawnedBeforeLevelLoad = new List<GameObject>();
+        foreach (GameObject prefab in spawnBeforeLevelLoad) spawnedBeforeLevelLoad.Add(GameObject.Instantiate(prefab, null));
         SceneManager.LoadScene(startScene, LoadSceneMode.Additive);
-        Debug.Log("Loaded scene");
+        Debug.Log("Loaded scene - seed? " + seed);
         if (seed is Random.State actualSeed) Random.state = actualSeed;
-        Debug.Log("Set seed from user");
-		yield return null;
-		SceneManager.SetActiveScene(SceneManager.GetSceneByName(startScene));
+		yield return null; // Wait for new scene to load
+        Scene levelScene = SceneManager.GetSceneByName(startScene);
+		SceneManager.SetActiveScene(levelScene);
+        foreach (GameObject go in spawnedBeforeLevelLoad) SceneManager.MoveGameObjectToScene(go, levelScene);
+        StartLevelTasks();
 	}
 
-    
+    private void StartLevelTasks() {
+        CloseMainMenu();
+        mode = Mode.PLAYING;
+        Time.timeScale = 1;
+        playerControl = GameObject.FindObjectOfType<ThirdPersonUserControl>();
+    }
 }

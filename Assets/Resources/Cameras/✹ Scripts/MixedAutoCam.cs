@@ -84,6 +84,7 @@ namespace UnityStandardAssets.Cameras
 
             // camera position moves towards target position:
             transform.position = Vector3.Lerp(transform.position, m_Target.position, deltaTime*m_MoveSpeed);
+            Debug.Log(transform.position + " follow " + m_Target.position + " speed " + deltaTime + " " + m_MoveSpeed);
 
             // camera's rotation is split into two parts, which can have independend speed settings:
             // rotating towards the target's forward direction (which encompasses its 'yaw' and 'pitch')
@@ -108,6 +109,13 @@ namespace UnityStandardAssets.Cameras
             if (isResettingCamera && Quaternion.Angle(rollRotation, transform.rotation) < 2) {
                 isResettingCamera = false;
             }
+        }
+
+        // Fix for AbstractTargetFollower
+        // This line is in AbstractTargetFollower.Start() but should be every time after SetTarget();
+        override public void SetTarget(Transform newTransform) {
+            base.SetTarget(newTransform);
+            if (m_Target != null) targetRigidbody = m_Target.GetComponent<Rigidbody>();
         }
     }
 }

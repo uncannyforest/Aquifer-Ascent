@@ -6,7 +6,7 @@ public class MainMenu : Menu {
     override public void OnPressed(int num) {
         switch (num) {
             case 0: 
-                SceneManager.LoadScene("PermanentElements", LoadSceneMode.Single);
+                GameManager.I.StartLevel();
                 break;
         }
     }
