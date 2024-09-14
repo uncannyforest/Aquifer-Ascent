@@ -20,7 +20,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Fork.unity
     guid: f59efcb80370a4076a946525254b4bac
-  - enabled: 1
+  - enabled: 0
     path: Assets/Menus/Start.unity
     guid: addfcaa57ed174e15bfb303c953df408
   - enabled: 1

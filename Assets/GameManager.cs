@@ -67,6 +67,7 @@ public class GameManager : MonoBehaviour {
         mode = Mode.PAUSED;
         playerControl.enabled = false;
         Time.timeScale = 0;
+        AudioListener.pause = true;
         pauseMenu.SetActive(true);
     }
 
@@ -74,6 +75,7 @@ public class GameManager : MonoBehaviour {
         mode = Mode.PLAYING;
         playerControl.enabled = true;
         Time.timeScale = 1;
+        AudioListener.pause = false;
         pauseMenu.SetActive(false);
     }
 
@@ -111,13 +113,7 @@ public class GameManager : MonoBehaviour {
         Scene levelScene = SceneManager.GetSceneByName(startScene);
 		SceneManager.SetActiveScene(levelScene);
         foreach (GameObject go in spawnedBeforeLevelLoad) SceneManager.MoveGameObjectToScene(go, levelScene);
-        StartLevelTasks();
-	}
-
-    private void StartLevelTasks() {
-        CloseMainMenu();
-        mode = Mode.PLAYING;
-        Time.timeScale = 1;
         playerControl = GameObject.FindObjectOfType<ThirdPersonUserControl>();
+        Unpause();
     }
 }
