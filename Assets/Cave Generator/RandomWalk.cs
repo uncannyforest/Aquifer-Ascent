@@ -171,7 +171,7 @@ public class RandomWalk : MonoBehaviour {
             absoluteCountDown--;
             if (count >= addOrbEvery || absoluteCountDown <= 0) {
                 if (absoluteCountDown >= maxAddOrbSteps) Debug.Log("MAX ADD ORB STEPS TRIGGERED");
-                StandardOrb orb = GameObject.Instantiate(orbPrefab, step.location, Quaternion.identity, orbParent);
+                StandardOrb orb = GameObject.Instantiate(orbPrefab, transform.position, Quaternion.identity, orbParent);
                 if (orbChargeRampUpStep < orbChargeRampUp) {
                     orb.chargeTime *= ((float)orbChargeRampUpStep / orbChargeRampUp);
                     orbChargeRampUpStep++;

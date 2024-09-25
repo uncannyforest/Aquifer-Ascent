@@ -15,8 +15,8 @@ public class FreeLookCamMovement : MonoBehaviour
     // 		Pivot
     // 			Camera
 
-    [Range(0f, 10f)] [SerializeField] private float m_HTurnSpeed = 1.5f;  // How fast the rig will rotate left-right from user input.
-    [Range(0f, 1f)] [SerializeField] private float m_VTurnSpeed = .03f;   // How fast the rig will rotate up-down and forward-back from user input.
+    [SerializeField] private float m_HTurnSpeed = 1.5f;  // How fast the rig will rotate left-right from user input.
+    [SerializeField] private float m_VTurnSpeed = .03f;   // How fast the rig will rotate up-down and forward-back from user input.
     [SerializeField] private float m_TurnSmoothing = 0.0f;                // How much smoothing to apply to the turn input, to reduce mouse-turn jerkiness
     [SerializeField] private bool m_LockCursor = false;                   // Whether the cursor should be hidden and locked.
     [SerializeField] private AnimationCurve m_TiltCurve = new AnimationCurve(
@@ -33,7 +33,7 @@ public class FreeLookCamMovement : MonoBehaviour
             new Keyframe(5, 3.5f));
     [SerializeField] private float m_DistanceCurveConstantFactor = .5f; // rather than changing the whole curve . . .
     [SerializeField] private float m_DefaultTiltDistanceFrame = 2f;
-    [Range(0f, 1f)] [SerializeField] private float m_ResetVTurnSpeed = .15f;
+    [SerializeField] private float m_ResetVTurnSpeed = .15f;
     
     public float m_TiltDistanceFrame;
 
@@ -103,14 +103,14 @@ public class FreeLookCamMovement : MonoBehaviour
         float m_LookAngle = m_TransformEulers.y;
 
         // Adjust the look angle by an amount proportional to the turn speed and horizontal input.
-        m_LookAngle += x*m_HTurnSpeed;
+        m_LookAngle += x * m_HTurnSpeed * Time.deltaTime;
 
         // Rotate the rig (the root object) around Y axis only:
         Quaternion m_TransformTargetRot = Quaternion.Euler(0f, m_LookAngle, 0f);
 
         // we adjust the current angle based on Y mouse input and turn speed
         if (!m_IsResettingCamera) {
-            m_TiltDistanceFrame -= y*m_VTurnSpeed;
+            m_TiltDistanceFrame -= y * m_VTurnSpeed * Time.deltaTime;
         } else {
             if (Mathf.Abs(m_TiltDistanceFrame - m_DefaultTiltDistanceFrame) < m_ResetVTurnSpeed) {
                 m_IsResettingCamera = false;

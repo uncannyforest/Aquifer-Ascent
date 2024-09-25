@@ -21,10 +21,10 @@ public class GameManager : MonoBehaviour {
     public GameObject diedMenu;
     public GameObject panCamera;
 
-    public List<GameObject> activateTheseOnDeath = new List<GameObject>();
-    public List<GameObject> deactivateTheseOnDeath = new List<GameObject>();
+    public List<GameObject> deactivateOnLife = new List<GameObject>();
+    public List<GameObject> deactivateOnMainMenu = new List<GameObject>();
 
-    private Mode mode = Mode.PLAYING;
+    private Mode mode = Mode.FOYER;
 
     private enum Mode {
         FOYER,
@@ -35,6 +35,12 @@ public class GameManager : MonoBehaviour {
     }
 
     private ThirdPersonUserControl playerControl;
+    private float lodBias = 20;
+
+    void Start() {
+        MainMenu();
+        lodBias = QualitySettings.lodBias;
+    }
 
     void Update() {
         if (Input.GetKeyDown(KeyCode.Escape)) {
@@ -49,13 +55,15 @@ public class GameManager : MonoBehaviour {
 
     public void MainMenu() {
         mode = Mode.FOYER;
-        playerControl.enabled = false;
+        if (playerControl != null) playerControl.enabled = false;
         Time.timeScale = 0;
         diedMenu.SetActive(false);
         background.SetActive(true);
         mainMenu.SetActive(true);
         Scene maybeLevel = SceneManager.GetSceneByName(startScene);
-        if (maybeLevel != null) SceneManager.UnloadSceneAsync(maybeLevel);
+        if (maybeLevel != null && maybeLevel.IsValid()) SceneManager.UnloadSceneAsync(maybeLevel);
+        foreach (GameObject go in deactivateOnLife) go.SetActive(true);
+        foreach (GameObject go in deactivateOnMainMenu) go.SetActive(false);
     }
 
     public void CloseMainMenu() {
@@ -83,15 +91,16 @@ public class GameManager : MonoBehaviour {
         mode = Mode.DEAD_MENU;
         playerControl.enabled = false;
         Time.timeScale = 0;
+        AudioListener.pause = true;
         diedMenu.SetActive(true);
     }
 
     public void SeeMap() {
         mode = Mode.VIEWING_MAP;
         GameObject.Destroy(GameObject.FindObjectOfType<UnityStandardAssets.Cameras.MixedAutoCam>().gameObject);
-        panCamera.transform.position = playerControl.transform.position;
-        foreach (GameObject go in deactivateTheseOnDeath) go.SetActive(false);
-        foreach (GameObject go in activateTheseOnDeath) go.SetActive(true);
+        panCamera.transform.position = playerControl.transform.position + Vector3.up * 2;
+        foreach (GameObject go in deactivateOnLife) go.SetActive(true);
+        QualitySettings.lodBias = float.MaxValue;
     }
 
     public void StartLevel(Random.State? seed = null) => StartCoroutine(LoadScenes(seed));
@@ -114,6 +123,9 @@ public class GameManager : MonoBehaviour {
 		SceneManager.SetActiveScene(levelScene);
         foreach (GameObject go in spawnedBeforeLevelLoad) SceneManager.MoveGameObjectToScene(go, levelScene);
         playerControl = GameObject.FindObjectOfType<ThirdPersonUserControl>();
+        foreach (GameObject go in deactivateOnMainMenu) go.SetActive(true);
+        foreach (GameObject go in deactivateOnLife) go.SetActive(false);
+        QualitySettings.lodBias = lodBias;
         Unpause();
     }
 }
