@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityStandardAssets.Characters.ThirdPerson;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
     private static GameManager instance;
@@ -19,6 +21,8 @@ public class GameManager : MonoBehaviour {
     public GameObject mainMenu;
     public GameObject pauseMenu;
     public GameObject diedMenu;
+    public GameObject loadMenu;
+    public GameObject saveMenu;
     public GameObject panCamera;
 
     public List<GameObject> deactivateOnLife = new List<GameObject>();
@@ -26,19 +30,32 @@ public class GameManager : MonoBehaviour {
 
     private Mode mode = Mode.FOYER;
 
-    private enum Mode {
+    public enum Mode {
         FOYER,
+        LOAD,
         PLAYING,
         PAUSED,
         DEAD_MENU,
-        VIEWING_MAP
+        VIEWING_MAP,
+        SAVE
     }
+
+    private Dictionary<Mode, GameObject> menus;
 
     private ThirdPersonUserControl playerControl;
     private float lodBias = 20;
 
+    public int initSeed;
+
     void Start() {
-        MainMenu();
+        menus = new Dictionary<Mode, GameObject> {
+            [Mode.FOYER] = mainMenu,
+            [Mode.LOAD] = loadMenu,
+            [Mode.PAUSED] = pauseMenu,
+            [Mode.DEAD_MENU] = diedMenu,
+            [Mode.SAVE] = saveMenu,
+        };
+        EnterFoyer();
         lodBias = QualitySettings.lodBias;
     }
 
@@ -47,77 +64,86 @@ public class GameManager : MonoBehaviour {
             switch (mode) {
                 case Mode.PLAYING: Pause(); break;
                 case Mode.PAUSED: Unpause(); break;
-                case Mode.DEAD_MENU: Restart(); break;
                 case Mode.VIEWING_MAP: Die(); break;
             }
         }
     }
 
-    public void MainMenu() {
-        mode = Mode.FOYER;
+    public void SwitchMenu(Mode newMode) {
+        bool menuIsDisplayed = menus.TryGetValue(mode, out GameObject oldMenu);
+        if (menuIsDisplayed) oldMenu.SetActive(false);
+        mode = newMode;
+        menuIsDisplayed = menus.TryGetValue(mode, out GameObject newMenu);
+        if (menuIsDisplayed) newMenu.SetActive(true);
+    }
+
+    public void LeaveFoyer() {
+        background.SetActive(false);
+    }
+
+    private void Play() {
+        playerControl.enabled = true;
+        Time.timeScale = 1;
+        AudioListener.pause = false;
+    }
+
+    private void Unplay() {
+        playerControl.enabled = false;
+        Time.timeScale = 0;
+        AudioListener.pause = true;
+    }
+
+    public void EnterFoyer() {
+        SwitchMenu(Mode.FOYER);
+        background.SetActive(true);
         if (playerControl != null) playerControl.enabled = false;
         Time.timeScale = 0;
-        diedMenu.SetActive(false);
-        background.SetActive(true);
-        mainMenu.SetActive(true);
         Scene maybeLevel = SceneManager.GetSceneByName(startScene);
         if (maybeLevel != null && maybeLevel.IsValid()) SceneManager.UnloadSceneAsync(maybeLevel);
         foreach (GameObject go in deactivateOnLife) go.SetActive(true);
         foreach (GameObject go in deactivateOnMainMenu) go.SetActive(false);
     }
 
-    public void CloseMainMenu() {
-        background.SetActive(false);
-        mainMenu.SetActive(false);
-    }
-
     public void Pause() {
-        mode = Mode.PAUSED;
-        playerControl.enabled = false;
-        Time.timeScale = 0;
-        AudioListener.pause = true;
-        pauseMenu.SetActive(true);
+        SwitchMenu(Mode.PAUSED);
+        Unplay();
     }
 
     public void Unpause() {
-        mode = Mode.PLAYING;
-        playerControl.enabled = true;
-        Time.timeScale = 1;
-        AudioListener.pause = false;
-        pauseMenu.SetActive(false);
+        SwitchMenu(Mode.PLAYING);
+        Play();
     }
 
     public void Die() {
-        mode = Mode.DEAD_MENU;
-        playerControl.enabled = false;
-        Time.timeScale = 0;
-        AudioListener.pause = true;
-        diedMenu.SetActive(true);
+        SwitchMenu(Mode.DEAD_MENU);
+        Unplay();
     }
 
     public void SeeMap() {
-        mode = Mode.VIEWING_MAP;
+        SwitchMenu(Mode.VIEWING_MAP);
         GameObject.Destroy(GameObject.FindObjectOfType<UnityStandardAssets.Cameras.MixedAutoCam>().gameObject);
         panCamera.transform.position = playerControl.transform.position + Vector3.up * 2;
         foreach (GameObject go in deactivateOnLife) go.SetActive(true);
         QualitySettings.lodBias = float.MaxValue;
     }
 
-    public void StartLevel(Random.State? seed = null) => StartCoroutine(LoadScenes(seed));
+    public void StartLevel(int? seed = null) => StartCoroutine(LoadScenes(seed));
 
-    public void RestartWithSeed(Random.State seed) => Restart(seed);
-    public void Restart(Random.State? seed = null) {
+    public void RestartWithSeed(int seed) => Restart(seed);
+    public void Restart(int? seed = null) {
         SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(startScene));
         StartCoroutine(LoadScenes(seed));
     }
 
-	IEnumerator LoadScenes(Random.State? seed = null) {
+	IEnumerator LoadScenes(int? seed = null) {
 		yield return null; // Wait for old scene to unload
         List<GameObject> spawnedBeforeLevelLoad = new List<GameObject>();
         foreach (GameObject prefab in spawnBeforeLevelLoad) spawnedBeforeLevelLoad.Add(GameObject.Instantiate(prefab, null));
         SceneManager.LoadScene(startScene, LoadSceneMode.Additive);
         Debug.Log("Loaded scene - seed? " + seed);
-        if (seed is Random.State actualSeed) Random.state = actualSeed;
+        if (seed is int actualSeed) initSeed = actualSeed;
+        else initSeed = (int)DateTime.Now.Ticks;
+        Random.InitState(initSeed);
 		yield return null; // Wait for new scene to load
         Scene levelScene = SceneManager.GetSceneByName(startScene);
 		SceneManager.SetActiveScene(levelScene);

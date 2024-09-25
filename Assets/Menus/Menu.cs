@@ -21,7 +21,6 @@ public abstract class Menu : MonoBehaviour {
 
     private void PressAction(int num) {
         OnPressed(num);
-        gameObject.SetActive(false);
     }
 
     abstract public void OnPressed(int num);
