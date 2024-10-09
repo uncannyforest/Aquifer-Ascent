@@ -98,6 +98,7 @@ public class RandomWalk : MonoBehaviour {
     public IEnumerator Runner() {
         int count = addOrbEvery;
         int absoluteCountDown = maxAddOrbSteps * orbChargeRampUpStep / orbChargeRampUp;
+        Vector3 lastPositionForMoreOrbs = Vector3.zero;
         
         GridPos? lastPath = null;
         bool canRubble = false;
@@ -171,7 +172,7 @@ public class RandomWalk : MonoBehaviour {
             absoluteCountDown--;
             if (count >= addOrbEvery || absoluteCountDown <= 0) {
                 if (absoluteCountDown >= maxAddOrbSteps) Debug.Log("MAX ADD ORB STEPS TRIGGERED");
-                StandardOrb orb = GameObject.Instantiate(orbPrefab, transform.position, Quaternion.identity, orbParent);
+                StandardOrb orb = GameObject.Instantiate(orbPrefab, lastPositionForMoreOrbs, Quaternion.identity, orbParent);
                 if (orbChargeRampUpStep < orbChargeRampUp) {
                     orb.chargeTime *= ((float)orbChargeRampUpStep / orbChargeRampUp);
                     orbChargeRampUpStep++;
@@ -180,6 +181,7 @@ public class RandomWalk : MonoBehaviour {
                 if (cheat) orb.chargeTime *= cheatSlowdown;
                 absoluteCountDown = maxAddOrbSteps * orbChargeRampUpStep / orbChargeRampUp;
             }
+            lastPositionForMoreOrbs = transform.position;
             foreach (GridPos interesting in step.interesting) {
                 StandardOrb orb = GameObject.Instantiate(orbPrefab, interesting.World, Quaternion.identity, orbParent);
                 if (cheat) {
