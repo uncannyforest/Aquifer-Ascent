@@ -396,7 +396,7 @@ MonoBehaviour:
   modRate: 0.875
   modRateYFactor: 3.5
   addOrbEvery: 1
-  maxAddOrbSteps: 18
+  maxAddOrbSteps: 6
   orbChargeRampUp: 6
   changeBiomeEvery: 108
   rubbleRate: 0.041666668

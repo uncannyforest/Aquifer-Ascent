@@ -20,9 +20,9 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 20
   m_LinearFogEnd: 40
-  m_AmbientSkyColor: {r: 0.1882353, g: 0.09411765, b: 0.0627451, a: 1}
+  m_AmbientSkyColor: {r: 0.3764706, g: 0.1882353, b: 0.1254902, a: 1}
   m_AmbientEquatorColor: {r: 0, g: 0, b: 0, a: 1}
-  m_AmbientGroundColor: {r: 0.1254902, g: 0.15686275, b: 0.2509804, a: 1}
+  m_AmbientGroundColor: {r: 0.2509804, g: 0.3137255, b: 0.5019608, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 1
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
@@ -35,10 +35,10 @@ RenderSettings:
   m_DefaultReflectionMode: 0
   m_DefaultReflectionResolution: 128
   m_ReflectionBounces: 1
-  m_ReflectionIntensity: 1
+  m_ReflectionIntensity: 0
   m_CustomReflection: {fileID: 8900000, guid: 746f27d4a0d8349a5b2ce5dbec144808, type: 3}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.01636155, g: 0.019181503, b: 0.021893535, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 0}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -455,11 +455,6 @@ PrefabInstance:
       propertyPath: orbParent
       value: 
       objectReference: {fileID: 285286790}
-    - target: {fileID: -3564749235442120631, guid: b51de46c03f1e406386c2a4e5e72d01b,
-        type: 3}
-      propertyPath: maxAddOrbSteps
-      value: 4
-      objectReference: {fileID: 0}
     - target: {fileID: 317994074565316839, guid: b51de46c03f1e406386c2a4e5e72d01b,
         type: 3}
       propertyPath: m_RootOrder

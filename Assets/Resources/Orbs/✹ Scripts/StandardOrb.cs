@@ -19,6 +19,7 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
     public float spawnTime = 1f;
     public float haloIntensity = 1.5f;
     public float spawnState = 0.0f;
+    public float defaultIntensity = 1f;
     public float heldIntensity = 0.4f;
     public ColorTransition[] colorTransitions = {
         new ColorTransition(1.0f, new Color(1.0f, 1.0f, 1.0f)),
@@ -67,7 +68,7 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
 
     //message sent by Holdable
     void UpdateHeldState(float heldState) {
-        SetOrbIntensity(1 - (1 - heldIntensity) * heldState);
+        SetOrbIntensity(defaultIntensity - (defaultIntensity - heldIntensity) * heldState);
         if (heldState == 1) {
             childParticleSystem.enableEmission = true;
         } else if (childParticleSystem.isPlaying && childParticleSystem.enableEmission) {
@@ -98,7 +99,7 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
                 }
             }
             transform.localScale = Vector3.one * spawnState;
-            SetOrbIntensity(spawnState);
+            SetOrbIntensity(spawnState * defaultIntensity);
         }
         if (updateCharge) {
             if (IsHeld) {
