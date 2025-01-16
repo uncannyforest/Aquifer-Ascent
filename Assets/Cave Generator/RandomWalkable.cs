@@ -204,7 +204,7 @@ public class RandomWalkable {
         return validMods;
     }
 
-    public static IEnumerable<RandomWalk.Output> EnumerateSteps(GridPos initPos, GridPos initDirection, int modeSwitchRate, int inertiaOfEtherCurrent, Vector3 biasToLeaveStartLocation, float upwardRate, Grid<bool> path) {
+    public static IEnumerable<RandomWalk.Output> EnumerateSteps(GridPos initPos, GridPos initDirection, int modeSwitchRate, int inertiaOfEtherCurrent, Vector3 biasToLeaveStartLocation, float upwardRate, float modRateYFactor, Grid<bool> path) {
         GridPos smallPos = initPos;
         GridPos smallMove = initDirection;
         GridPos largePos = smallPos;
@@ -250,7 +250,7 @@ public class RandomWalkable {
             List<CaveGrid.Mod> newCave = largeWait ? new List<CaveGrid.Mod>() : LargePosMods(largePos, smallPos, path, p);
             newCave.Add(CaveGrid.Mod.Cave(smallPos, p.hScale > 0 || neededWalkableAdjustment != null ? 1 : p.vScale - 1));
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
-            float stepTime = GetStepTime(smallPos, stepTimeQueue, etherCurrent.HComponents.Max() / inertiaOfEtherCurrent, p);
+            float stepTime = GetStepTime(smallPos, stepTimeQueue, etherCurrent.HComponents.Max() / inertiaOfEtherCurrent, modRateYFactor, p);
             yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, newCave.ToArray(), p.SupplyBiome, stepTime, smallPos, new GridPos[] {}, etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero));
         }
     }
@@ -672,11 +672,10 @@ public class RandomWalkable {
         for (int i = 0; i < 4; i++) queue.AddLast(initialPos);
         return queue;
     }
-    private static float GetStepTime(GridPos smallPos, LinkedList<GridPos> recentPos, float etherCurrentMagnitude, Parameters p) {
+    private static float GetStepTime(GridPos smallPos, LinkedList<GridPos> recentPos, float etherCurrentMagnitude, float scaleY, Parameters p) {
         GridPos fourPosAgo = recentPos.First.Value;
         recentPos.RemoveFirst();
         recentPos.AddLast(smallPos);
-        float scaleY = 4;
         Vector3 displacement = smallPos.World - fourPosAgo.World;
         Vector3 displacementHoriz = Vector3.Scale(displacement, new Vector3(1, 0, 1));
         float semiChebyshevSquared = Mathf.Max(displacement.y * displacement.y * scaleY * scaleY, displacementHoriz.sqrMagnitude);

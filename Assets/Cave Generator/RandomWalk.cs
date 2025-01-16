@@ -16,6 +16,7 @@ public class RandomWalk : MonoBehaviour {
     public GameObject rubblePrefab;
     public int interiaOfEtherCurrent = 6;
     public float modRate = 2/3f;
+    public float modRateYFactor = 4f;
     public int addOrbEvery = 18;
     public int maxAddOrbSteps = 18;
     public int orbChargeRampUp = 4;
@@ -90,7 +91,7 @@ public class RandomWalk : MonoBehaviour {
             case 2:
                 return RandomWalkAlgorithmStairs.MoveHorizontally(position, exitDirection, modeSwitchRate, biasToFleeStartLocation, upwardRate).GetEnumerator();
             case 3:
-                return RandomWalkable.EnumerateSteps(position, exitDirection, modeSwitchRate, interiaOfEtherCurrent, biasToFleeStartLocation, upwardRate, path).GetEnumerator();
+                return RandomWalkable.EnumerateSteps(position, exitDirection, modeSwitchRate, interiaOfEtherCurrent, biasToFleeStartLocation, upwardRate, modRateYFactor, path).GetEnumerator();
             default: throw new IndexOutOfRangeException();
         }
     }
