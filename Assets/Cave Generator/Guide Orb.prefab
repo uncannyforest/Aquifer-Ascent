@@ -394,9 +394,9 @@ MonoBehaviour:
     type: 3}
   interiaOfEtherCurrent: 24
   modRate: 0.875
-  modRateYFactor: 3.5
+  modRateYFactor: 3.625
   addOrbEvery: 1
-  maxAddOrbSteps: 6
+  maxAddOrbSteps: 4
   orbChargeRampUp: 6
   changeBiomeEvery: 108
   rubbleRate: 0.041666668

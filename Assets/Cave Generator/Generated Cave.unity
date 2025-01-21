@@ -637,8 +637,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deadTree: {fileID: 4152080433919208487, guid: 7d900be1d89ca43a1978b3b9d7f4bd2f,
     type: 3}
-  deadTreeRate: 36
-  nothingRate: 108
+  deadTreeRate: 24
+  nothingRate: 72
   sameDecorRate: 0.8333333
   positionOffsetRelHoriz: 0.5
   positionOffsetAbsY: -0.25
