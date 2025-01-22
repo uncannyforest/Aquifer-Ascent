@@ -394,7 +394,7 @@ MonoBehaviour:
     type: 3}
   interiaOfEtherCurrent: 24
   modRate: 0.8333333
-  modRateYFactor: 3.65
+  modRateYFactor: 4
   addOrbEvery: 1
   maxAddOrbSteps: 4
   orbChargeRampUp: 6

@@ -150,7 +150,7 @@ PrefabInstance:
     - target: {fileID: 7456130516122914424, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
       propertyPath: chargeTime
-      value: -20
+      value: -10
       objectReference: {fileID: 0}
     - target: {fileID: 7456130516122914424, guid: 0eb13e365665b4feb907433579ff87a3,
         type: 3}
