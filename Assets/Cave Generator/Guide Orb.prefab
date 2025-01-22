@@ -404,6 +404,8 @@ MonoBehaviour:
   cheatSlowdown: 4
   upwardRate: 0.6666667
   modeSwitchRate: 72
+  interestingPrefab: {fileID: 742398197097240004, guid: af688eb9d84404343934ec6680a51885,
+    type: 3}
 --- !u!114 &929735342216708032
 MonoBehaviour:
   m_ObjectHideFlags: 0

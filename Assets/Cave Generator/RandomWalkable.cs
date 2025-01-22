@@ -41,15 +41,17 @@ public class RandomWalkable {
         public float lerpStep = 0;
         private float targetHScale = -1;
 
-        public bool followWall { get => parameters[0] > 1/3f; }
+        public bool tryFollowWall { get => parameters[0] > 1/3f; }
+        public bool followWall { get => tryFollowWall && hScale > 0; }
         public int vScale { get => Mathf.RoundToInt(parameters[1]); } // in [1.5, 8.5]
         public float hScale { get => parameters[2]; } // in [-0.5, 3]
         public float vDelta { get => parameters[3]; } // in [-1, 1]
         public int vDeltaMode { get => parameters[3] < 0 ? -1 : parameters[3] < 2/3f ? 0 : 1; } // in [-1, 1]
         public float grade { get => parameters[4]; } // in [0, 3], 2 means diagonal
         public float inertia { get => parameters[5]; } // in [0, 2]
-        public float torque { get=> parameters[6]; } // in [0, 2]
-        public int stepSize { get => Mathf.Max(1, Mathf.RoundToInt(parameters[7] * stepGirth)); } // [in 0, 2]
+        public float torque { get => parameters[6]; } // in [0, 2]
+        public float relStepSize { get=> parameters[7]; } // in [0, 2]
+        public int stepSize { get => Mathf.Max(1, Mathf.RoundToInt(relStepSize * stepGirth)); } // [in 0, 2]
         public float stalactites { get => parameters[8]; } // [in 0, 1]
 
         private float stepGirth { get => Mathf.Min(
@@ -215,7 +217,7 @@ public class RandomWalkable {
 
         List<CaveGrid.Mod> initCave = new List<CaveGrid.Mod>();
         initCave.Add(CaveGrid.Mod.Cave(smallPos));
-        yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), Biomes.NoChange, 1/6f, smallPos, new GridPos[] {}, Vector3.zero);
+        yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, initCave.ToArray(), Biomes.NoChange, 1/6f, smallPos, null, Vector3.zero);
 
         Parameters p = new Parameters(0);
         p.Set(4, 1.5f);
@@ -225,11 +227,12 @@ public class RandomWalkable {
         float turnTime = 0;
         int skipLargeStep = 0;
         float lastGrade = 0;
+        bool startLinkMode = false;
 
         int modeSwitchCountdown = modeSwitchRate;
 
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
-            string interpolateDebug = InterpolateMode(ref modeSwitchCountdown, modeSwitchRate, p);
+            string interpolateDebug = InterpolateMode(ref modeSwitchCountdown, modeSwitchRate, p, ref startLinkMode);
             if (modeSwitchCountdown == 0) SetUpBiasForLinkMode(ref etherCurrent, ref smallMove, smallPos, largePos, inertiaOfEtherCurrent);
 
             UpdateEtherCurrent(ref etherCurrent, ref justFlipped, inertiaOfEtherCurrent, biasToLeaveStartLocation, p);
@@ -241,35 +244,38 @@ public class RandomWalkable {
             int? neededWalkableAdjustment = null;
             bool largeWait = false;
             bool smallWait = false;
-            if (p.followWall && p.hScale > 0)
+            GridPos? interesting = null;
+            if (p.followWall)
                 FollowWallThenMoveLarge(ref largePos, ref largeMove, ref largeWait, ref smallPos, ref smallMove, ref smallWait, ref neededWalkableAdjustment, ref canJump, ref lastGrade, path, bias, elevChange, upward, p);
             else MoveSmallAndLargeRelative(ref largePos, ref largeMove, ref largeWait, ref smallPos, ref smallMove, ref neededWalkableAdjustment, ref canJump, ref skipLargeStep, path, bias, elevChange, upward, p);
 
             Debug.Log(interpolateDebug + ", step " + modeSwitchCountdown + ", ether current " + etherCurrent.HComponents.Max() / inertiaOfEtherCurrent + ", bias " + bias.Max() + ", rel v " + (smallPos - largePos).w + " jump " + canJump);
 
-            List<CaveGrid.Mod> newCave = largeWait ? new List<CaveGrid.Mod>() : LargePosMods(largePos, smallPos, path, p);
+            List<CaveGrid.Mod> newCave = largeWait ? new List<CaveGrid.Mod>() : LargePosMods(largePos, smallPos, path, p, ref interesting);
+            FinalizeInteresting(ref interesting, newCave, largePos, startLinkMode, p);
             newCave.Add(CaveGrid.Mod.Cave(smallPos, p.hScale > 0 || neededWalkableAdjustment != null ? 1 : p.vScale - 1));
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
             float stepTime = GetStepTime(smallPos, stepTimeQueue, etherCurrent.HComponents.Max() / inertiaOfEtherCurrent, modRateYFactor, p);
-            yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, newCave.ToArray(), p.SupplyBiome, stepTime, smallPos, new GridPos[] {}, etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero));
+            yield return new RandomWalk.Output(smallPos.World, smallPos, smallMove, newCave.ToArray(), p.SupplyBiome, stepTime, smallPos, interesting, etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero));
         }
     }
 
-    private static string InterpolateMode(ref int modeSwitchCountup, int modeSwitchRate, Parameters p) {
+    private static string InterpolateMode(ref int modeSwitchCountup, int modeSwitchRate, Parameters p, ref bool startLinkMode) {
         modeSwitchCountup++;
         if (modeSwitchCountup == 0) {
             p.JumpToNewMode();
             bool modeChanged = p.StartNewInterpolation(1f / modeSwitchRate);
             modeSwitchCountup = modeChanged ? 0 : Mathf.FloorToInt(Maths.Bias1(Random.value) * modeSwitchRate);
         } else if (modeSwitchCountup >= modeSwitchRate) {
-            if (Random.value > .5f) {
-                bool modeChanged = p.StartNewInterpolation(1f / modeSwitchRate);
-                modeSwitchCountup = modeChanged ? 0 : Mathf.FloorToInt(Maths.Bias1(Random.value) * modeSwitchRate);
-            } else {
+            if (startLinkMode) {
                 int linkModeLength = p.StartLinkMode();
                 modeSwitchCountup = -linkModeLength;
+            } else {
+                bool modeChanged = p.StartNewInterpolation(1f / modeSwitchRate);
+                modeSwitchCountup = modeChanged ? 0 : Mathf.FloorToInt(Maths.Bias1(Random.value) * modeSwitchRate);
             }
         }
+        startLinkMode = modeSwitchCountup == modeSwitchRate - 1 && Random.value > .5f;
         return p.Interpolate();
     }
 
@@ -333,9 +339,9 @@ public class RandomWalkable {
         Vector3 forwardBias = p.inertia / ((1 - p.torque) * (1 - p.torque)) * move.HComponents.MaxNormalized(); // can be infinite
         forwardBias = forwardBias.SetNaNTo(0);
         Vector3 bias = etherCurrentBias + forwardBias;
-        Debug.Log("Bias from etherCurrent " + etherCurrentBias + " from forwardBias " + forwardBias
-            + " (" + etherCurrentBias.Max().ToString("F1") + " + " + forwardBias.Max().ToString("F1") + " = " + bias.Max().ToString("F1")
-            + ") grade factor " + Mathf.Min(1, 3 - p.grade));
+        // Debug.Log("Bias from etherCurrent " + etherCurrentBias + " from forwardBias " + forwardBias
+        //     + " (" + etherCurrentBias.Max().ToString("F1") + " + " + forwardBias.Max().ToString("F1") + " = " + bias.Max().ToString("F1")
+        //     + ") grade factor " + Mathf.Min(1, 3 - p.grade));
         if (p.grade <= 2) return bias;
         else return Vector3.Lerp(bias, Vector3.zero, p.grade - 2);
     }
@@ -590,7 +596,7 @@ public class RandomWalkable {
         else return false;
     }
 
-    private static List<CaveGrid.Mod> LargePosMods(GridPos largePos, GridPos smallPos, Grid<bool> path, Parameters p) {
+    private static List<CaveGrid.Mod> LargePosMods(GridPos largePos, GridPos smallPos, Grid<bool> path, Parameters p, ref GridPos? interesting) {
         List<CaveGrid.Mod> newCave = new List<CaveGrid.Mod>();
         if (p.hScale <= 0) return newCave;
 
@@ -636,6 +642,7 @@ public class RandomWalkable {
 
                 CaveGrid.Mod mod = CaveGrid.Mod.Cave(largePos + unit + GridPos.up * floor, height - 1);
                 newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
+                if (magnitude == 0 && (stalactite ^ stalagmite) /*&& p.relStepSize > .5f*/) interesting = mod.pos;
         }
 
         return newCave;
@@ -665,6 +672,37 @@ public class RandomWalkable {
         floor = stalactite ? .75f - sphereHeight : .25f - curvyHeight;
         ceil = stalactite ? .75f + curvyHeight : .25f + sphereHeight;
         return true;
+    }
+
+    private static void FinalizeInteresting(ref GridPos? interesting,
+            List<CaveGrid.Mod> largePosMods, GridPos largePos,
+            bool linkModeStarted,
+            Parameters p) {
+
+        if (interesting is GridPos pos1 && CaveGrid.I.grid[pos1 - GridPos.up]) {
+            interesting = null;
+            Debug.Log("Interesting failed floor check 1 @ " + pos1);
+        }
+        if (interesting != null) return; // if we've still got it, great
+        if (linkModeStarted && p.followWall) {
+            if (largePosMods.Count > 0) {
+                interesting = largePosMods[0].pos;;
+                Debug.Log("Adding interesting from largePosMods @ " + interesting);
+            } else {
+                GridPos posToCheck = largePos;
+                if (!CaveGrid.I.grid[posToCheck]) {
+                    Debug.Log("Would add interesting from largePos but it's all wall here!  @ " + posToCheck);
+                    return;
+                }
+                while (CaveGrid.I.grid[posToCheck]) posToCheck -= GridPos.up;
+                interesting = posToCheck + GridPos.up;
+                Debug.Log("Adding interesting from largePos @ " + posToCheck);
+            }
+        }
+        if (interesting is GridPos pos2 && CaveGrid.I.grid[pos2 - GridPos.up]) {
+            interesting = null; 
+            Debug.Log("Interesting failed floor check 2");
+        }
     }
 
     private static LinkedList<GridPos> SetUpStepTimeQueue(GridPos initialPos) {

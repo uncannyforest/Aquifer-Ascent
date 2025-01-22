@@ -29,7 +29,7 @@ public class RandomWalkAlgorithm {
         Debug.Log("RW hScale " + currentHScale + " / vScale" + currentVScale);
         int nextBiomeCount = currentHScale == 1 ? modeSwitchRate * 6 : modeSwitchRate; // formerly changeBiomeEvery;
 
-        yield return new RandomWalk.Output(position.World, position, lastMove, SimpleHole(position), (_) => biome, 1/6f, position, new GridPos[] {}, Vector3.zero);
+        yield return new RandomWalk.Output(position.World, position, lastMove, SimpleHole(position), (_) => biome, 1/6f, position, null, Vector3.zero);
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
             // if (biomeTries == 108) {
             //     justFlipped = false;
@@ -52,7 +52,6 @@ public class RandomWalkAlgorithm {
                 justFlipped = true;
             }
 
-            List<GridPos> interesting = new List<GridPos>();
             int changeAmount = hScale >= 2 || lastMoveBridge > 0 ? Random.Range(0, 2)
                 : hScale == 1 ? Random.Range(0, 3)
                 : 2;
@@ -214,7 +213,7 @@ public class RandomWalkAlgorithm {
             //     continue;
             // }
 
-            yield return new RandomWalk.Output(nextLoc, newPosition, random, newCave.ToArray(), (_) => biome, speed, onPath, interesting.ToArray(), etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero), doBridge || lastMoveBridge >= 2 ? RandomWalk.Output.BridgeMode.ODDS : RandomWalk.Output.BridgeMode.NONE);
+            yield return new RandomWalk.Output(nextLoc, newPosition, random, newCave.ToArray(), (_) => biome, speed, onPath, null, etherCurrent.World / inertiaOfEtherCurrent + (justFlipped ? Vector3.up : Vector3.zero), doBridge || lastMoveBridge >= 2 ? RandomWalk.Output.BridgeMode.ODDS : RandomWalk.Output.BridgeMode.NONE);
             lastMove = random;
             lastMoveBridge = doBridge && hScale >= 2 ? hScale - 1 : 0;
             position = newPosition;

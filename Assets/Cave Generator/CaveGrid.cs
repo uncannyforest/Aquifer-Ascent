@@ -91,6 +91,11 @@ public class CaveGrid : MonoBehaviour {
     [Obsolete("Deprecated, use CaveMod parameter")]
     public void SetPos(GridPos pos, bool value) => SetPos(new Mod(pos, 1, value));
 
+    public Transform GetPosParent(GridPos pos) {
+        bool childExists = renderGrid.TryGetValue(pos.Triangles[0], out GridPiece parent);
+        return childExists ? parent.transform : null;
+    }
+
     public void SetPos(Mod mod) {
         GridPos pos = mod.pos;
         int roof = mod.roof;
