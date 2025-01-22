@@ -252,7 +252,7 @@ public class RandomWalkable {
             Debug.Log(interpolateDebug + ", step " + modeSwitchCountdown + ", ether current " + etherCurrent.HComponents.Max() / inertiaOfEtherCurrent + ", bias " + bias.Max() + ", rel v " + (smallPos - largePos).w + " jump " + canJump);
 
             List<CaveGrid.Mod> newCave = largeWait ? new List<CaveGrid.Mod>() : LargePosMods(largePos, smallPos, path, p, ref interesting);
-            FinalizeInteresting(ref interesting, newCave, largePos, startLinkMode, p);
+            FinalizeInteresting(ref interesting, newCave, largePos, smallPos, startLinkMode, p);
             newCave.Add(CaveGrid.Mod.Cave(smallPos, p.hScale > 0 || neededWalkableAdjustment != null ? 1 : p.vScale - 1));
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
             float stepTime = GetStepTime(smallPos, stepTimeQueue, etherCurrent.HComponents.Max() / inertiaOfEtherCurrent, modRateYFactor, p);
@@ -675,7 +675,7 @@ public class RandomWalkable {
     }
 
     private static void FinalizeInteresting(ref GridPos? interesting,
-            List<CaveGrid.Mod> largePosMods, GridPos largePos,
+            List<CaveGrid.Mod> largePosMods, GridPos largePos, GridPos smallPos,
             bool linkModeStarted,
             Parameters p) {
 
@@ -683,26 +683,33 @@ public class RandomWalkable {
             interesting = null;
             Debug.Log("Interesting failed floor check 1 @ " + pos1);
         }
-        if (interesting != null) return; // if we've still got it, great
-        if (linkModeStarted && p.followWall) {
-            if (largePosMods.Count > 0) {
-                interesting = largePosMods[0].pos;;
-                Debug.Log("Adding interesting from largePosMods @ " + interesting);
-            } else {
-                GridPos posToCheck = largePos;
-                if (!CaveGrid.I.grid[posToCheck]) {
-                    Debug.Log("Would add interesting from largePos but it's all wall here!  @ " + posToCheck);
-                    return;
+        if (interesting == null) {
+            if (linkModeStarted && p.followWall) {
+                if (largePosMods.Count > 0) {
+                    interesting = largePosMods[0].pos;;
+                    Debug.Log("Adding interesting from largePosMods @ " + interesting);
+                } else {
+                    GridPos posToCheck = largePos;
+                    if (!CaveGrid.I.grid[posToCheck]) {
+                        interesting = posToCheck;
+                        Debug.Log("Adding interesting in largePos wall @ " + posToCheck);
+                    } else {
+                        while (CaveGrid.I.grid[posToCheck]) posToCheck -= GridPos.up;
+                        interesting = posToCheck + GridPos.up;
+                        Debug.Log("Adding interesting from largePos @ " + posToCheck);
+                    }
                 }
-                while (CaveGrid.I.grid[posToCheck]) posToCheck -= GridPos.up;
-                interesting = posToCheck + GridPos.up;
-                Debug.Log("Adding interesting from largePos @ " + posToCheck);
+            }
+            if (interesting is GridPos pos2 && CaveGrid.I.grid[pos2 - GridPos.up]) {
+                interesting = null; 
+                Debug.Log("Interesting failed floor check 2");
             }
         }
-        if (interesting is GridPos pos2 && CaveGrid.I.grid[pos2 - GridPos.up]) {
-            interesting = null; 
-            Debug.Log("Interesting failed floor check 2");
-        }
+
+        if (interesting is GridPos pos3)
+            foreach (GridPos pos in smallPos.Line(pos3))
+                if (pos.Horizontal != smallPos.Horizontal)
+                    largePosMods.Add(CaveGrid.Mod.Cave(pos));
     }
 
     private static LinkedList<GridPos> SetUpStepTimeQueue(GridPos initialPos) {

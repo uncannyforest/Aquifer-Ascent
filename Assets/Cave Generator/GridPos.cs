@@ -23,6 +23,19 @@ public static class GridPosExtensions {
         else return v / v.Max();
     }
     public static Vector3 ScaleDivide(this Vector3 a, Vector3 b) => new Vector3(a.x / b.x, a.y / b.y, a.z / b.z);
+    public static GridPos[] Line(this GridPos from, GridPos to) {
+        List<GridPos> result = new List<GridPos>() { from };
+        GridPos displacement = to - from;
+        int numSteps = displacement.Magnitude;
+        Vector3 step = displacement.World / numSteps;
+        Vector3 world = from.World;
+        for (int i = 0; i < numSteps; i++) {
+            world += step;
+            result.Add(GridPos.FromWorld(world));
+        }
+        return result.ToArray();
+    }
+
 }
 
 [Serializable]
