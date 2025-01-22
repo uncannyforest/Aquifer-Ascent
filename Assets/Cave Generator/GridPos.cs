@@ -117,6 +117,7 @@ public struct GridPos  {
         else throw new InvalidOperationException("Not unit hex: " + ToString());
     }
 
+    public static float WorldHorizScale = CaveGrid.Scale.z * 2;
     public Vector3 World { get => Vector3.Scale(CaveGrid.Scale, new Vector3(x * SQRT3, w, y * 2 + x)); }
     public static GridPos FromWorld(Vector3 worldCoord) {
         Vector3 coord = worldCoord.ScaleDivide(CaveGrid.Scale);
@@ -141,6 +142,7 @@ public struct GridPos  {
     }
     public Vector3 HComponents { get => new Vector3(x, y, z); }
     public Vector3 HScale(Vector3 vector) => Vector3.Scale(HComponents, vector);
+    public GridPos HNormalized { get => RoundFromVector3(HComponents.MaxNormalized()); }
 
     public TriPos[] Triangles { get => new TriPos[] {
         new TriPos(this + D, false),
