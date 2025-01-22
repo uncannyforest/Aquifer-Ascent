@@ -642,7 +642,7 @@ public class RandomWalkable {
 
                 CaveGrid.Mod mod = CaveGrid.Mod.Cave(largePos + unit + GridPos.up * floor, height - 1);
                 newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
-                if (magnitude == 0 && (stalactite ^ stalagmite) /*&& p.relStepSize > .5f*/) interesting = mod.pos;
+                if (magnitude == 0 && !stalactite && stalagmite /*&& p.relStepSize > .5f*/) interesting = mod.pos;
         }
 
         return newCave;
@@ -691,11 +691,22 @@ public class RandomWalkable {
             pos += GridPos.up * 2;
             interesting = pos;
             largePosMods.Add(CaveGrid.Mod.Cave(pos, 5));
-            foreach (GridPos hex in GridPos.ListAllWithMagnitude(1))
-                largePosMods.Add(CaveGrid.Mod.Cave(pos + hex + GridPos.up * 2));
+            int m = Random.Range(0, 8); // mode
+            GridPos rel = -direction;
+            int dFloor    = m==0? 2 :m==1? 4 :m==2? 4   :m==3? 1     :m==4? 0   :m==5? 4           :m==6? -3 : -4;
+            int dHeight   = m==0? 1 :m==1? 1 :m==2? 1   :m==3? 2     :m==4? 2   :m==5? 1           :m==6? 5  : 1;
+            largePosMods.Add(CaveGrid.Mod.Cave(pos + rel + GridPos.up * dFloor, dHeight));
+            for (int i = 0; i < 5; i++) {
+                rel = rel.RotateLeft();
+                int sym = Mathf.Min(i, 4-i) + 1;
+                int floor = m==0? 2 :m==1? i :m==2? 4-i :m==3? 2-i%2 :m==4? sym :m==5? sym+sym/2   :m==6? sym-3 : sym-5;
+                int height= m==0? 1 :m==1? 1 :m==2? 1   :m==3? 2     :m==4? 2   :m==5? 5-sym-sym/2 :m==6? 5     : 5;
+                largePosMods.Add(CaveGrid.Mod.Cave(pos + rel + GridPos.up * floor, height));
+            }
         };
 
-        if (interesting is GridPos pos1 && CaveGrid.I.grid[pos1 - GridPos.up]) { interesting = null; Debug.Log("Interesting failed floor check 1 @ " + pos1); }
+        if (interesting is GridPos pos1 && (CaveGrid.I.grid[pos1 - GridPos.up] || CaveGrid.I.grid[pos1 - GridPos.up * 2]))
+            { interesting = null; Debug.Log("Interesting failed floor check 1 @ " + pos1); }
         
         if (interesting == null) {
             if (linkModeStarted && p.followWall) {
@@ -710,13 +721,15 @@ public class RandomWalkable {
                     }
                 }
             }
-            if (interesting is GridPos pos2 && CaveGrid.I.grid[pos2 - GridPos.up]) { interesting = null;  Debug.Log("Interesting failed floor check 2"); }
+            if (interesting is GridPos pos2 && (CaveGrid.I.grid[pos2 - GridPos.up] || CaveGrid.I.grid[pos2 - GridPos.up * 2]))
+                { interesting = null;  Debug.Log("Interesting failed floor check 2"); }
         }
 
         if (interesting is GridPos pos3)
-            foreach (GridPos pos in smallPos.Line(pos3))
+            foreach (GridPos pos in smallPos.Line(pos3)) {
                 if (pos.Horizontal != smallPos.Horizontal)
                     largePosMods.Add(CaveGrid.Mod.Cave(pos));
+        }
     }
 
     private static LinkedList<GridPos> SetUpStepTimeQueue(GridPos initialPos) {

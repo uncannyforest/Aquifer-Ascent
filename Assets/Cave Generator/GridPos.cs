@@ -71,7 +71,7 @@ public struct GridPos  {
     public static GridPos operator /(GridPos a, int n) => new GridPos(a.w / n, a.x / n, a.y / n);
 
     public static bool operator ==(GridPos a, GridPos b) => a.w == b.w && a.x == b.x && a.y == b.y;
-    public static bool operator !=(GridPos a, GridPos b) => a.w != b.w && a.x != b.x || a.y != b.y;
+    public static bool operator !=(GridPos a, GridPos b) => a.w != b.w || a.x != b.x || a.y != b.y;
     public override bool Equals(object obj) => obj is GridPos a && this == a;
     public override int GetHashCode() => x.GetHashCode() + (y * SQRT3).GetHashCode() + (w * Mathf.Sqrt(2)).GetHashCode();
     public override string ToString() => "(" + w + " | " + x + ", " + y + ", " + z + ")";

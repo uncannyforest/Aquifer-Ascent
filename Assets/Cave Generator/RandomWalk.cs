@@ -185,7 +185,7 @@ public class RandomWalk : MonoBehaviour {
             }
             lastPositionForMoreOrbs = transform.position;
             if (step.interesting is GridPos interesting) {
-                Transform parent = CaveGrid.I.GetPosParent(interesting);
+                Transform parent = CaveGrid.I.GetPosParent(interesting - GridPos.up);
                 if (parent != null)
                     GameObject.Instantiate(interestingPrefab,
                         interesting.World + CaveGrid.Scale.y * Vector3.down,
