@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class FlexibleInputDisplay {
     private HoldObject script;
+    private string holdMessage;
+    private string message2;
 
     public FlexibleInputDisplay(HoldObject script) {
         this.script = script;
@@ -19,17 +21,20 @@ public class FlexibleInputDisplay {
             return; // nearby objects not applicable, nothing to do
         }
 
-        if (nearObjects.Count > 0) {
-            SetInteractionMessages("grab", null);
-        } else {
-            SetInteractionMessages(null, null);
-        }
+        holdMessage = nearObjects.Count > 0 ? "grab" : null;
+        SetInteractionMessages(holdMessage, message2);
     }
 
     public void UpdateForHeldObject(GameObject heldObject) {
         string interact2 = heldObject.GetComponent<Holdable>().optionalAction;
 
-        SetInteractionMessages("release", interact2);
+        holdMessage = "release";
+        SetInteractionMessages(holdMessage, message2 ?? interact2);
+    }
+
+    public void OverrideMessage2(string message2) {
+        this.message2 = message2;
+        SetInteractionMessages(holdMessage, message2);
     }
 
     void SetInteractionMessages(string interact1, string interact2) {

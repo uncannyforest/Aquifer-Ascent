@@ -98,6 +98,7 @@ public class RisingWater : MonoBehaviour {
     //     myRigidbody.MovePosition(targetLocation);
     // }
     void FixedUpdate() {
-        myRigidbody.velocity = velocity;
+        if (TimeTravel.I.timePaused) myRigidbody.velocity = Vector3.zero;
+        else myRigidbody.velocity = velocity;
     }
 }

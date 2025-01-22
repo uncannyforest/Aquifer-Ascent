@@ -30,9 +30,9 @@ public class EnvironmentInteractor {
     }
 
     private GameObject GetInteractableObject(GameObject trigger) {
-        if(trigger.GetComponent<Holdable>() != null) {
+        if (trigger.GetComponent<Holdable>() != null) {
             return trigger;
-        } else if (trigger.transform.parent.GetComponent<Holdable>() != null) {
+        } else if (trigger.transform.parent.GetComponent<Powerup>() != null || trigger.transform.parent.GetComponent<Holdable>() != null) {
             return trigger.transform.parent.gameObject;
         } else {
             Debug.LogError("Object tagged CanPickUp has no Holdable script on it or parent");
@@ -49,7 +49,9 @@ public class EnvironmentInteractor {
                 o => Vector3.Distance(o.transform.position, script.transform.position)
             ).First();
 
-        GetInteractableObject(closestObject).GetComponent<Holdable>().Hold();
+        GameObject io = GetInteractableObject(closestObject);
+        if (io.GetComponent<Holdable>() != null) io.GetComponent<Holdable>().Hold();
+        else io.GetComponent<Powerup>().Add();
     }
 
     public void DropHeldObject() {

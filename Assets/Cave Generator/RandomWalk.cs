@@ -199,7 +199,8 @@ public class RandomWalk : MonoBehaviour {
             prevLoc = nextLoc;
             nextLoc = step.location;
             progress = 0;
-            yield return new WaitForSeconds(modRate * relSpeed);
+            if (TimeTravel.I.timePaused) yield return new WaitForSeconds(TimeTravel.I.timePausedFor);
+            else yield return new WaitForSeconds(modRate * relSpeed);
         }
     }
 
@@ -209,6 +210,7 @@ public class RandomWalk : MonoBehaviour {
     }
 
     void Update() {
+        if (TimeTravel.I.timePaused) return;
         progress += Time.deltaTime / (modRate * relSpeed);
         transform.position = Vector3.Lerp(prevLoc, nextLoc, Maths.CubicInterpolate(Mathf.Clamp01(progress)));
         Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta);

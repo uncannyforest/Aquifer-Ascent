@@ -64,7 +64,9 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
         objectAudio = GetComponent<AudioSource>();
     }
 
-    void Update() => UpdateOrbState();
+    void Update() {
+        if (!TimeTravel.I.timePaused) UpdateOrbState();
+    }
 
     //message sent by Holdable
     void UpdateHeldState(float heldState) {

@@ -12,8 +12,8 @@ public class HoldObject : MonoBehaviour
 
     public Action<GameObject> Hold;
 
-    FlexibleInputDisplay inputDisplay;
-    EnvironmentInteractor environmentInteractor;
+    public FlexibleInputDisplay inputDisplay;
+    public EnvironmentInteractor environmentInteractor;
     HoldAnimationControl holdAnimationControl;
 
     public bool IsHolding {
