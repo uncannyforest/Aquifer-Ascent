@@ -143,7 +143,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			m_ActualGroundCheckDistance = m_Rigidbody.velocity.y < 0 ? m_GroundCheckDistance : 0.01f;
 
 			Wood wood = GetComponentInChildren<Wood>();
-			if (wood != null&& wood.dropWhenAirborne) wood.Drop();
+			if (wood != null && wood.dropWhenAirborne && !IsWaterPresent()) wood.Drop();
 		}
 
 
@@ -232,6 +232,14 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			}
 		}
 
+		private bool IsWaterPresent() {
+			return Physics.Raycast(
+				transform.position,
+				Vector3.up,
+				1.75f,
+				1 << LayerMask.NameToLayer("Water"));
+		}
+
 		private void CheckShouldBeSwimming() {
 			if (!canSwim) return;
 			// Hardcoded values because I'm trying not to add more dependencies
@@ -242,15 +250,12 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				1 << LayerMask.NameToLayer("Water"));
 			if (raycast) {
 				m_Rigidbody.AddForce(-2 * Physics.gravity);
+				Debug.DrawLine(transform.position + .75f * Vector3.up, transform.position + 1.75f * Vector3.up, Color.magenta);
 			}
 		}
 
 		private bool CheckIsSwimming() {
-			bool raycast = Physics.Raycast(
-				transform.position,
-				Vector3.up,
-				1f,
-				1 << LayerMask.NameToLayer("Water"));
+			bool raycast = IsWaterPresent();
 			if (raycast) {
 				groundNormal = Vector3.up;
 				m_IsGrounded = false;
