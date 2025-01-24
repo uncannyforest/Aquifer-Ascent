@@ -229,7 +229,7 @@ public class RandomWalkable {
         float lastGrade = 0;
         bool startLinkMode = false;
 
-        int modeSwitchCountdown = modeSwitchRate;
+        int modeSwitchCountdown = modeSwitchRate - 2;
 
         for (int infiniteLoopCatch = 0; infiniteLoopCatch < 100000; infiniteLoopCatch++) {
             string interpolateDebug = InterpolateMode(ref modeSwitchCountdown, modeSwitchRate, p, ref startLinkMode);
