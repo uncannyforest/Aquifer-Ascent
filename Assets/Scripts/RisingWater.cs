@@ -87,18 +87,16 @@ public class RisingWater : MonoBehaviour {
         endLocation = lowestOrb.transform.position + currentLevelBelow * Vector3.down;
         velocity = (endLocation - startLocation) / unchargeTime;
         velocity.Scale(scale);
-        Debug.Log("Set water velocity " + velocity + " to reach endLocation " + endLocation);
+        Debug.Log("Set water velocity " + velocity + " from " + startLocation + " to reach endLocation " + endLocation + " in " + unchargeTime + " seconds");
         // myRigidbody.velocity = velocity;
     }
 
-    // void FixedUpdate() {
-    //     if (lowestOrb == null) return;
-    //     targetLocation = Vector3.Lerp(lowestOrb.transform.position + currentLevelBelow * Vector3.down, startLocation, lowestOrb.state.currentChargeLevel / startChargeLevel);
-    //     targetLocation.Scale(new Vector3(horizontalFactor, 1, horizontalFactor));
-    //     myRigidbody.MovePosition(targetLocation);
-    // }
     void FixedUpdate() {
-        if (TimeTravel.I.timePaused) myRigidbody.velocity = Vector3.zero;
-        else myRigidbody.velocity = velocity;
+        if (!TimeTravel.I.timePaused)
+            myRigidbody.MovePosition(myRigidbody.position + velocity * Time.fixedDeltaTime);
     }
+    // void FixedUpdate() {
+    //     if (TimeTravel.I.timePaused) myRigidbody.velocity = Vector3.zero;
+    //     else myRigidbody.velocity = velocity;
+    // }
 }
