@@ -406,6 +406,8 @@ MonoBehaviour:
   modeSwitchRate: 72
   interestingPrefab: {fileID: 742398197097240004, guid: af688eb9d84404343934ec6680a51885,
     type: 3}
+  interestingHint: {fileID: -3311404517020859098, guid: a438e7f72bab040cc8db18510ebf81c3,
+    type: 3}
 --- !u!114 &929735342216708032
 MonoBehaviour:
   m_ObjectHideFlags: 0

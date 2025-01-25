@@ -27,6 +27,7 @@ public class RandomWalk : MonoBehaviour {
     public float upwardRate = .5f;
     public int modeSwitchRate = 20;
     public GameObject interestingPrefab;
+    public LineRenderer interestingHint;
     
     private Vector3 prevLoc = Vector3.zero;
     private Vector3 nextLoc = Vector3.zero;
@@ -186,10 +187,16 @@ public class RandomWalk : MonoBehaviour {
             lastPositionForMoreOrbs = transform.position;
             if (step.interesting is GridPos interesting) {
                 Transform parent = CaveGrid.I.GetPosParent(interesting - GridPos.up);
-                if (parent != null)
+                if (parent != null) {
                     GameObject.Instantiate(interestingPrefab,
                         interesting.World + CaveGrid.Scale.y * Vector3.down,
                         Quaternion.identity, parent);
+                    LineRenderer hint = GameObject.Instantiate(interestingHint);
+                    hint.SetPositions(new Vector3[] {
+                        step.location,
+                        interesting.World + CaveGrid.Scale.y * Vector3.down
+                    });
+                }
             }
             if (step.etherCurrent.y > .5f) {
                 Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta, 600);
