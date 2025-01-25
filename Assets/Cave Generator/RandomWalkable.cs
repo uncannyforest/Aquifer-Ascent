@@ -228,6 +228,7 @@ public class RandomWalkable {
         int skipLargeStep = 0;
         float lastGrade = 0;
         bool startLinkMode = false;
+        LinkedList<GridPos> recentPillars = new LinkedList<GridPos>();
 
         int modeSwitchCountdown = modeSwitchRate - 2;
 
@@ -251,8 +252,8 @@ public class RandomWalkable {
 
             Debug.Log(interpolateDebug + ", step " + modeSwitchCountdown + ", ether current " + etherCurrent.HComponents.Max() / inertiaOfEtherCurrent + ", bias " + bias.Max() + ", rel v " + (smallPos - largePos).w + " jump " + canJump);
 
-            List<CaveGrid.Mod> newCave = largeWait ? new List<CaveGrid.Mod>() : LargePosMods(largePos, smallPos, path, p, ref interesting);
-            FinalizeInteresting(ref interesting, newCave, largePos, smallPos, path, etherCurrent, justFlipped, (float)modeSwitchCountdown/modeSwitchRate, startLinkMode, p);
+            List<CaveGrid.Mod> newCave = largeWait ? new List<CaveGrid.Mod>() : LargePosMods(largePos, smallPos, path, recentPillars, ref interesting, p);
+            FinalizeInteresting(ref interesting, interesting != null && recentPillars.Count >= 2, newCave, largePos, smallPos, path, etherCurrent, justFlipped, (float)modeSwitchCountdown/modeSwitchRate, startLinkMode, p);
             newCave.Add(CaveGrid.Mod.Cave(smallPos, p.hScale > 0 || neededWalkableAdjustment != null ? 1 : p.vScale - 1));
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
             float stepTime = GetStepTime(smallPos, stepTimeQueue, etherCurrent.HComponents.Max() / inertiaOfEtherCurrent, modRateYFactor, p);
@@ -596,7 +597,8 @@ public class RandomWalkable {
         else return false;
     }
 
-    private static List<CaveGrid.Mod> LargePosMods(GridPos largePos, GridPos smallPos, Grid<bool> path, Parameters p, ref GridPos? interesting) {
+    private static List<CaveGrid.Mod> LargePosMods(GridPos largePos, GridPos smallPos, Grid<bool> path,
+            LinkedList<GridPos> recentPillars, ref GridPos? interesting, Parameters p) {
         List<CaveGrid.Mod> newCave = new List<CaveGrid.Mod>();
         if (p.hScale <= 0) return newCave;
 
@@ -642,8 +644,22 @@ public class RandomWalkable {
 
                 CaveGrid.Mod mod = CaveGrid.Mod.Cave(largePos + unit + GridPos.up * floor, height - 1);
                 newCave.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
-                if (magnitude == 0 && !stalactite && stalagmite /*&& p.relStepSize > .5f*/) interesting = mod.pos;
+                if (magnitude == 0 && !stalactite && stalagmite /*&& p.relStepSize > .5f*/)
+                    interesting = mod.pos;
         }
+        if (stalactite && stalagmite) {
+            int threshhold = 0;
+            if (recentPillars.Count >= 2) {
+                GridPos firstPillar = recentPillars.First.Value;
+                GridPos secondPillar = recentPillars.First.Next.Value;
+                threshhold = (firstPillar - smallPos).Magnitude + (secondPillar - smallPos).Magnitude;
+                if (threshhold >= 6) interesting = firstPillar + secondPillar - smallPos;
+                recentPillars.RemoveFirst();
+            }
+            Debug.Log(threshhold == 0 ? "Recent pillars: " + recentPillars.Count
+                : "Recent pillars: 2 / threshhold: " + threshhold);
+            recentPillars.AddLast(largePos);
+        } else if (recentPillars.Count > 0) recentPillars.Clear();
 
         return newCave;
     }
@@ -674,11 +690,13 @@ public class RandomWalkable {
         return true;
     }
 
-    private static void FinalizeInteresting(ref GridPos? interesting,
+    private static void FinalizeInteresting(ref GridPos? interesting, bool interestingNeedsNoPath,
             List<CaveGrid.Mod> largePosMods, GridPos largePos, GridPos smallPos, Grid<bool> path,
             GridPos etherCurrent, bool etherCurrentJustFlipped,
             float modeSwitchFraction, bool linkModeStarted,
             Parameters p) {
+        GridPos? interestingThatNeedsNoPath = interestingNeedsNoPath ? interesting : null;
+
         if (etherCurrentJustFlipped) { // override current interesting
             int wallsInRow = 0;
             GridPos pos = smallPos - GridPos.up * 2;
@@ -734,8 +752,9 @@ public class RandomWalkable {
         }
 
         if (interesting is GridPos pos3)
-            foreach (GridPos pos in smallPos.Line(pos3)) {
-                if (interesting == pos || pos.Horizontal != smallPos.Horizontal)
+            if (interesting == interestingThatNeedsNoPath) largePosMods.Add(CaveGrid.Mod.Cave(pos3));
+            else foreach (GridPos pos in smallPos.Line(pos3)) {
+                if (interesting == pos || pos.Horizontal != smallPos.Horizontal && pos.Horizontal != pos3.Horizontal)
                     largePosMods.Add(CaveGrid.Mod.Cave(pos));
         }
     }
