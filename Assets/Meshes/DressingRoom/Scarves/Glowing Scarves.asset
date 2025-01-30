@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fee52b9eecc4e4a5c85b51e83298fb9b, type: 3}
+  m_Name: Glowing Scarves
+  m_EditorClassIdentifier: 
+  materials:
+  - {fileID: 2100000, guid: 71620c6efa2cb4ddabbc875b02a08006, type: 2}
+  - {fileID: 2100000, guid: 77abc2ad4af4e472eac5aaa23cdd9d61, type: 2}
+  - {fileID: 2100000, guid: 0378bec7a2941496e962acf18fbc6453, type: 2}
+  - {fileID: 2100000, guid: 14e50e924604d43ecbef6db2e0db5169, type: 2}
+  - {fileID: 2100000, guid: 4fe933c46aa63484a970733489a49ead, type: 2}
+  - {fileID: 2100000, guid: 2f02ae4ee08874cc09218e0857ef12b0, type: 2}
+  - {fileID: 2100000, guid: 66fe8b3e6f89b41eea83545b2683dbe9, type: 2}
+  - {fileID: 2100000, guid: dd0fb85dab55146d684c0cc052078e1f, type: 2}

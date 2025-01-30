@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Scarf : MonoBehaviour {
@@ -17,13 +18,14 @@ public class Scarf : MonoBehaviour {
         } else {
             maxScarfFound = scarvesFound.Length - 1;
         }
+        RefreshScarf();
     }
 
     public int Id {
         get => scarfId;
         set {
-            scarf.material = materials[value];
             scarfId = value;
+            RefreshScarf();
         }
     }
 
@@ -35,7 +37,7 @@ public class Scarf : MonoBehaviour {
     }
 
     public bool CollectionIncludes(int id) {
-        return scarvesFound[id];
+        return id < scarvesFound.Length && scarvesFound[id];
     }
 
     public void SwapScarf(bool increase, out int oldScarf, out int newScarf) {
@@ -50,5 +52,9 @@ public class Scarf : MonoBehaviour {
         }
         oldScarf = Id;
         Id = newScarf;
+    }
+
+    public void RefreshScarf() {
+        scarf.material = materials[Id];
     }
 }

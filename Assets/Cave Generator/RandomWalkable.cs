@@ -653,7 +653,8 @@ public class RandomWalkable {
                 GridPos firstPillar = recentPillars.First.Value;
                 GridPos secondPillar = recentPillars.First.Next.Value;
                 threshhold = (firstPillar - smallPos).Magnitude + (secondPillar - smallPos).Magnitude;
-                if (threshhold >= 6) interesting = firstPillar + secondPillar - smallPos;
+                if (threshhold >= 6 && (secondPillar - smallPos).Horizontal.Magnitude < p.hScale + 2)
+                    interesting = firstPillar + secondPillar - smallPos;
                 recentPillars.RemoveFirst();
             }
             Debug.Log(threshhold == 0 ? "Recent pillars: " + recentPillars.Count

@@ -665,6 +665,35 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-8871493566648916671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8659314016061392267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbf78b6a8c1a04cb3922cf59218d6ff1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offMaterials: {fileID: 11400000, guid: 37c3da2b396e34fffb999f480df11a25, type: 2}
+  readyMaterials: {fileID: 11400000, guid: 950d4ce56e4b5448998c61004d2e15b7, type: 2}
+  pausedMaterials: {fileID: 11400000, guid: 33d9e85a8488a4897b6058cc51ca4728, type: 2}
+  timePausedFor: 0
+  state: 0
+--- !u!114 &-2925338446281572402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8659314016061392267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f7343cf2ea654f13bd0b885dad2b555, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &289059617969462737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -724,10 +753,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27f246d29f7ba4766b068a98a7f414fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  materials: {fileID: 11400000, guid: 950d4ce56e4b5448998c61004d2e15b7, type: 2}
+  materials: {fileID: 11400000, guid: 37c3da2b396e34fffb999f480df11a25, type: 2}
   scarf: {fileID: 3343937451488339641}
   scarfId: 0
-  scarvesFound: 
+  scarvesFound: 0101010101010101
 --- !u!114 &4745502497753277111
 MonoBehaviour:
   m_ObjectHideFlags: 0

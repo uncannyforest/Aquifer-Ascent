@@ -393,7 +393,7 @@ MonoBehaviour:
   rubblePrefab: {fileID: 2707940571529467398, guid: af733a8849d58473988d5a5921fdf3f3,
     type: 3}
   interiaOfEtherCurrent: 24
-  modRate: 0.8333333
+  modRate: 0.833333
   modRateYFactor: 4
   addOrbEvery: 1
   maxAddOrbSteps: 4
@@ -408,15 +408,3 @@ MonoBehaviour:
     type: 3}
   interestingHint: {fileID: -3311404517020859098, guid: a438e7f72bab040cc8db18510ebf81c3,
     type: 3}
---- !u!114 &929735342216708032
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3226984548907044838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8cebe6f1922f24a37a6956fa5617aab2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

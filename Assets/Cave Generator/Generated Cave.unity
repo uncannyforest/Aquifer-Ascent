@@ -588,7 +588,6 @@ GameObject:
   - component: {fileID: 1486949849}
   - component: {fileID: 1486949850}
   - component: {fileID: 1486949852}
-  - component: {fileID: 1486949853}
   m_Layer: 0
   m_Name: Cave Rooms
   m_TagString: Untagged
@@ -819,20 +818,6 @@ MonoBehaviour:
     decorTallFloor: []
     decorAnywhere: []
   lastBiome: 0
---- !u!114 &1486949853
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1486949848}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cbf78b6a8c1a04cb3922cf59218d6ff1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timePaused: 0
-  timePausedFor: 0
 --- !u!1001 &2130909689
 PrefabInstance:
   m_ObjectHideFlags: 0
