@@ -393,7 +393,7 @@ MonoBehaviour:
   rubblePrefab: {fileID: 2707940571529467398, guid: af733a8849d58473988d5a5921fdf3f3,
     type: 3}
   interiaOfEtherCurrent: 24
-  modRate: 0.833333
+  modRate: 0.8333333
   modRateYFactor: 4
   addOrbEvery: 1
   maxAddOrbSteps: 4

@@ -52,7 +52,7 @@ public class FlexibleInputDisplay {
 #endif 
 
         SetInteractionMessage(interactNotice1, interact1, "x");
-        SetInteractionMessage(interactNotice2, interact2, "z");
+        SetInteractionMessage(interactNotice2, interact2, "c");
     }
 
     void SetInteractionMessage(GameObject interactNotice, string message, string desktopKey) {

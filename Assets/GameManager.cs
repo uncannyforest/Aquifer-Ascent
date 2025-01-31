@@ -60,7 +60,7 @@ public class GameManager : MonoBehaviour {
     }
 
     void Update() {
-        if (Input.GetKeyDown(KeyCode.Escape)) {
+        if (SimpleInput.GetButtonDown("Cancel")) {
             switch (mode) {
                 case Mode.PLAYING: Pause(); break;
                 case Mode.PAUSED: Unpause(); break;
