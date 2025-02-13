@@ -37,9 +37,9 @@ public class IsoCamMovement : MonoBehaviour {
     }
 
     private void HandleRotationMovement() {
-        float x = SimpleInput.GetAxisRaw("Mouse X");
-        float y = SimpleInput.GetAxisRaw("Mouse Y");
-        overhead ^= SimpleInput.GetButtonDown("Reset Camera");
+        float x = -SimpleInput.GetAxisRaw("Horizontal");
+        float y = -SimpleInput.GetAxisRaw("Mouse X");
+        overhead ^= SimpleInput.GetButtonDown("Jump");
 
         Vector3 transformEulers = transform.localRotation.eulerAngles;
         float lookAngle = transformEulers.y;

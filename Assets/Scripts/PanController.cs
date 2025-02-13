@@ -1,7 +1,6 @@
 using UnityEngine;
 
 public class PanController : MonoBehaviour {
-    public bool XY = true;
     public float speed = .25f;
     public Transform cameraTransform;
 
@@ -12,11 +11,12 @@ public class PanController : MonoBehaviour {
     }
 
     void Update() {
-        float h = SimpleInput.GetAxisRaw("Horizontal");
-        float v = SimpleInput.GetAxisRaw("Vertical");
+        float h = 0;//SimpleInput.GetAxisRaw("Horizontal");
+        float f = SimpleInput.GetAxisRaw("Vertical");
+        float v = SimpleInput.GetAxisRaw("Mouse Y");
 
-        Vector3 camForward = Vector3.Scale(cameraTransform.forward, new Vector3(1, 0, 1)).normalized;
-        transform.position += (v * (XY ? Vector3.up : camForward) + h * cameraTransform.right)
+        Vector3 camForward = Vector3.Scale(cameraTransform.forward + cameraTransform.up, new Vector3(1, 0, 1)).normalized;
+        transform.position += (v * Vector3.up + f * camForward + h * cameraTransform.right)
              * speed * Time.unscaledDeltaTime * camConfig.orthographicSize;
     }
 }
