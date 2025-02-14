@@ -26,6 +26,7 @@ public class RandomWalk : MonoBehaviour {
     public float cheatSlowdown = 3;
     public float upwardRate = .5f;
     public int modeSwitchRate = 20;
+    public int interestingMinRate = 6;
     public GameObject interestingPrefab;
     public LineRenderer interestingHint;
     
@@ -93,7 +94,7 @@ public class RandomWalk : MonoBehaviour {
             case 2:
                 return RandomWalkAlgorithmStairs.MoveHorizontally(position, exitDirection, modeSwitchRate, biasToFleeStartLocation, upwardRate).GetEnumerator();
             case 3:
-                return RandomWalkable.EnumerateSteps(position, exitDirection, modeSwitchRate, interiaOfEtherCurrent, biasToFleeStartLocation, upwardRate, modRateYFactor, path).GetEnumerator();
+                return RandomWalkable.EnumerateSteps(position, exitDirection, modeSwitchRate, interiaOfEtherCurrent, biasToFleeStartLocation, upwardRate, modRateYFactor, interestingMinRate, path).GetEnumerator();
             default: throw new IndexOutOfRangeException();
         }
     }
