@@ -647,20 +647,19 @@ public class RandomWalkable {
                 if (magnitude == 0 && !stalactite && stalagmite /*&& p.relStepSize > .5f*/)
                     interesting = mod.pos;
         }
-        if (stalactite && stalagmite) {
-            int threshhold = 0;
-            if (recentPillars.Count >= 2) {
-                GridPos firstPillar = recentPillars.First.Value;
-                GridPos secondPillar = recentPillars.First.Next.Value;
-                threshhold = (firstPillar - smallPos).Magnitude + (secondPillar - smallPos).Magnitude;
-                if (threshhold >= 6 && (secondPillar - smallPos).Horizontal.Magnitude < p.hScale + 2)
-                    interesting = firstPillar + secondPillar - smallPos;
-                recentPillars.RemoveFirst();
-            }
-            Debug.Log(threshhold == 0 ? "Recent pillars: " + recentPillars.Count
-                : "Recent pillars: 2 / threshhold: " + threshhold);
-            recentPillars.AddLast(largePos);
-        } else if (recentPillars.Count > 0) recentPillars.Clear();
+        int rpDistanceThreshhold = 0;
+        if (recentPillars.Count >= 2) {
+            GridPos firstPillar = recentPillars.First.Value;
+            GridPos secondPillar = recentPillars.First.Next.Value;
+            rpDistanceThreshhold = (firstPillar - smallPos).Magnitude + (secondPillar - smallPos).Magnitude;
+            if (rpDistanceThreshhold >= 6 && (secondPillar - smallPos).Horizontal.Magnitude < p.hScale + 2)
+                interesting = firstPillar + secondPillar - smallPos;
+            recentPillars.RemoveFirst();
+        }
+        if (recentPillars.Count > 0) Debug.Log(rpDistanceThreshhold == 0 ? "Recent pillars: " + recentPillars.Count
+            : "Recent pillars: 2 / threshhold: " + rpDistanceThreshhold);
+        if (stalactite && stalagmite) recentPillars.AddLast(largePos);
+        else if (recentPillars.Count > 0) recentPillars.Clear();
 
         return newCave;
     }
@@ -697,6 +696,7 @@ public class RandomWalkable {
             float modeSwitchFraction, bool linkModeStarted,
             Parameters p) {
         GridPos? interestingThatNeedsNoPath = interestingNeedsNoPath ? interesting : null;
+        bool skipFloorCheck = false;
 
         if (etherCurrentJustFlipped) { // override current interesting
             int wallsInRow = 0;
@@ -722,17 +722,30 @@ public class RandomWalkable {
                 int height= m==0? 1 :m==1? 1 :m==2? 1   :m==3? 2     :m==4? 2   :m==5? 5-sym-sym/2 :m==6? 5     : 5;
                 largePosMods.Add(CaveGrid.Mod.Cave(pos + rel + GridPos.up * floor, height));
             }
-        } else if (interesting == null && p.relStepSize < .5f && p.grade < 2) {
-            if (modeSwitchFraction == .5f) {
-                interesting = smallPos - GridPos.up * 4;
-                if (p.vDeltaMode < 1 || p.hScale <= 0 || p.vScale < 5) foreach (GridPos rel in GridPos.ListAllWithMagnitude(1)) {
-                    CaveGrid.Mod mod = CaveGrid.Mod.Cave(smallPos + rel - GridPos.up * 3, 3);
-                    largePosMods.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
-              }
+        } else if (interesting == null && p.relStepSize < .5f) {
+            if (modeSwitchFraction > 0 && modeSwitchFraction % .25f == 0) {
+                int delta = p.vScale + p.hScale <= 3 || (p.vDeltaMode == 1 && p.hScale < 2f) ? 1 : -1;
+                GridPos pos = smallPos + GridPos.up * 4 * delta;
+                skipFloorCheck = true;
+                if (delta > 0) while (CaveGrid.I.grid[pos - GridPos.up] || CaveGrid.I.grid[pos - GridPos.up * 2])
+                    pos += GridPos.up;
+                else while (CaveGrid.I.grid[pos - GridPos.up] || CaveGrid.I.grid[pos - GridPos.up * 2])
+                    pos -= GridPos.up;
+                if (p.vDeltaMode < 1 || p.hScale <= 0 || (p.vScale < 5 && p.grade < 2) || delta > 0) {
+                    GridPos[] adj = GridPos.ListAllWithMagnitude(1);
+                    int offset = delta < 0 ? 0 : Random.Range(0, 12);
+                    for (int i = 0; i < 6; i++) {
+                        int deltaFactor = delta < 0 ? 1 : offset < 6 ? 1 - (i + offset) % 6 : 1 - (offset - i) % 6;
+                        GridPos rel = adj[i];
+                        CaveGrid.Mod mod = CaveGrid.Mod.Cave(pos + rel + GridPos.up * deltaFactor, delta == 1 ? 2 : 3);
+                        largePosMods.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
+                    }
+                }
+                interesting = pos;
             }
         }
 
-        if (interesting is GridPos pos1 && (CaveGrid.I.grid[pos1 - GridPos.up] || CaveGrid.I.grid[pos1 - GridPos.up * 2]))
+        if (!skipFloorCheck && interesting is GridPos pos1 && (CaveGrid.I.grid[pos1 - GridPos.up] || CaveGrid.I.grid[pos1 - GridPos.up * 2]))
             { interesting = null; Debug.Log("Interesting failed floor check 1 @ " + pos1); }
         
         if (interesting == null) {
@@ -748,7 +761,7 @@ public class RandomWalkable {
                     }
                 }
             }
-            if (interesting is GridPos pos2 && (CaveGrid.I.grid[pos2 - GridPos.up] || CaveGrid.I.grid[pos2 - GridPos.up * 2]))
+            if (!skipFloorCheck && interesting is GridPos pos2 && (CaveGrid.I.grid[pos2 - GridPos.up] || CaveGrid.I.grid[pos2 - GridPos.up * 2]))
                 { interesting = null;  Debug.Log("Interesting failed floor check 2"); }
         }
 
