@@ -262,4 +262,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed9f2255d23394fd094350a0bb6322db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stopTimeDuration: 10
+  stopTimeDuration: 20

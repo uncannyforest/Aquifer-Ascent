@@ -1,109 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &269063537
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 269063538}
-  m_Layer: 0
-  m_Name: WaterTarget
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &269063538
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 269063537}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -12, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 317994074565316839}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &3768289526359141521
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 317994074565316839}
-    m_Modifications:
-    - target: {fileID: 5956162459010704432, guid: 079b9148c70524dc9b8fce762d7c769f,
-        type: 3}
-      propertyPath: ignoreNephews
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5956162459010704433, guid: 079b9148c70524dc9b8fce762d7c769f,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5956162459010704433, guid: 079b9148c70524dc9b8fce762d7c769f,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5956162459010704433, guid: 079b9148c70524dc9b8fce762d7c769f,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5956162459010704433, guid: 079b9148c70524dc9b8fce762d7c769f,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5956162459010704433, guid: 079b9148c70524dc9b8fce762d7c769f,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5956162459010704433, guid: 079b9148c70524dc9b8fce762d7c769f,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5956162459010704433, guid: 079b9148c70524dc9b8fce762d7c769f,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5956162459010704433, guid: 079b9148c70524dc9b8fce762d7c769f,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5956162459010704433, guid: 079b9148c70524dc9b8fce762d7c769f,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5956162459010704433, guid: 079b9148c70524dc9b8fce762d7c769f,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5956162459010704433, guid: 079b9148c70524dc9b8fce762d7c769f,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5956162459010704434, guid: 079b9148c70524dc9b8fce762d7c769f,
-        type: 3}
-      propertyPath: m_Name
-      value: DarknessCheck
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 079b9148c70524dc9b8fce762d7c769f, type: 3}
 --- !u!1001 &8084353518578833100
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -154,12 +50,12 @@ PrefabInstance:
     - target: {fileID: 1391606364125869556, guid: 4ae26ce6421574e3e81927f064590c1a,
         type: 3}
       propertyPath: colorTransitions.Array.data[0].color.g
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1391606364125869556, guid: 4ae26ce6421574e3e81927f064590c1a,
         type: 3}
       propertyPath: colorTransitions.Array.data[0].color.r
-      value: 0.2509804
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2618809237233901022, guid: 4ae26ce6421574e3e81927f064590c1a,
         type: 3}
@@ -184,7 +80,7 @@ PrefabInstance:
     - target: {fileID: 6699643106902759722, guid: 4ae26ce6421574e3e81927f064590c1a,
         type: 3}
       propertyPath: m_Name
-      value: Guide Orb
+      value: Creature Orb
       objectReference: {fileID: 0}
     - target: {fileID: 7528386612173104096, guid: 4ae26ce6421574e3e81927f064590c1a,
         type: 3}
@@ -257,12 +153,6 @@ PrefabInstance:
 --- !u!1 &3226984548907044838 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6699643106902759722, guid: 4ae26ce6421574e3e81927f064590c1a,
-    type: 3}
-  m_PrefabInstance: {fileID: 8084353518578833100}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &317994074565316839 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8383689696831014443, guid: 4ae26ce6421574e3e81927f064590c1a,
     type: 3}
   m_PrefabInstance: {fileID: 8084353518578833100}
   m_PrefabAsset: {fileID: 0}
@@ -375,39 +265,3 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &-3564749235442120631
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3226984548907044838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 191dcef3a5be24bcc9c99c812525d5b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  orbPrefab: {fileID: 3679240929115695005, guid: e1dd604d2f0104044a25b59c584a297f,
-    type: 3}
-  orbParent: {fileID: 0}
-  rubblePrefab: {fileID: 2707940571529467398, guid: af733a8849d58473988d5a5921fdf3f3,
-    type: 3}
-  interiaOfEtherCurrent: 24
-  modRate: 0.8333333
-  modRateYFactor: 4
-  addOrbEvery: 1
-  maxAddOrbSteps: 4
-  orbChargeRampUp: 6
-  changeBiomeEvery: 108
-  rubbleRate: 0.041666668
-  biasToLeaveCenterOfGravity: 1
-  cheatSlowdown: 4
-  upwardRate: 0.6666667
-  modeSwitchRate: 72
-  interestingMinRate: 9
-  interestingPrefab: {fileID: 742398197097240004, guid: af688eb9d84404343934ec6680a51885,
-    type: 3}
-  interestingHint: {fileID: -3311404517020859098, guid: a438e7f72bab040cc8db18510ebf81c3,
-    type: 3}
-  creaturePrefab: {fileID: 3226984548907044838, guid: f21d0e7f96ff747c4a2d160e3b376198,
-    type: 3}

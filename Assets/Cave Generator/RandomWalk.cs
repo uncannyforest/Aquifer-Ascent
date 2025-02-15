@@ -29,6 +29,7 @@ public class RandomWalk : MonoBehaviour {
     public int interestingMinRate = 6;
     public GameObject interestingPrefab;
     public LineRenderer interestingHint;
+    public GameObject creaturePrefab;
     
     private Vector3 prevLoc = Vector3.zero;
     private Vector3 nextLoc = Vector3.zero;
@@ -186,12 +187,18 @@ public class RandomWalk : MonoBehaviour {
                 absoluteCountDown = maxAddOrbSteps * orbChargeRampUpStep / orbChargeRampUp;
             }
             lastPositionForMoreOrbs = transform.position;
-            if (step.interesting is GridPos interesting) {
+            if (step.item is Item item) {
+                GridPos interesting = item.pos;
                 Transform parent = CaveGrid.I.GetPosParent(interesting - GridPos.up);
                 if (parent != null) {
-                    GameObject.Instantiate(interestingPrefab,
-                        interesting.World + CaveGrid.Scale.y * Vector3.down,
-                        Quaternion.identity, parent);
+                    if (item.type == Item.Type.STOP_TIME)
+                        GameObject.Instantiate(interestingPrefab,
+                            interesting.World + CaveGrid.Scale.y * Vector3.down,
+                            Quaternion.identity, parent);
+                    else
+                        GameObject.Instantiate(creaturePrefab,
+                            interesting.World,
+                            Quaternion.identity);
                     LineRenderer hint = GameObject.Instantiate(interestingHint);
                     hint.SetPositions(new Vector3[] {
                         step.location,
@@ -245,7 +252,7 @@ public class RandomWalk : MonoBehaviour {
         public Func<int, int> biome;
         public float speed;
         public GridPos? onPath;
-        public GridPos? interesting;
+        public Item? item;
         public Vector3 etherCurrent;
         public BridgeMode bridgeMode; // for debug lines only
 
@@ -255,7 +262,7 @@ public class RandomWalk : MonoBehaviour {
             LAST
         }
 
-        public Output(Vector3 location, GridPos position, GridPos exitDirection, CaveGrid.Mod[] newCave, Func<int, int> biome, float speed, GridPos? onPath, GridPos? interesting, Vector3 etherCurrent, BridgeMode bridgeMode = BridgeMode.NONE) {
+        public Output(Vector3 location, GridPos position, GridPos exitDirection, CaveGrid.Mod[] newCave, Func<int, int> biome, float speed, GridPos? onPath, Item? item, Vector3 etherCurrent, BridgeMode bridgeMode = BridgeMode.NONE) {
             this.location = location;
             this.position = position;
             this.exitDirection = exitDirection;
@@ -263,9 +270,26 @@ public class RandomWalk : MonoBehaviour {
             this.biome = biome;
             this.speed = speed;
             this.onPath = onPath;
-            this.interesting = interesting;
+            this.item = item;
             this.etherCurrent = etherCurrent;
             this.bridgeMode = bridgeMode;
         }
+    }
+
+    public struct Item {
+        public GridPos pos;
+        public Type type;
+        public enum Type {
+            STOP_TIME,
+            CREATURE,
+        }
+
+        public Item(GridPos position, Type type) {
+            this.pos = position;
+            this.type = type;
+        }
+
+        public static Item StopTime(GridPos position) => new Item(position, Type.STOP_TIME);
+        public static Item Creature(GridPos position) => new Item(position, Type.CREATURE);
     }
 }
