@@ -730,10 +730,10 @@ public class RandomWalkable {
                 largePosMods.Add(CaveGrid.Mod.Cave(pos + rel + GridPos.up * floor, height));
             }
         } else if (interesting == null && (smallPos - lastCreature).Magnitude >= minRate * 2) {
-            GridPos pos = AddInterestingAtSmallPos(largePosMods, smallPos, path, false, ref skipFloorCheck, p);
+            GridPos pos = AddInterestingAtSmallPos(largePosMods, smallPos, path, true, ref skipFloorCheck, p);
             interesting = RandomWalk.Item.Creature(pos);
         } else if (interesting == null && (smallPos - lastTimestopper).Magnitude >= minRate * 3) {
-            GridPos pos = AddInterestingAtSmallPos(largePosMods, smallPos, path, true, ref skipFloorCheck, p);
+            GridPos pos = AddInterestingAtSmallPos(largePosMods, smallPos, path, false, ref skipFloorCheck, p);
             interesting = RandomWalk.Item.StopTime(pos);
         }
 
@@ -774,9 +774,10 @@ public class RandomWalkable {
         // int delta = p.vScale + p.hScale <= 3 || (p.vDeltaMode == 1 && p.hScale < 2f) ? 1 : -1;
         GridPos pos = smallPos + GridPos.up * 4 * (above ? 1 : -1);
         skipFloorCheck = true;
-        if (above) while (CaveGrid.I.grid[pos - GridPos.up] || CaveGrid.I.grid[pos - GridPos.up * 2])
-            pos += GridPos.up;
-        else while (CaveGrid.I.grid[pos - GridPos.up] || CaveGrid.I.grid[pos - GridPos.up * 2])
+        if (above) {
+            if (CaveGrid.I.grid[pos - GridPos.up] || CaveGrid.I.grid[pos - GridPos.up * 2])
+                largePosMods.Add(CaveGrid.Mod.Wall(pos - GridPos.up * 2));
+        } else while (CaveGrid.I.grid[pos - GridPos.up] || CaveGrid.I.grid[pos - GridPos.up * 2])
             pos -= GridPos.up;
         if (p.vDeltaMode < 1 || p.hScale <= 0 || (p.vScale < 5 && p.grade < 2) || above) {
             GridPos[] adj = GridPos.ListAllWithMagnitude(1);
@@ -786,6 +787,7 @@ public class RandomWalkable {
                 GridPos rel = adj[i];
                 CaveGrid.Mod mod = CaveGrid.Mod.Cave(pos + rel + GridPos.up * deltaFactor, above ? 2 : 3);
                 largePosMods.AddRange(RemoveShelfOverlaps(path, smallPos, mod));
+                if (above) largePosMods.Add(CaveGrid.Mod.Wall(pos + rel + GridPos.up * (deltaFactor - 2)));
             }
         }
         return pos;

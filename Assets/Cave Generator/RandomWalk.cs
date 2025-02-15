@@ -189,22 +189,21 @@ public class RandomWalk : MonoBehaviour {
             lastPositionForMoreOrbs = transform.position;
             if (step.item is Item item) {
                 GridPos interesting = item.pos;
-                Transform parent = CaveGrid.I.GetPosParent(interesting - GridPos.up);
-                if (parent != null) {
-                    if (item.type == Item.Type.STOP_TIME)
+                if (item.type == Item.Type.STOP_TIME) {
+                    Transform parent = CaveGrid.I.GetPosParent(interesting - GridPos.up);
+                    if (parent != null && !CaveGrid.I.grid[interesting - GridPos.up])
                         GameObject.Instantiate(interestingPrefab,
                             interesting.World + CaveGrid.Scale.y * Vector3.down,
                             Quaternion.identity, parent);
-                    else
-                        GameObject.Instantiate(creaturePrefab,
-                            interesting.World,
-                            Quaternion.identity);
-                    LineRenderer hint = GameObject.Instantiate(interestingHint);
-                    hint.SetPositions(new Vector3[] {
-                        step.location,
-                        interesting.World + CaveGrid.Scale.y * Vector3.down
-                    });
-                }
+                } else
+                    GameObject.Instantiate(creaturePrefab,
+                        interesting.World,
+                        Quaternion.identity);
+                LineRenderer hint = GameObject.Instantiate(interestingHint);
+                hint.SetPositions(new Vector3[] {
+                    step.location,
+                    interesting.World + CaveGrid.Scale.y * Vector3.down
+                });
             }
             if (step.etherCurrent.y > .5f) {
                 Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta, 600);
@@ -218,6 +217,10 @@ public class RandomWalk : MonoBehaviour {
             else yield return new WaitForSeconds(modRate * relSpeed);
         }
     }
+
+    // public IEnumerator InstantiateFire(GridPos interesting) {
+        // yield return new WaitForSeconds(1.75f); // more than undust duration, less than hint duration
+    // }
 
     public static void DebugDrawLine(GridPos from, GridPos to, Color color, float duration = 600) => instance.DrawLine(from, to, color, duration);
     private void DrawLine(GridPos from, GridPos to, Color color, float duration) {
