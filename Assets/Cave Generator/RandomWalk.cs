@@ -195,15 +195,15 @@ public class RandomWalk : MonoBehaviour {
                         GameObject.Instantiate(interestingPrefab,
                             interesting.World + CaveGrid.Scale.y * Vector3.down,
                             Quaternion.identity, parent);
+                    LineRenderer hint = GameObject.Instantiate(interestingHint);
+                    hint.SetPositions(new Vector3[] {
+                        step.location,
+                        interesting.World + CaveGrid.Scale.y * Vector3.down
+                    });
                 } else
                     GameObject.Instantiate(creaturePrefab,
                         interesting.World,
                         Quaternion.identity);
-                LineRenderer hint = GameObject.Instantiate(interestingHint);
-                hint.SetPositions(new Vector3[] {
-                    step.location,
-                    interesting.World + CaveGrid.Scale.y * Vector3.down
-                });
             }
             if (step.etherCurrent.y > .5f) {
                 Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta, 600);
