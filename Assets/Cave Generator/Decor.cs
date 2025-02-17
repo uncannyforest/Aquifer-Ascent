@@ -32,7 +32,7 @@ public class Decor : MonoBehaviour {
                         && CaveGrid.I.grid[corners[chosenPosition] + 3 * GridPos.up]
                         && CaveGrid.I.grid[corners[chosenPosition] + 4 * GridPos.up]) {
                     Vector3 scale = newDeadTree.transform.localScale;
-                    scale.y = 1.875f; // this level of precision may not be necessary
+                    scale.y = 2f;
                     scale.x = 1.5f;
                     scale.z = 1.5f;
                     newDeadTree.GetComponentStrict<Bridge>().holdAngle = 90;
