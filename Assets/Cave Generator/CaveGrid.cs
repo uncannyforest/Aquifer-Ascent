@@ -97,6 +97,14 @@ public class CaveGrid : MonoBehaviour {
     }
 
     public void SetPos(Mod mod) {
+        if (mod.open) SetPosNoDelay(mod);
+        else {
+            MakeDust(mod.pos, 0, mod.roof, false);
+            this.Invoke(() => SetPosNoDelay(mod), undustPrefab.main.duration);
+        }
+    }
+
+    private void SetPosNoDelay(Mod mod) {
         GridPos pos = mod.pos;
         int roof = mod.roof;
         bool value = mod.open;
@@ -109,13 +117,8 @@ public class CaveGrid : MonoBehaviour {
         if (grid[pos - GridPos.up] != value && grid[pos - 2 * GridPos.up] == value)
             relMinUpdated--;
 
-        if (value) {
-            ForceSetPos(pos, relMinUpdated, relMaxUpdated, true);
-            MakeDust(pos, relMinUpdated, relMaxUpdated, true);
-        } else {
-            MakeDust(pos, relMinUpdated, relMaxUpdated, false);
-            this.Invoke(() => ForceSetPos(pos, relMinUpdated, relMaxUpdated, false), undustPrefab.main.duration);
-        }
+        ForceSetPos(pos, relMinUpdated, relMaxUpdated, value);
+        if (value) MakeDust(pos, relMinUpdated, relMaxUpdated, true);
     }
 
     private void ForceSetPos(GridPos pos, int relMinUpdated, int relMaxUpdated, bool value) {
