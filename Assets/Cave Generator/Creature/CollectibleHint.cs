@@ -4,25 +4,25 @@ using UnityEngine;
 
 public class CollectibleHint : MonoBehaviour {
     public LineRenderer hint;
-    public Collectible c;
+    public GameObject target;
 
-    public void Add(Collectible c) {
-        this.c = c;
+    public void Add(GameObject c) {
+        target = c;
         hint.enabled = true;
     }
 
-    public void Remove(Collectible c) {
-        if (this.c == c) {
+    public void Remove(GameObject c) {
+        if (target == c) {
             c = null;
             hint.enabled = false;
         }
     }
 
     void Update() {
-        if (c != null) {
+        if (target != null) {
             hint.SetPositions(new Vector3[] {
                 Vector3.zero,
-                transform.InverseTransformPoint(c.transform.position)
+                transform.InverseTransformPoint(target.transform.position)
             });
         }
     }

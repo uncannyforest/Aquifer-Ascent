@@ -1,14 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class Collectible : MonoBehaviour {
+    [NonSerialized] public Beacon beacon;
+
     void Start() {
-        FindObjectOfType<CollectibleHint>().Add(this);
+        FindObjectOfType<CollectibleHint>().Add(gameObject);
     }
 
     public void Collect() {
-        FindObjectOfType<CollectibleHint>().Remove(this);
+        FindObjectOfType<CollectibleHint>().Remove(gameObject);
+        beacon.Collect();
         Destroy(gameObject);
     }
 }

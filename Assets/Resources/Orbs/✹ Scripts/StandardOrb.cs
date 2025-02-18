@@ -56,7 +56,7 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
         halo = gameObject.transform.Find("Halo").GetComponent<Light>();
         holdable = gameObject.GetComponent<Holdable>();
         UpdateOrbState();
-        SetOrbColor(GetColorFromCharge());
+        UpdateColor();
         if (!state.isActive) holdable.CanHold("active-orb", false);
         IsActive = state.isActive;
         childParticleSystem = gameObject.transform.GetComponentInChildren<ParticleSystem>();
@@ -153,6 +153,8 @@ public class StandardOrb : MonoBehaviour, State.Stateful {
     public void MultiplyOrbIntensity(float intensity) {
         SetOrbIntensity(spawnState * intensity);
     }
+
+    public void UpdateColor() => SetOrbColor(GetColorFromCharge());
 
     public void SetOrbColor(Color color) {
         halo.color = color;
