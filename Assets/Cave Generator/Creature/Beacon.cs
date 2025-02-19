@@ -21,7 +21,7 @@ public class Beacon : MonoBehaviour {
     }
 
     private void PlaceCollectible() {
-        collectible = Instantiate(prefab, transform.position, Quaternion.identity);
+        collectible = Instantiate(prefab, transform.position + CaveGrid.Scale.y * Vector3.down, Quaternion.identity);
         collectible.beacon = this;
     }
 }
