@@ -49,6 +49,7 @@ public class RandomWalk : MonoBehaviour {
         darkness = GetComponentInChildren<InDarkness>();
         GameObject cheatButtonGo = GameObject.Find("Cheat");
         if (cheatButtonGo != null) cheatButton = cheatButtonGo.GetComponent<Image>();
+        FindObjectOfType<BeaconPanController>(true).ResetWithLast(transform);
     }
 
     public void Start() {

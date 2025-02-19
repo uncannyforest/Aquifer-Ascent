@@ -11,6 +11,7 @@ public class Beacon : MonoBehaviour {
 
     void Start() {
         FindObjectOfType<CollectibleHint>().Add(gameObject);
+        FindObjectOfType<BeaconPanController>(true).Add(transform);
         this.Invoke(PlaceCollectible, delay);
     }
 

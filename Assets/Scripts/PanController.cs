@@ -11,9 +11,9 @@ public class PanController : MonoBehaviour {
     }
 
     void Update() {
-        float h = 0;//SimpleInput.GetAxisRaw("Horizontal");
+        float h = SimpleInput.GetAxisRaw("Horizontal");
         float f = SimpleInput.GetAxisRaw("Vertical");
-        float v = SimpleInput.GetAxisRaw("Mouse Y");
+        float v = 0;
 
         Vector3 camForward = Vector3.Scale(cameraTransform.forward + cameraTransform.up, new Vector3(1, 0, 1)).normalized;
         transform.position += (v * Vector3.up + f * camForward + h * cameraTransform.right)
