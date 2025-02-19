@@ -176,14 +176,7 @@ public class RandomWalk : MonoBehaviour {
             else count = 0;
             absoluteCountDown--;
             if (count >= addOrbEvery || absoluteCountDown <= 0) {
-                if (absoluteCountDown >= maxAddOrbSteps) Debug.Log("MAX ADD ORB STEPS TRIGGERED");
-                StandardOrb orb = GameObject.Instantiate(orbPrefab, lastPositionForMoreOrbs, Quaternion.identity, orbParent);
-                if (orbChargeRampUpStep < orbChargeRampUp) {
-                    orb.chargeTime *= ((float)orbChargeRampUpStep / orbChargeRampUp);
-                    orbChargeRampUpStep++;
-                }
-                if (GameObject.FindObjectOfType<RisingWater>() != null) GameObject.FindObjectOfType<RisingWater>().AddOrb(orb);
-                if (cheat) orb.chargeTime *= cheatSlowdown;
+                AddOrb(lastPositionForMoreOrbs);
                 absoluteCountDown = maxAddOrbSteps * orbChargeRampUpStep / orbChargeRampUp;
             }
             lastPositionForMoreOrbs = transform.position;
@@ -200,10 +193,12 @@ public class RandomWalk : MonoBehaviour {
                         step.location,
                         interesting.World + CaveGrid.Scale.y * Vector3.down
                     });
-                } else
+                } else {
                     GameObject.Instantiate(creaturePrefab,
                         interesting.World,
                         Quaternion.identity);
+                    AddOrb(interesting.World);
+                }
             }
             if (step.etherCurrent.y > .5f) {
                 Debug.DrawLine(transform.position, transform.position + etherCurrent, Color.magenta, 600);
@@ -218,9 +213,15 @@ public class RandomWalk : MonoBehaviour {
         }
     }
 
-    // public IEnumerator InstantiateFire(GridPos interesting) {
-        // yield return new WaitForSeconds(1.75f); // more than undust duration, less than hint duration
-    // }
+    public void AddOrb(Vector3 lastPositionForMoreOrbs) {
+        StandardOrb orb = GameObject.Instantiate(orbPrefab, lastPositionForMoreOrbs, Quaternion.identity, orbParent);
+        if (orbChargeRampUpStep < orbChargeRampUp) {
+            orb.chargeTime *= ((float)orbChargeRampUpStep / orbChargeRampUp);
+            orbChargeRampUpStep++;
+        }
+        if (GameObject.FindObjectOfType<RisingWater>() != null) GameObject.FindObjectOfType<RisingWater>().AddOrb(orb);
+        if (cheat) orb.chargeTime *= cheatSlowdown;
+    }
 
     public static void DebugDrawLine(GridPos from, GridPos to, Color color, float duration = 600) => instance.DrawLine(from, to, color, duration);
     private void DrawLine(GridPos from, GridPos to, Color color, float duration) {
