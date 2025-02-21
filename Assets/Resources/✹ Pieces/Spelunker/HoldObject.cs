@@ -21,7 +21,7 @@ public class HoldObject : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start() {
+    void Awake() {
         inputDisplay = new FlexibleInputDisplay(this);
         environmentInteractor = new EnvironmentInteractor(this, playerHoldTransform);
         holdAnimationControl = new HoldAnimationControl(this, playerHoldTransform);

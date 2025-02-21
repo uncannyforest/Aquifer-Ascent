@@ -119,7 +119,8 @@ public class Holdable : MonoBehaviour
     public void Hold() {
         IsHeld = true;
         if (pickUpSound != null) objectAudio.PlayOneShot(pickUpSound);
-        GetComponent<Rigidbody>().isKinematic = true;
+        Rigidbody rigidbody = GetComponent<Rigidbody>();
+        if (rigidbody != null) rigidbody.isKinematic = true;
         oldPosition = this.transform.position;
         this.transform.rotation = playerHoldTransform.rotation;
         holder.OnHoldObject(gameObject);

@@ -7,6 +7,7 @@ public class FlexibleInputDisplay {
     private HoldObject script;
     private string holdMessage;
     private string message2;
+    public bool message2OverrideBlocked;
 
     public FlexibleInputDisplay(HoldObject script) {
         this.script = script;
@@ -27,9 +28,10 @@ public class FlexibleInputDisplay {
 
     public void UpdateForHeldObject(GameObject heldObject) {
         string interact2 = heldObject.GetComponent<Holdable>().optionalAction;
+        if (interact2 != null)
 
         holdMessage = "release";
-        SetInteractionMessages(holdMessage, message2 ?? interact2);
+        SetInteractionMessages(holdMessage, interact2 ?? message2);
     }
 
     public void OverrideMessage2(string message2) {
@@ -38,6 +40,7 @@ public class FlexibleInputDisplay {
     }
 
     void SetInteractionMessages(string interact1, string interact2) {
+        message2OverrideBlocked = interact2 != message2;
 
 #if (UNITY_IOS || UNITY_ANDROID)
         GameObject interactNotice1 = GameObject.Find("Mobile")

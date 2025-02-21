@@ -407,6 +407,8 @@ MonoBehaviour:
   interestingMinRate: 15
   interestingPrefab: {fileID: 742398197097240004, guid: af688eb9d84404343934ec6680a51885,
     type: 3}
+  drillPrefab: {fileID: 8265660956636943634, guid: be46b4ae7833d4f5fb0d5c9786294407,
+    type: 3}
   interestingHint: {fileID: -3311404517020859098, guid: a438e7f72bab040cc8db18510ebf81c3,
     type: 3}
   creaturePrefab: {fileID: 3226984548907044838, guid: f21d0e7f96ff747c4a2d160e3b376198,

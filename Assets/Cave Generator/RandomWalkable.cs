@@ -230,7 +230,7 @@ public class RandomWalkable {
         bool startLinkMode = false;
         LinkedList<GridPos> recentPillars = new LinkedList<GridPos>();
         GridPos lastCreature = GridPos.zero;
-        GridPos lastTimestopper = GridPos.zero;
+        GridPos lastPowerup = GridPos.zero;
 
         int modeSwitchCountdown = modeSwitchRate - 2;
 
@@ -255,7 +255,7 @@ public class RandomWalkable {
             Debug.Log(interpolateDebug + ", step " + modeSwitchCountdown + ", ether current " + etherCurrent.HComponents.Max() / inertiaOfEtherCurrent + ", bias " + bias.Max() + ", rel v " + (smallPos - largePos).w + " jump " + canJump);
 
             List<CaveGrid.Mod> newCave = largeWait ? new List<CaveGrid.Mod>() : LargePosMods(largePos, smallPos, path, recentPillars, ref interesting, p);
-            FinalizeInteresting(ref interesting, ref lastCreature, ref lastTimestopper, interestingMinRate, interesting != null && recentPillars.Count >= 2, newCave, largePos, smallPos, path, etherCurrent, justFlipped, startLinkMode, p);
+            FinalizeInteresting(ref interesting, ref lastCreature, ref lastPowerup, interestingMinRate, interesting != null && recentPillars.Count >= 2, newCave, largePos, smallPos, path, etherCurrent, justFlipped, startLinkMode, p);
             newCave.Add(CaveGrid.Mod.Cave(smallPos, p.hScale > 0 || neededWalkableAdjustment != null ? 1 : p.vScale - 1));
             newCave.Add(CaveGrid.Mod.Wall(smallPos - GridPos.up * 2));
             float stepTime = GetStepTime(smallPos, stepTimeQueue, etherCurrent.HComponents.Max() / inertiaOfEtherCurrent, modRateYFactor, p);
@@ -692,7 +692,7 @@ public class RandomWalkable {
         return true;
     }
 
-    private static void FinalizeInteresting(ref RandomWalk.Item? interesting, ref GridPos lastCreature, ref GridPos lastTimestopper, int minRate,
+    private static void FinalizeInteresting(ref RandomWalk.Item? interesting, ref GridPos lastCreature, ref GridPos lastPowerup, int minRate,
             bool interestingNeedsNoPath,
             List<CaveGrid.Mod> largePosMods, GridPos largePos, GridPos smallPos, Grid<bool> path,
             GridPos etherCurrent, bool etherCurrentJustFlipped,
@@ -735,7 +735,7 @@ public class RandomWalkable {
         } else if (interesting == null && (smallPos - lastCreature).Magnitude >= minRate * 2) {
             GridPos pos = AddInterestingAtSmallPos(largePosMods, smallPos, path, true, ref skipFloorCheck, p);
             interesting = RandomWalk.Item.Creature(pos);
-        } else if (interesting == null && (smallPos - lastTimestopper).Magnitude >= minRate * 3) {
+        } else if (interesting == null && (smallPos - lastPowerup).Magnitude >= minRate * 3) {
             GridPos pos = AddInterestingAtSmallPos(largePosMods, smallPos, path, false, ref skipFloorCheck, p);
             interesting = RandomWalk.Item.StopTime(pos);
         }
@@ -768,7 +768,14 @@ public class RandomWalkable {
             }
 
             if (i3.type == RandomWalk.Item.Type.CREATURE) lastCreature = i3.pos;
-            else lastTimestopper = i3.pos;
+            else {
+                lastPowerup = i3.pos;
+                if ((smallPos - i3.pos).Magnitude >= 6)
+                    i3.type = RandomWalk.Item.Type.DRILL;
+                else
+                    i3.type = RandomWalk.Item.Type.STOP_TIME;
+                interesting = i3;
+            }
         }
     }
 

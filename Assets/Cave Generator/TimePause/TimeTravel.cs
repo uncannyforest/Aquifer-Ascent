@@ -16,10 +16,13 @@ public class TimeTravel : MonoBehaviour {
     public float timePausedFor = 10;
     public bool ready;
     public float readyFor;
+   
+    private FlexibleInputDisplay inputDisplay;
 
     private Scarf scarf;
     void Start() {
         scarf = FindObjectOfType<Scarf>();
+        inputDisplay = GetComponent<HoldObject>().inputDisplay;
     }
 
     public void TrySetReady(float duration) {
@@ -31,14 +34,14 @@ public class TimeTravel : MonoBehaviour {
     }
 
     private void SetReady() {
-        FindObjectOfType<HoldObject>().inputDisplay.OverrideMessage2("stop time");
+        inputDisplay.OverrideMessage2("stop time");
     }
 
     void Update() {
-        if (ready && !timePaused && SimpleInput.GetButtonDown("Interact2")) Use();
+        if (ready && !timePaused && !inputDisplay.message2OverrideBlocked && SimpleInput.GetButtonDown("Interact2")) Use();
     }
     public void Use() {
-        FindObjectOfType<HoldObject>().inputDisplay.OverrideMessage2(null);
+        inputDisplay.OverrideMessage2(null);
         ready = false;
         timePaused = true;
         timePausedFor = readyFor;

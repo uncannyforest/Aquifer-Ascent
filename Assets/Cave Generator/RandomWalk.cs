@@ -28,6 +28,7 @@ public class RandomWalk : MonoBehaviour {
     public int modeSwitchRate = 20;
     public int interestingMinRate = 6;
     public GameObject interestingPrefab;
+    public GameObject drillPrefab;
     public LineRenderer interestingHint;
     public GameObject creaturePrefab;
     
@@ -183,7 +184,13 @@ public class RandomWalk : MonoBehaviour {
             lastPositionForMoreOrbs = transform.position;
             if (step.item is Item item) {
                 GridPos interesting = item.pos;
-                if (item.type == Item.Type.STOP_TIME) {
+                if (item.type == Item.Type.CREATURE) {
+                    GameObject.Instantiate(creaturePrefab,
+                        interesting.World + CaveGrid.Scale.y / 2 * Vector3.up,
+                        Quaternion.identity);
+                    AddOrb(interesting.World + CaveGrid.Scale.y / 2 * Vector3.up);
+                }
+                if (item.type == Item.Type.STOP_TIME || item.type == Item.Type.DRILL) {
                     Transform parent = CaveGrid.I.GetPosParent(interesting - GridPos.up);
                     if (parent != null && !CaveGrid.I.grid[interesting - GridPos.up])
                         GameObject.Instantiate(interestingPrefab,
@@ -194,11 +201,13 @@ public class RandomWalk : MonoBehaviour {
                         step.location,
                         interesting.World + CaveGrid.Scale.y * Vector3.down
                     });
-                } else {
-                    GameObject.Instantiate(creaturePrefab,
-                        interesting.World,
-                        Quaternion.identity);
-                    AddOrb(interesting.World);
+                }
+                if (item.type == Item.Type.DRILL) {
+                    GameObject.Instantiate(drillPrefab,
+                    interesting.World + CaveGrid.Scale.y * Vector3.up,
+                    Quaternion.identity);
+                    LineRenderer hint = GameObject.Instantiate(interestingHint);
+                    hint.SetPositions(new Vector3[] { step.location, interesting.World });
                 }
             }
             if (step.etherCurrent.y > .5f) {
@@ -285,8 +294,9 @@ public class RandomWalk : MonoBehaviour {
         public GridPos pos;
         public Type type;
         public enum Type {
-            STOP_TIME,
             CREATURE,
+            STOP_TIME,
+            DRILL,
         }
 
         public Item(GridPos position, Type type) {
