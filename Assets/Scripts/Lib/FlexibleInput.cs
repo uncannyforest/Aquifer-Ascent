@@ -28,10 +28,9 @@ public class FlexibleInputDisplay {
 
     public void UpdateForHeldObject(GameObject heldObject) {
         string interact2 = heldObject.GetComponent<Holdable>().optionalAction;
-        if (interact2 != null)
 
         holdMessage = "release";
-        SetInteractionMessages(holdMessage, interact2 ?? message2);
+        SetInteractionMessages(holdMessage, string.IsNullOrEmpty(interact2) ? message2 : interact2);
     }
 
     public void OverrideMessage2(string message2) {

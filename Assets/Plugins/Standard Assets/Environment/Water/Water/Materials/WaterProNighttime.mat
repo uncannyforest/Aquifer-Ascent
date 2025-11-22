@@ -40,7 +40,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ReflectiveColor:
-        m_Texture: {fileID: 2800000, guid: b725b62cfc9d04e4886735ab2a8107d1, type: 3}
+        m_Texture: {fileID: 2800000, guid: 274e97fda092b4da2aa62a08aa484c09, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ReflectiveColorCube:
@@ -63,7 +63,7 @@ Material:
     - _Shininess: 200
     - _WaveScale: 0.02
     m_Colors:
-    - WaveSpeed: {r: 90, g: 45, b: -8, a: -3.5}
+    - WaveSpeed: {r: 90, g: 45, b: -80, a: 35}
     - _AnimationDirection: {r: 1, g: 1, b: 1, a: 1}
     - _AnimationTiling: {r: 2.2, g: 2.2, b: -1.1, a: -1.1}
     - _BaseColor: {r: 0.53999996, g: 0.95, b: 0.98999995, a: 0.5}
